@@ -31,6 +31,7 @@ clutter-1.0, clutter-gtk-1.0, mx-1.0
 * Write terminal application with vte widget.
 * Write browser application with webkit widget.
 * Write IRC application for hacking team communication.
+* Write english completion plugins to make my figure faster. 
 * Write movie player for life.
 * Write music player for life.
 * Write wifi-share for hacking at TV. ;)
