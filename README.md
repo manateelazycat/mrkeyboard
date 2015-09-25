@@ -30,6 +30,7 @@ clutter-1.0, clutter-gtk-1.0, mx-1.0
 * Implement package manager and smart notify bar.
 * Write terminal application with vte widget.
 * Write browser application with webkit widget.
+* Write vimium plugins for browser application.
 * Write IRC application for hacking team communication.
 * Write english completion plugins to make my figure faster. 
 * Write movie player for life.
