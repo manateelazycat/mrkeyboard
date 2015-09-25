@@ -12,9 +12,7 @@ This is OS for top hacker, enjoy it. ;)
 
 ## Dependencies
 
-clutter-1.0
-clutter-gtk-1.0
-mx-1.0
+clutter-1.0, clutter-gtk-1.0, mx-1.0
 
 ## Usage
 
@@ -41,10 +39,11 @@ mx-1.0
 * Write image viewer to see my girl. ;)
 * Write process manager to control process.
 * Write basic editor, such as language highlight, code completion.
-* Write hackable that powerful as emacs, then we can reach editor-strap, use mr-keyboard write itself.
+* Write hackable editor that powerful as emacs, then we can reach editor-strap. 
 
 ## Getting involved
 
 This project just start, any idea and suggestion are welcome.
+
 You can contact me with lazycat.manatee@gmail.com 
 
