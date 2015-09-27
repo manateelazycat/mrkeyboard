@@ -20,7 +20,6 @@ clutter-1.0, clutter-gtk-1.0, mx-1.0
 
 ## TODO
 
-* Create custom titlebar and make it movable by mouse.
 * Adjust style of clutter and mx widget.
 * Design buffer/view framework like Emacs.
 * Build message channel between main process and plugins process.
