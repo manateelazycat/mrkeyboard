@@ -68,18 +68,27 @@ int main(int argc, char *argv[]) {
     clutter_actor_set_background_color(CLUTTER_ACTOR(stage), &stage_color);
     clutter_actor_show(stage);
     
+    ClutterConstraint *stage_width_constraint;
+    stage_width_constraint = clutter_bind_constraint_new(CLUTTER_ACTOR(stage), CLUTTER_BIND_WIDTH, 0);
+    
     /* Init actor */
+    gint top_box_height = 40;
     ClutterActor *top_box = mx_box_layout_new();
     mx_box_layout_set_orientation(MX_BOX_LAYOUT(top_box), MX_ORIENTATION_HORIZONTAL);
     clutter_actor_set_position(top_box, 0, 0);
-    clutter_actor_set_size(top_box, 800, 40);
     clutter_actor_add_child(CLUTTER_ACTOR(stage), top_box);
+    clutter_actor_set_height(top_box, top_box_height);
     clutter_actor_show(top_box);
-        
+    clutter_actor_add_constraint(CLUTTER_ACTOR(top_box), stage_width_constraint);
+
+    gint name_text_width = 150;
     ClutterColor name_color = {80, 80, 80, 255};
     ClutterActor *name_text = clutter_text_new_full("Mono 12", "Mr. keyboard", &name_color);
     mx_box_layout_add_actor(MX_BOX_LAYOUT(top_box), CLUTTER_ACTOR(name_text), -1);
-	clutter_container_child_set(CLUTTER_CONTAINER(top_box),
+    clutter_actor_set_margin_left(CLUTTER_ACTOR(name_text), 10);
+	clutter_actor_set_width(CLUTTER_ACTOR(name_text), name_text_width);
+    clutter_actor_set_reactive(name_text, TRUE);
+    clutter_container_child_set(CLUTTER_CONTAINER(top_box),
                                 name_text,
                                 "expand", FALSE,
                                 "x-fill", FALSE,
@@ -87,7 +96,6 @@ int main(int argc, char *argv[]) {
                                 "y-align", MX_ALIGN_MIDDLE,
                                 "x-align", MX_ALIGN_START,
                                 NULL);    
-    clutter_actor_set_reactive(name_text, TRUE);
     g_signal_connect(name_text, "button-press-event", G_CALLBACK(move_window), window);
     
     ClutterActor *search_entry = mx_entry_new();
@@ -102,11 +110,12 @@ int main(int argc, char *argv[]) {
                                 "x-align", MX_ALIGN_MIDDLE,
                                 NULL);    
     
+    gint status_text_width = 150;
     ClutterColor status_color = {80, 80, 80, 255};
     ClutterActor *status_text = clutter_text_new_full("Mono 12", "", &status_color);
     mx_box_layout_add_actor(MX_BOX_LAYOUT(top_box), CLUTTER_ACTOR(status_text), -1);
-    clutter_actor_set_size(status_text, 100, 40);
     clutter_actor_set_reactive(status_text, TRUE);
+	clutter_actor_set_width(CLUTTER_ACTOR(status_text), status_text_width);
     g_signal_connect(status_text, "button-press-event", G_CALLBACK(move_window), window);
     
     ClutterActor *window_button_box = mx_box_layout_new();
@@ -132,7 +141,7 @@ int main(int argc, char *argv[]) {
 
     ClutterActor *window_texture = clutter_x11_texture_pixmap_new_with_window(0x540002b);
     clutter_x11_texture_pixmap_set_automatic(CLUTTER_X11_TEXTURE_PIXMAP(window_texture), TRUE);
-    clutter_actor_set_position(window_texture, 0, 40);
+    clutter_actor_set_position(window_texture, 0, top_box_height);
     clutter_actor_add_child(CLUTTER_ACTOR(stage), window_texture);
     clutter_actor_show(window_texture);
     
