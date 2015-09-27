@@ -4,7 +4,13 @@
 #include <mx/mx.h>
 #include <gtk/gtk.h>
 #include <stdlib.h>
+
 #include "window.h"
+#include "widgets.h"
+
+void quit(ClutterActor *actor, ClutterEvent *event) {
+    gtk_main_quit();
+}
 
 int main(int argc, char *argv[]) {
     /* Init clutter */
@@ -96,14 +102,13 @@ int main(int argc, char *argv[]) {
                                 "x-align", MX_ALIGN_END,
                                 NULL);    
     
-    ClutterActor *min_button = mx_button_new_with_label("-");
-    mx_box_layout_add_actor(MX_BOX_LAYOUT(window_button_box), CLUTTER_ACTOR(min_button), -1);
-
-    ClutterActor *max_button = mx_button_new_with_label("+");
-    mx_box_layout_add_actor(MX_BOX_LAYOUT(window_button_box), CLUTTER_ACTOR(max_button), -1);
-
-    ClutterActor *close_button = mx_button_new_with_label("x");
-    mx_box_layout_add_actor(MX_BOX_LAYOUT(window_button_box), CLUTTER_ACTOR(close_button), -1);
+    ClutterActor *min_button = create_button("image/window_min_normal.png", "image/window_min_hover.png", "image/window_min_press.png");
+    mx_box_layout_add_actor(MX_BOX_LAYOUT(window_button_box), CLUTTER_ACTOR(min_button), 0);
+    g_signal_connect(min_button, "button-press-event", G_CALLBACK(min_window), window);
+    
+    ClutterActor *close_button = create_button("image/window_close_normal.png", "image/window_close_hover.png", "image/window_close_press.png");
+    mx_box_layout_add_actor(MX_BOX_LAYOUT(window_button_box), CLUTTER_ACTOR(close_button), 2);
+    g_signal_connect(close_button, "button-press-event", G_CALLBACK(quit), NULL);
 
     ClutterActor *window_texture = clutter_x11_texture_pixmap_new_with_window(0x540002b);
     clutter_x11_texture_pixmap_set_automatic(CLUTTER_X11_TEXTURE_PIXMAP(window_texture), TRUE);

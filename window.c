@@ -2,13 +2,23 @@
 #include <gtk/gtk.h>
 #include "utils.h"
 
-void toggle_window(GtkWindow *window) {
+gboolean window_is_max(GtkWindow *window) {
     GdkWindowState state = gdk_window_get_state(gtk_widget_get_window(GTK_WIDGET(window)));
-    if (state & GDK_WINDOW_STATE_MAXIMIZED) {
+    gboolean result;
+    result = state & GDK_WINDOW_STATE_MAXIMIZED;
+    return result;
+}
+
+void toggle_window(GtkWindow *window) {
+    if (window_is_max(window)) {
         gtk_window_unmaximize(window);
     } else {
         gtk_window_maximize(window);
     }
+}
+
+void min_window(ClutterEvent *area, ClutterEvent *event, GtkWindow *window) {
+    gtk_window_iconify(window);
 }
 
 void move_window(ClutterActor *area, ClutterEvent *event, GtkWindow *window) {
