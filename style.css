@@ -1,0 +1,24 @@
+GtkWindow {
+	background: #272822;
+}
+
+GtkLabel {
+    color: grey;
+}
+
+GtkEntry {
+    color: grey;
+	background: #272822;
+	border-color: #393937;
+}
+
+GtkEntry:focused {
+    color: grey;
+	background: #272822;
+	border-color: #393937;
+}
+
+GtkEntry:selected {
+    color: #272822;
+	background: grey;
+}

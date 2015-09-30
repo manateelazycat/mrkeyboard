@@ -12,7 +12,7 @@ This is OS for top hacker, enjoy it. ;)
 
 ## Dependencies
 
-clutter-1.0, clutter-gtk-1.0, mx-1.0
+vala-0.28, clutter-1.0, clutter-gtk-1.0, mx-1.0
 
 ## Usage
 
@@ -20,7 +20,6 @@ clutter-1.0, clutter-gtk-1.0, mx-1.0
 
 ## TODO
 
-* Adjust style of clutter and mx widget.
 * Design buffer/view framework like Emacs.
 * Build message channel between main process and plugins process.
 * Design search framework.

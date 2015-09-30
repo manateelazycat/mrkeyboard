@@ -1,8 +1,5 @@
-CFLAGS := `pkg-config clutter-1.0 clutter-gtk-1.0 mx-1.0 --cflags`  -Wall -g
-LDFLAGS := `pkg-config clutter-1.0 clutter-gtk-1.0 mx-1.0 --libs`
-
 all: main
-main: main.c window.c utils.c widgets.c
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+main: main.vala titlebar.vala image_button.vala draw.vala utils.vala
+	valac --pkg=clutter-1.0 --pkg=clutter-x11-1.0 --pkg=gtk+-3.0 --pkg=clutter-gtk-1.0 --pkg=gdk-3.0 main.vala titlebar.vala image_button.vala draw.vala utils.vala
 clean:
 	rm main
