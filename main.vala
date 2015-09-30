@@ -6,14 +6,16 @@ using Gdk;
 [DBus (name = "org.mrkeyboard.Daemon")]
 public class DaemonServer : Object {
     private Gtk.Window window;
-    private Clutter.Actor stage;
     private Xcb.Connection conn;
+    private Gtk.DrawingArea xwindow_area;
 
-    public void ping(string msg) {
-        var xid = (ulong)((Gdk.X11.Window) window.get_window()).get_xid();
+    public bool create_app_window(string msg) {
+        var xid = (ulong)((Gdk.X11.Window) xwindow_area.get_window()).get_xid();
         
-        conn.reparent_window(int.parse(msg), (Xcb.Window)xid, 0, 40);
+        conn.reparent_window(int.parse(msg), (Xcb.Window)xid, 0, 0);
         conn.flush();
+        
+        return true;
     }
 
     public void init(string[] args) {
@@ -61,11 +63,8 @@ public class DaemonServer : Object {
             });
         box.pack_start(titlebar, false, false, 0);
         
-        var embed = new GtkClutter.Embed();
-        box.pack_start(embed, true, true, 0);
-        
-        stage = embed.get_stage();
-        stage.background_color = Clutter.Color() {red = 23, green = 24, blue = 20, alpha = 255};
+        xwindow_area = new Gtk.DrawingArea();
+        box.pack_start(xwindow_area, true, true, 0);
         
         try {
             Process.spawn_command_line_async("./app/terminal/main 800 560");

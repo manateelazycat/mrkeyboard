@@ -15,7 +15,7 @@ private static string get_shell() {
 
 [DBus (name = "org.mrkeyboard.Daemon")]
 interface Daemon : Object {
-    public abstract void ping(string msg) throws IOError;
+    public abstract bool create_app_window(string msg) throws IOError;
 }
 
 int main(string[] args) {
@@ -60,7 +60,7 @@ int main(string[] args) {
         window.realize.connect((w) => {
                 try {
                     var xid = (ulong)((Gdk.X11.Window) window.get_window()).get_xid();
-                    daemon.ping(xid.to_string());
+                    daemon.create_app_window(xid.to_string());
                 } catch (IOError e) {
                     stderr.printf("%s\n", e.message);
                 }
