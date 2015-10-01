@@ -7,17 +7,19 @@ using Gdk;
 public class DaemonServer : Object {
     private Gtk.Window window;
     private Xcb.Connection conn;
-    private Gtk.DrawingArea xwindow_area;
+    private Widgets.WindowManager window_manager;
 
     public bool create_app_window(string msg) {
-        var xid = (ulong)((Gdk.X11.Window) xwindow_area.get_window()).get_xid();
+        var xid = (ulong)((Gdk.X11.Window) window_manager.get_window()).get_xid();
         
         conn.reparent_window(int.parse(msg), (Xcb.Window)xid, 0, 0);
         conn.flush();
         
+        window_manager.grab_focus();
+        
         return true;
     }
-
+    
     public void init(string[] args) {
         if (GtkClutter.init(ref args) != Clutter.InitError.SUCCESS) {
             stdout.printf("Clutter init failed.");
@@ -63,8 +65,8 @@ public class DaemonServer : Object {
             });
         box.pack_start(titlebar, false, false, 0);
         
-        xwindow_area = new Gtk.DrawingArea();
-        box.pack_start(xwindow_area, true, true, 0);
+        window_manager = new Widgets.WindowManager();
+        box.pack_start(window_manager, true, true, 0);
         
         try {
             Process.spawn_command_line_async("./app/terminal/main 800 560");
