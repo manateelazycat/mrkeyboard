@@ -91,10 +91,10 @@ void main(string[] args) {
     var daemon_server = new DaemonServer();
     daemon_server.init(args);
 
-    Bus.own_name(BusType.SESSION, "org.mrkeyboard.Daemon", BusNameOwnerFlags.NONE,
-                 ((c) => {
-                     on_bus_aquired(c, daemon_server);
-                 }),
+    Bus.own_name(BusType.SESSION,
+                 "org.mrkeyboard.Daemon",
+                 BusNameOwnerFlags.NONE,
+                 ((con) => {on_bus_aquired(con, daemon_server);}),
                  () => {},
                  () => stderr.printf ("Could not aquire name\n"));
      

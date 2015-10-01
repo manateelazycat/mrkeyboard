@@ -20,8 +20,8 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, mx-1.0
 
 ## TODO
 
+* Build event dispense system between WM process and app process.
 * Design buffer/view framework like Emacs.
-* Build message channel between main process and plugins process.
 * Design search framework.
 * Design application package standard.
 * Design keystroke standard and build one-key system for feature. ;)
