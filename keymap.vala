@@ -1,14 +1,13 @@
+using GLib;
+
 namespace Keymap {
     public string get_key_name(uint keyval) {
-        uint lower;
-        uint upper;
-        Gdk.keyval_convert_case(keyval, out lower, out upper);
-        var key_unicode = Gdk.keyval_to_unicode(lower);
+        unichar key_unicode = Gdk.keyval_to_unicode(keyval);
         
         if (key_unicode == 0) {
             return Gdk.keyval_name(keyval);
         } else {
-            return Gdk.keyval_name(Gdk.keyval_to_lower(keyval));
+            return key_unicode.to_string();
         }
     }
 
@@ -29,10 +28,6 @@ namespace Keymap {
 
         if ((key_event.state & Gdk.ModifierType.MOD1_MASK) != 0) {
             modifiers += "Alt";
-        }
-        
-        if ((key_event.state & Gdk.ModifierType.SHIFT_MASK) != 0) {
-            modifiers += "Shift";
         }
         
         return modifiers;
