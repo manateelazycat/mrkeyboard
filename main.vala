@@ -22,7 +22,7 @@ public class DaemonServer : Object {
         return true;
     }
 
-    public signal void send_key_event(int window_id, int key_state, uint key_val, uint32 key_time, bool press);
+    public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
     
     public void init(string[] args) {
         if (GtkClutter.init(ref args) != Clutter.InitError.SUCCESS) {
@@ -71,12 +71,12 @@ public class DaemonServer : Object {
         
         window_manager = new Widgets.WindowManager();
         window_manager.key_press_event.connect((w, e) => {
-                send_key_event(focus_window, e.state, e.keyval, e.time, true);
+                send_key_event(focus_window, e.keyval, e.state, e.time, true);
                 
                 return true;
             });
         window_manager.key_release_event.connect((w, e) => {
-                send_key_event(focus_window, e.state, e.keyval, e.time, false);
+                send_key_event(focus_window, e.keyval, e.state, e.time, false);
                 
                 return true;
             });

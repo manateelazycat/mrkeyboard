@@ -16,7 +16,7 @@ private static string get_shell() {
 [DBus (name = "org.mrkeyboard.Daemon")]
 interface Daemon : Object {
     public abstract bool create_app_window(string msg) throws IOError;
-    public signal void send_key_event(int window_id, int key_state, uint key_val, uint32 key_time, bool press);
+    public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
 }
 
 int main(string[] args) {
@@ -69,7 +69,7 @@ int main(string[] args) {
                 }
             });
         
-        daemon.send_key_event.connect((focus_window, key_state, key_val, key_time, press) => {
+        daemon.send_key_event.connect((focus_window, key_val, key_state, key_time, press) => {
                if (focus_window == window_id) {
                    Gdk.EventKey* event;
                    if (press) {
@@ -78,13 +78,9 @@ int main(string[] args) {
                        event = (Gdk.EventKey*) new Gdk.Event(Gdk.EventType.KEY_RELEASE);
                    }
                    event->window = term.get_window();
+                   event->keyval = key_val;
                    event->state = (Gdk.ModifierType) key_state;
                    event->time = key_time;
-                   event->hardware_keycode = 255;
-                   event->send_event = 1;
-                   event->keyval = key_val;
-                   event->str = "";
-                   event->group = 0;
                    ((Gdk.Event*) event)->put();
                }
             });
