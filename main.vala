@@ -6,7 +6,7 @@ using Keymap;
 
 [DBus (name = "org.mrkeyboard.Daemon")]
 public class DaemonServer : Object {
-    private Widgets.Window window;
+    private Widgets.Application app;
     private Xcb.Connection conn;
     private Widgets.WindowManager window_manager;
     private int focus_window;
@@ -32,7 +32,7 @@ public class DaemonServer : Object {
         
         conn = new Xcb.Connection();
         
-        window = new Widgets.Window();
+        app = new Widgets.Application();
 
         Utils.load_css_theme("style.css");
         
@@ -43,7 +43,7 @@ public class DaemonServer : Object {
                 }
                 return false;
             });
-        window.box.pack_start(titlebar, false, false, 0);
+        app.box.pack_start(titlebar, false, false, 0);
         
         window_manager = new Widgets.WindowManager();
         window_manager.key_press_event.connect((w, e) => {
@@ -60,7 +60,7 @@ public class DaemonServer : Object {
                 
                 return true;
             });
-        window.box.pack_start(window_manager, true, true, 0);
+        app.box.pack_start(window_manager, true, true, 0);
         
         try {
             // Process.spawn_command_line_async("./app/terminal/main 800 560");
@@ -70,7 +70,7 @@ public class DaemonServer : Object {
     }
     
     public void run() {
-        window.show_all();
+        app.show_all();
         Gtk.main();
     }
 }
