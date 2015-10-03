@@ -16,6 +16,7 @@ private static string get_shell() {
 [DBus (name = "org.mrkeyboard.Daemon")]
 interface Daemon : Object {
     public abstract bool create_app_window(string msg) throws IOError;
+    public signal void send_key_event(int window_id, int key_state, uint key_val, uint32 key_time, bool press);
 }
 
 int main(string[] args) {
@@ -52,6 +53,7 @@ int main(string[] args) {
     
     /* Important: keep daemon variable out of try/catch scope not lose signals! */
     Daemon daemon = null;
+    int window_id = 0;
 
     try {
         daemon = Bus.get_proxy_sync(BusType.SESSION, "org.mrkeyboard.Daemon",
@@ -60,10 +62,31 @@ int main(string[] args) {
         window.realize.connect((w) => {
                 try {
                     var xid = (ulong)((Gdk.X11.Window) window.get_window()).get_xid();
+                    window_id = (int)xid;
                     daemon.create_app_window(xid.to_string());
                 } catch (IOError e) {
                     stderr.printf("%s\n", e.message);
                 }
+            });
+        
+        daemon.send_key_event.connect((focus_window, key_state, key_val, key_time, press) => {
+               if (focus_window == window_id) {
+                   Gdk.EventKey* event;
+                   if (press) {
+                       event = (Gdk.EventKey*) new Gdk.Event(Gdk.EventType.KEY_PRESS);
+                   } else {
+                       event = (Gdk.EventKey*) new Gdk.Event(Gdk.EventType.KEY_RELEASE);
+                   }
+                   event->window = term.get_window();
+                   event->state = (Gdk.ModifierType) key_state;
+                   event->time = key_time;
+                   event->hardware_keycode = 255;
+                   event->send_event = 1;
+                   event->keyval = key_val;
+                   event->str = "";
+                   event->group = 0;
+                   ((Gdk.Event*) event)->put();
+               }
             });
     } catch (IOError e) {
         stderr.printf("%s\n", e.message);

@@ -8,17 +8,21 @@ public class DaemonServer : Object {
     private Gtk.Window window;
     private Xcb.Connection conn;
     private Widgets.WindowManager window_manager;
+    private int focus_window;
 
     public bool create_app_window(string msg) {
         var xid = (ulong)((Gdk.X11.Window) window_manager.get_window()).get_xid();
+        focus_window = int.parse(msg);
         
-        conn.reparent_window(int.parse(msg), (Xcb.Window)xid, 0, 0);
+        conn.reparent_window(focus_window, (Xcb.Window)xid, 0, 0);
         conn.flush();
         
         window_manager.grab_focus();
         
         return true;
     }
+
+    public signal void send_key_event(int window_id, int key_state, uint key_val, uint32 key_time, bool press);
     
     public void init(string[] args) {
         if (GtkClutter.init(ref args) != Clutter.InitError.SUCCESS) {
@@ -66,6 +70,16 @@ public class DaemonServer : Object {
         box.pack_start(titlebar, false, false, 0);
         
         window_manager = new Widgets.WindowManager();
+        window_manager.key_press_event.connect((w, e) => {
+                send_key_event(focus_window, e.state, e.keyval, e.time, true);
+                
+                return true;
+            });
+        window_manager.key_release_event.connect((w, e) => {
+                send_key_event(focus_window, e.state, e.keyval, e.time, false);
+                
+                return true;
+            });
         box.pack_start(window_manager, true, true, 0);
         
         try {
@@ -99,6 +113,6 @@ void main(string[] args) {
                  ((con) => {on_bus_aquired(con, daemon_server);}),
                  () => {},
                  () => stderr.printf ("Could not aquire name\n"));
-     
+    
     daemon_server.run();
 }
