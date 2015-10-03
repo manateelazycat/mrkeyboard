@@ -2,6 +2,7 @@ using Widgets;
 
 namespace Widgets {
     public class Titlebar : Gtk.EventBox {
+        public Gtk.Entry entry;
         public Widgets.ImageButton min_button;
         public Widgets.ImageButton close_button;
         
@@ -28,7 +29,7 @@ namespace Widgets {
             entry_align.bottom_padding = 4;
             topbar.pack_start(entry_align, true, true, 0);
             
-            var entry = new Gtk.Entry();
+            entry = new Gtk.Entry();
             entry_align.add(entry);
             
             var status_label = new Gtk.Label("");
@@ -46,6 +47,25 @@ namespace Widgets {
             
             close_button = new Widgets.ImageButton("window_close");
             window_button_box.pack_start(close_button, false, false, 0);
+            
+            min_button.button_press_event.connect((event) => {
+                    ((Gtk.Window)this.get_toplevel()).iconify() ;
+                    return true;
+                });
+            close_button.button_press_event.connect((event) => {
+                    Gtk.main_quit();
+                    return true;
+                });
+            button_press_event.connect((event) => {
+                    if (Utils.is_double_click(event)) {
+                        Utils.toggle_max_window((Gtk.Window)this.get_toplevel());
+                    } else {
+                        Utils.move_window(this, event, (Gtk.Window)this.get_toplevel());
+                    }
+                    
+                    return false;
+                });
+            
         }
     }
 }

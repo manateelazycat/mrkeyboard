@@ -2,10 +2,11 @@ using Widgets;
 using Utils;
 using Xcb;
 using Gdk;
+using Keymap;
 
 [DBus (name = "org.mrkeyboard.Daemon")]
 public class DaemonServer : Object {
-    private Gtk.Window window;
+    private Widgets.Window window;
     private Xcb.Connection conn;
     private Widgets.WindowManager window_manager;
     private int focus_window;
@@ -31,47 +32,26 @@ public class DaemonServer : Object {
         
         conn = new Xcb.Connection();
         
-        window = new Gtk.Window();
-        window.set_decorated(false);
-        window.set_position(Gtk.WindowPosition.CENTER);
-        window.set_default_size(800, 600);
-        window.destroy.connect(Gtk.main_quit);
-        
-        var screen = Gdk.Screen.get_default();
-        var css_provider = new Gtk.CssProvider();
-        try {
-            css_provider.load_from_path("style.css");
-        } catch (GLib.Error e) {
-            print("Got error when load css: %s\n", e.message);
-        }
-        Gtk.StyleContext.add_provider_for_screen(screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER);
-        
-        var box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-        window.add(box);
+        window = new Widgets.Window();
+
+        Utils.load_css_theme("style.css");
         
         var titlebar = new Widgets.Titlebar();
-        titlebar.min_button.button_press_event.connect((event) => {
-                window.iconify() ;
-                return true;
-            });
-        titlebar.close_button.button_press_event.connect((event) => {
-                Gtk.main_quit();
-                return true;
-            });
-        titlebar.button_press_event.connect((event) => {
-                if (Utils.is_double_click(event)) {
-                    Utils.toggle_max_window(window);
-                } else {
-                    Utils.move_window(titlebar, event, window);
+        titlebar.entry.key_press_event.connect((w, e) => {
+                if (Keymap.get_keyevent_name(e) == "Alt + x") {
+                    window_manager.grab_focus();
                 }
-                
                 return false;
             });
-        box.pack_start(titlebar, false, false, 0);
+        window.box.pack_start(titlebar, false, false, 0);
         
         window_manager = new Widgets.WindowManager();
         window_manager.key_press_event.connect((w, e) => {
-                send_key_event(focus_window, e.keyval, e.state, e.time, true);
+                if (Keymap.get_keyevent_name(e) == "Alt + x") {
+                    titlebar.entry.grab_focus();
+                } else {
+                    send_key_event(focus_window, e.keyval, e.state, e.time, true);
+                }
                 
                 return true;
             });
@@ -80,10 +60,10 @@ public class DaemonServer : Object {
                 
                 return true;
             });
-        box.pack_start(window_manager, true, true, 0);
+        window.box.pack_start(window_manager, true, true, 0);
         
         try {
-            Process.spawn_command_line_async("./app/terminal/main 800 560");
+            // Process.spawn_command_line_async("./app/terminal/main 800 560");
         } catch (SpawnError e) {
             print("Got error when spawn_command_line_async: %s\n", e.message);
         }
