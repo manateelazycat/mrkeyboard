@@ -26,7 +26,7 @@ public class DaemonServer : Object {
     
     public void init(string[] args) {
         if (GtkClutter.init(ref args) != Clutter.InitError.SUCCESS) {
-            stdout.printf("Clutter init failed.");
+            print("Clutter init failed.");
         }
         
         conn = new Xcb.Connection();
@@ -42,7 +42,7 @@ public class DaemonServer : Object {
         try {
             css_provider.load_from_path("style.css");
         } catch (GLib.Error e) {
-            stdout.printf("Got error when load css: %s\n", e.message);
+            print("Got error when load css: %s\n", e.message);
         }
         Gtk.StyleContext.add_provider_for_screen(screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER);
         
@@ -85,7 +85,7 @@ public class DaemonServer : Object {
         try {
             Process.spawn_command_line_async("./app/terminal/main 800 560");
         } catch (SpawnError e) {
-            stdout.printf("Got error when spawn_command_line_async: %s\n", e.message);
+            print("Got error when spawn_command_line_async: %s\n", e.message);
         }
     }
     

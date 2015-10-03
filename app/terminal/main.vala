@@ -41,13 +41,13 @@ int main(string[] args) {
     try {
         GLib.Shell.parse_argv(shell, out arguments);
     } catch (GLib.ShellError e) {
-        stdout.printf("Got error when get_shell: %s\n", e.message);
+        print("Got error when get_shell: %s\n", e.message);
     }
     term.child_exited.connect((t) => {Gtk.main_quit();});
     try {
         term.fork_command_full(PtyFlags.DEFAULT, null, arguments, null, SpawnFlags.SEARCH_PATH, null, null);
     } catch (GLib.Error e) {
-        stdout.printf("Got error when fork_command_full: %s\n", e.message);
+        print("Got error when fork_command_full: %s\n", e.message);
     }
     box.pack_start(term, true, true, 0);
     

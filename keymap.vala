@@ -3,7 +3,7 @@ using GLib;
 namespace Keymap {
     public string get_key_name(uint keyval) {
         unichar key_unicode = Gdk.keyval_to_unicode(keyval);
-        stdout.printf("keyval: %s\n", keyval.to_string());
+        print("keyval: %s\n", keyval.to_string());
         
         if (key_unicode == 0) {
             return Gdk.keyval_name(keyval);
