@@ -75,10 +75,8 @@ int main(string[] args) {
             });
         
         daemon.send_key_event.connect((focus_window, key_val, key_state, key_time, press) => {
-                print("Client send_key_event: %i %i\n", focus_window, window_id);
                if (focus_window == window_id) {
                    Gdk.EventKey* event;
-                   print("###################keyval: %u, keystate: %i, press: %s\n", key_val, key_state, press.to_string());
                    if (press) {
                        event = (Gdk.EventKey*) new Gdk.Event(Gdk.EventType.KEY_PRESS);
                    } else {
@@ -92,13 +90,11 @@ int main(string[] args) {
                }
             });
         daemon.hide_window.connect((hide_window_id) => {
-                print("Client hide: %i %i\n", hide_window_id, window_id);
                 if (hide_window_id == window_id) {
                     window.hide();
                 }
             });
         daemon.show_window.connect((show_window_id) => {
-                print("Client show: %i %i\n", show_window_id, window_id);
                 if (show_window_id == window_id) {
                     window.show();
                 }
