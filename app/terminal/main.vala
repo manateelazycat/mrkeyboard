@@ -15,13 +15,16 @@ private static string get_shell() {
 
 [DBus (name = "org.mrkeyboard.Daemon")]
 interface Daemon : Object {
-    public abstract bool create_app_window(string msg) throws IOError;
+    public abstract bool send_app_tab_info(int app_win_id, string mode_name, int tab_id) throws IOError;
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
 }
 
 int main(string[] args) {
     int width = int.parse(args[1]);
     int height = int.parse(args[2]);
+    int tab_id = int.parse(args[3]);
+    
+    string mode_name = "terminal";
     
     if (GtkClutter.init(ref args) != Clutter.InitError.SUCCESS) {
         return -1;
@@ -63,7 +66,7 @@ int main(string[] args) {
                 try {
                     var xid = (ulong)((Gdk.X11.Window) window.get_window()).get_xid();
                     window_id = (int)xid;
-                    daemon.create_app_window(xid.to_string());
+                    daemon.send_app_tab_info(window_id, mode_name, tab_id);
                 } catch (IOError e) {
                     stderr.printf("%s\n", e.message);
                 }

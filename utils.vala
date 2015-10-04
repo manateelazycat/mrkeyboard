@@ -41,4 +41,25 @@ namespace Utils {
         }
         Gtk.StyleContext.add_provider_for_screen(screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER);
     }
+
+    public bool is_pointer_out_widget(Gtk.Widget widget) {
+        Gtk.Allocation alloc;
+        widget.get_allocation(out alloc);
+        
+        int wx;
+        int wy;
+        widget.get_toplevel().get_window().get_origin(out wx, out wy);
+        
+        int px;
+        int py;
+        Gdk.ModifierType mask;
+        Gdk.get_default_root_window().get_pointer(out px, out py, out mask);
+        
+        int rect_start_x = wx + alloc.x;
+        int rect_start_y = wx + alloc.y;
+        int rect_end_x = rect_start_x + alloc.width;
+        int rect_end_y = rect_start_y + alloc.height;
+
+        return (px < rect_start_x || px > rect_end_x || py < rect_start_y || py > rect_end_y);
+    }
 }

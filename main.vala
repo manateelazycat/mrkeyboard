@@ -7,18 +7,11 @@ using Keymap;
 [DBus (name = "org.mrkeyboard.Daemon")]
 public class DaemonServer : Object {
     private Widgets.Application app;
-    private Xcb.Connection conn;
     private Widgets.WindowManager window_manager;
     private int focus_window;
 
-    public bool create_app_window(string msg) {
-        var xid = (ulong)((Gdk.X11.Window) window_manager.get_window()).get_xid();
-        focus_window = int.parse(msg);
-        
-        conn.reparent_window(focus_window, (Xcb.Window)xid, 0, 0);
-        conn.flush();
-        
-        window_manager.grab_focus();
+    public bool send_app_tab_info(int app_win_id, string mode_name, int tab_id) {
+        window_manager.show_tab(app_win_id, mode_name, tab_id);
         
         return true;
     }
@@ -29,8 +22,6 @@ public class DaemonServer : Object {
         if (GtkClutter.init(ref args) != Clutter.InitError.SUCCESS) {
             print("Clutter init failed.");
         }
-        
-        conn = new Xcb.Connection();
         
         app = new Widgets.Application();
 
@@ -47,8 +38,11 @@ public class DaemonServer : Object {
         
         window_manager = new Widgets.WindowManager();
         window_manager.key_press_event.connect((w, e) => {
-                if (Keymap.get_keyevent_name(e) == "Alt + x") {
+                string keyevent_name = Keymap.get_keyevent_name(e);
+                if (keyevent_name == "Alt + x") {
                     titlebar.entry.grab_focus();
+                } else if (keyevent_name == "Super + n") {
+                    window_manager.new_tab("./app/terminal/main");
                 } else {
                     send_key_event(focus_window, e.keyval, e.state, e.time, true);
                 }
@@ -61,12 +55,6 @@ public class DaemonServer : Object {
                 return true;
             });
         app.box.pack_start(window_manager, true, true, 0);
-        
-        try {
-            // Process.spawn_command_line_async("./app/terminal/main 800 560");
-        } catch (SpawnError e) {
-            print("Got error when spawn_command_line_async: %s\n", e.message);
-        }
     }
     
     public void run() {

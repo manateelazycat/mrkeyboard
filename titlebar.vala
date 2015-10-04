@@ -11,7 +11,7 @@ namespace Widgets {
             align.top_padding = 2;
             align.bottom_padding = 2;
             add(align);
-            
+
             var topbar = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
             align.add(topbar);
             
