@@ -10,7 +10,9 @@ namespace Widgets {
         public int window_width;
         public int window_height;
         public string mode_name = "";
-        
+
+        public Gdk.Color window_frame_color = Utils.color_from_hex("#262721");
+
         public int padding = 1;
         
         public Window() {
@@ -37,7 +39,7 @@ namespace Widgets {
         public bool on_draw(Gtk.Widget widget, Cairo.Context cr) {
             int width = widget.get_allocated_width();
             int height = widget.get_allocated_height();
-            cr.set_source_rgb(1, 0, 0);
+            Utils.set_context_color(cr, window_frame_color);
             cr.rectangle(0, 0, width, height);
             cr.stroke();
             

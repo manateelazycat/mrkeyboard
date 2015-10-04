@@ -42,7 +42,6 @@ namespace Widgets {
         public signal void switch_page(int old_xid, int new_xid);
         
         public Tabbar(string image_path) {
-            set_double_buffered(false);
             add_events (Gdk.EventMask.BUTTON_PRESS_MASK
                         | Gdk.EventMask.BUTTON_RELEASE_MASK
                         | Gdk.EventMask.POINTER_MOTION_MASK
@@ -377,7 +376,7 @@ namespace Widgets {
             widget.get_allocation(out alloc);
             
             Utils.set_context_color(cr, background_color);
-            cr.rectangle(alloc.x, alloc.y, alloc.width, alloc.height);
+            cr.rectangle(0, 0, alloc.width, alloc.height);
             cr.fill();
             
             if (draw_arrow) {
