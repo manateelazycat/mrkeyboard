@@ -44,11 +44,8 @@ namespace Widgets {
                 return 0;
             } else {
                 var window = get_focus_window();
-                var tab = window.get_current_tab();
-
-                print("Got focus tab id: %i\n", tab.tab_xid);
                 
-                return tab.tab_xid;
+                return window.tabbar.get_current_tab_xid();
             }
         }
         
@@ -56,7 +53,7 @@ namespace Widgets {
             if (window_list.size == 0) {
                 var window = new Widgets.Window();
                 window.set_allocate(this, 0, 0, this.get_allocated_width(), this.get_allocated_height());
-                window.switch_page.connect((old_xid, new_xid) => {
+                window.tabbar.switch_page.connect((old_xid, new_xid) => {
                         switch_page(old_xid, new_xid);
                     });
                 
@@ -73,12 +70,12 @@ namespace Widgets {
             var window = get_focus_window();
             
             tab_counter += 1;
-            window.add_tab("Tab", tab_counter);
+            window.tabbar.add_tab("Tab", tab_counter);
             
             string app_command = "%s %i %i %i".printf(
                 app_path,
                 window.window_width - window.padding * 2,
-                window.window_height - window.padding * 2 - window.tab.height,
+                window.window_height - window.padding * 2 - window.tabbar.height,
                 tab_counter);
             try {
                 Process.spawn_command_line_async(app_command);
@@ -88,27 +85,17 @@ namespace Widgets {
         }
         
         public void show_tab(int app_win_id, string mode_name, int tab_id) {
-            Gtk.Allocation window_alloc;
             var window = get_focus_window();
-            window.get_allocation(out window_alloc);
-            
-            Gtk.Widget tab_box = window.get_current_tab_box();
-            
             Gtk.Allocation tab_box_alloc;
-            tab_box.get_allocation(out tab_box_alloc);
+            window.window_content_area.get_allocation(out tab_box_alloc);
             
             if (window.mode_name != "") {
                 window.mode_name = mode_name;
             }
             
-            var tab = window.tab_set.get(tab_id);
-            tab.tab_xid = app_win_id;
+            window.tabbar.set_tab_xid(tab_id, app_win_id);
             
-            print("Add tab: %i\n", app_win_id);
-            
-            conn.reparent_window(app_win_id, xid,
-                                 (uint16)window_alloc.x + (uint16)tab_box_alloc.x,
-                                 (uint16)window_alloc.y + (uint16)tab_box_alloc.y);
+            conn.reparent_window(app_win_id, xid, (uint16)tab_box_alloc.x, (uint16)tab_box_alloc.y);
             conn.flush();
         }
     }

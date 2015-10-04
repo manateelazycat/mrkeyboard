@@ -52,8 +52,8 @@ namespace Utils {
         
         int px;
         int py;
-        Gdk.ModifierType mask;
-        Gdk.get_default_root_window().get_pointer(out px, out py, out mask);
+        var device = Gtk.get_current_event_device ();
+        widget.get_toplevel().get_window().get_device_position(device, out px, out py, null);
         
         int rect_start_x = wx + alloc.x;
         int rect_start_y = wx + alloc.y;
@@ -61,5 +61,24 @@ namespace Utils {
         int rect_end_y = rect_start_y + alloc.height;
 
         return (px < rect_start_x || px > rect_end_x || py < rect_start_y || py > rect_end_y);
+    }
+
+    public Gdk.Color color_from_hex(string hex_color) {
+        Gdk.Color color;
+        Gdk.Color.parse(hex_color, out color);
+        
+        return color;
+    }
+
+    public void set_context_color(Cairo.Context cr, Gdk.Color color) {
+        cr.set_source_rgb(color.red / 65535.0, color.green / 65535.0, color.blue / 65535.0);
+    }
+
+    public void propagate_draw(Gtk.Container widget, Cairo.Context cr) {
+        if (widget.get_children().length() > 0) {
+            foreach (Gtk.Widget child in widget.get_children()) {
+                widget.propagate_draw(child, cr);
+            }
+        }
     }
 }
