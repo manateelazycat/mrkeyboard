@@ -4,7 +4,7 @@ using Widgets;
 namespace Widgets {
     public class Window : Gtk.EventBox {
         public Widgets.Tabbar tabbar;
-        public Gtk.DrawingArea window_content_area;
+        public Gtk.Box window_content_area;
         public int window_x;
         public int window_y;
         public int window_width;
@@ -29,7 +29,7 @@ namespace Widgets {
             tabbar = new Widgets.Tabbar("close_tab");
             box.pack_start(tabbar, false, false, 0);
             
-            window_content_area = new Gtk.DrawingArea();
+            window_content_area = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
             box.pack_start(window_content_area, true, true, 0);
             
             draw.connect(on_draw);
