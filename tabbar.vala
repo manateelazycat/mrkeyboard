@@ -229,10 +229,7 @@ namespace Widgets {
                 draw_x += text_padding_x;
                 
                 if (press_x > draw_x && press_x < draw_x + get_tab_width(name_width)) {
-                    if (press_x > draw_x + name_width + text_padding_x) {
-                        close_nth_tab(counter);
-                        return false;
-                    } else {
+                    if (press_x < draw_x + name_width + text_padding_x) {
                         select_nth_tab(counter);
                         return false;
                     }
@@ -250,6 +247,37 @@ namespace Widgets {
 
         public bool on_button_release(Gtk.Widget widget, Gdk.EventButton event) {
             is_button_press = false;
+            
+            var release_x = (int)event.x;
+            
+            Gtk.Allocation alloc;
+            widget.get_allocation(out alloc);
+            
+            int draw_x = 0;
+            if (draw_arrow) {
+                draw_x += arrow_width + draw_offset;
+            }
+            
+            int counter = 0;
+            foreach (int tab_id in tab_list) {
+                var layout = create_pango_layout(tab_name_set.get(tab_id));
+                int name_width, name_height;
+                layout.get_pixel_size(out name_width, out name_height);
+
+                draw_x += text_padding_x;
+                
+                if (release_x > draw_x && release_x < draw_x + get_tab_width(name_width)) {
+                    if (release_x > draw_x + name_width + text_padding_x) {
+                        close_nth_tab(counter);
+                        return false;
+                    }
+                }
+                
+                draw_x += name_width + close_button_width + text_padding_x;
+                
+                counter += 1;
+            }
+            
             queue_draw();
             
             return false;

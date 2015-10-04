@@ -85,7 +85,10 @@ namespace Widgets {
         }
         
         public void show_tab(int app_win_id, string mode_name, int tab_id) {
+            Gtk.Allocation window_alloc;
             var window = get_focus_window();
+            window.get_allocation(out window_alloc);
+            
             Gtk.Allocation tab_box_alloc;
             window.window_content_area.get_allocation(out tab_box_alloc);
             
@@ -95,7 +98,9 @@ namespace Widgets {
             
             window.tabbar.set_tab_xid(tab_id, app_win_id);
             
-            conn.reparent_window(app_win_id, xid, (uint16)tab_box_alloc.x, (uint16)tab_box_alloc.y);
+            conn.reparent_window(app_win_id, xid,
+                                 (uint16)window_alloc.x + (uint16)tab_box_alloc.x,
+                                 (uint16)window_alloc.y + (uint16)tab_box_alloc.y);
             conn.flush();
         }
     }

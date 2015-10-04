@@ -14,8 +14,6 @@ namespace Widgets {
         public int padding = 1;
         
         public Window() {
-            set_visible_window(false);
-            
             var align = new Gtk.Alignment(0, 0, 1, 1);
             align.top_padding = padding;
             align.bottom_padding = padding;
@@ -26,7 +24,7 @@ namespace Widgets {
             var box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
             align.add(box);
             
-            tabbar = new Widgets.Tabbar("close_tab");
+            tabbar = new Widgets.Tabbar("tab_close");
             box.pack_start(tabbar, false, false, 0);
             
             window_content_area = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
@@ -43,9 +41,7 @@ namespace Widgets {
             cr.rectangle(0, 0, width, height);
             cr.stroke();
             
-            Utils.propagate_draw((Gtk.Container)widget, cr);
-            
-            return true;
+            return false;
         }
         
         public void set_allocate(Gtk.Fixed parent, int x, int y, int w, int h) {
