@@ -13,6 +13,8 @@ namespace Widgets {
         private Xcb.Connection conn;
         private int xid;
         
+        public signal void switch_page(int old_xid, int new_xid);
+        
         public WindowManager() {
             set_can_focus(true);
             draw.connect(on_draw);
@@ -43,6 +45,9 @@ namespace Widgets {
             } else {
                 var window = get_focus_window();
                 var tab = window.get_current_tab();
+
+                print("Got focus tab id: %i\n", tab.tab_xid);
+                
                 return tab.tab_xid;
             }
         }
@@ -51,6 +56,9 @@ namespace Widgets {
             if (window_list.size == 0) {
                 var window = new Widgets.Window();
                 window.set_allocate(this, 0, 0, this.get_allocated_width(), this.get_allocated_height());
+                window.switch_page.connect((old_xid, new_xid) => {
+                        switch_page(old_xid, new_xid);
+                    });
                 
                 window_list.add(window);
                 focus_window = window;
@@ -93,8 +101,10 @@ namespace Widgets {
                 window.mode_name = mode_name;
             }
             
-            var tab = window.get_current_tab();
+            var tab = window.tab_set.get(tab_id);
             tab.tab_xid = app_win_id;
+            
+            print("Add tab: %i\n", app_win_id);
             
             conn.reparent_window(app_win_id, xid,
                                  (uint16)window_alloc.x + (uint16)tab_box_alloc.x,

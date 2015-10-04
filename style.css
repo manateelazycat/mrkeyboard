@@ -31,7 +31,8 @@ GtkNotebook {
 }
 
 GtkNotebook:active {
-	background: #272822;
+	/* background: #272822; */
+	background: green;
 	border-radius: 1;
     border-style: solid;
     border-width: 0;	

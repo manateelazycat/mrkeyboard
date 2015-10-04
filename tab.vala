@@ -52,7 +52,7 @@ namespace Widgets {
         }
         
         public bool on_leave_notify_event(Gdk.EventCrossing event) {
-            Timeout.add(500, remove_close_button);
+            Timeout.add(200, remove_close_button);
             
             return false;
         }
