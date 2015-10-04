@@ -8,6 +8,7 @@ namespace Widgets {
         public Widgets.ImageButton close_button;
         public int width = 100;
         public int height = 32;
+        public int tab_xid = 0;
         
         public Tab(string tab_name) {
             set_visible_window(false);

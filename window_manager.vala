@@ -10,7 +10,6 @@ namespace Widgets {
         public int tab_counter;
         public ArrayList<Widgets.Window> window_list;
         public Widgets.Window focus_window;
-        public HashMap<int, Gtk.Box> tab_list;
         private Xcb.Connection conn;
         private int xid;
         
@@ -21,7 +20,6 @@ namespace Widgets {
 
             tab_counter = 0;
             window_list = new ArrayList<Widgets.Window>();
-            tab_list = new HashMap<int, Gtk.Box>();
             
             realize.connect((w) => {
                     xid = (int)((Gdk.X11.Window) get_window()).get_xid(); 
@@ -37,6 +35,16 @@ namespace Widgets {
             cr.fill();
             
             return false;
+        }
+        
+        public int get_focus_tab_xid() {
+            if (window_list.size == 0) {
+                return 0;
+            } else {
+                var window = get_focus_window();
+                var tab = window.get_current_tab();
+                return tab.tab_xid;
+            }
         }
         
         public Window get_focus_window() {
@@ -57,9 +65,7 @@ namespace Widgets {
             var window = get_focus_window();
             
             tab_counter += 1;
-            var tab_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-            tab_list.set(tab_counter, tab_box);
-            window.add_tab("Tab", tab_box);
+            window.add_tab("Tab", tab_counter);
             
             string app_command = "%s %i %i %i".printf(
                 app_path,
@@ -74,14 +80,21 @@ namespace Widgets {
         }
         
         public void show_tab(int app_win_id, string mode_name, int tab_id) {
-            var tab_box = tab_list.get(tab_id);
-            
-            Gtk.Allocation tab_box_alloc;
-            tab_box.get_allocation(out tab_box_alloc);
-
             Gtk.Allocation window_alloc;
             var window = get_focus_window();
             window.get_allocation(out window_alloc);
+            
+            Gtk.Widget tab_box = window.get_current_tab_box();
+            
+            Gtk.Allocation tab_box_alloc;
+            tab_box.get_allocation(out tab_box_alloc);
+            
+            if (window.mode_name != "") {
+                window.mode_name = mode_name;
+            }
+            
+            var tab = window.get_current_tab();
+            tab.tab_xid = app_win_id;
             
             conn.reparent_window(app_win_id, xid,
                                  (uint16)window_alloc.x + (uint16)tab_box_alloc.x,

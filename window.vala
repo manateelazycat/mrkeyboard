@@ -1,3 +1,5 @@
+using Gee;
+
 namespace Widgets {
     public class Window : Gtk.EventBox {
         public Gtk.Notebook notebook;
@@ -6,9 +8,11 @@ namespace Widgets {
         public int window_y;
         public int window_width;
         public int window_height;
-        public int focus_tab_id;
-        public int mode_name;
+        public string mode_name = "";
+        
         public int padding = 1;
+        
+        private HashMap<int, Widgets.Tab> tab_set;
         
         public Window() {
             var align = new Gtk.Alignment(0, 0, 1, 1);
@@ -22,14 +26,26 @@ namespace Widgets {
             align.add(notebook);
             
             draw.connect(on_draw);
+            
+            tab_set = new HashMap<int, Widgets.Tab>();
         }
         
-        public void add_tab(string tab_name, Gtk.Box tab_box) {
+        public void add_tab(string tab_name, int tab_id) {
+            var tab_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
             tab = new Widgets.Tab(tab_name);
+            tab_set.set(tab_id, tab);
             notebook.append_page(tab_box, tab);
             show_all();
         }
         
+        public Widgets.Tab get_current_tab() {
+            return (Widgets.Tab) notebook.get_tab_label(get_current_tab_box());
+        }
+
+        public Gtk.Widget get_current_tab_box() {
+            int current_index = notebook.get_current_page();
+            return notebook.get_nth_page(current_index);
+        }
                 
         public bool on_draw(Gtk.Widget widget, Cairo.Context cr) {
             int width = widget.get_allocated_width();

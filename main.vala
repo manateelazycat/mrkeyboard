@@ -8,7 +8,6 @@ using Keymap;
 public class DaemonServer : Object {
     private Widgets.Application app;
     private Widgets.WindowManager window_manager;
-    private int focus_window;
 
     public bool send_app_tab_info(int app_win_id, string mode_name, int tab_id) {
         window_manager.show_tab(app_win_id, mode_name, tab_id);
@@ -44,13 +43,19 @@ public class DaemonServer : Object {
                 } else if (keyevent_name == "Super + n") {
                     window_manager.new_tab("./app/terminal/main");
                 } else {
-                    send_key_event(focus_window, e.keyval, e.state, e.time, true);
+                    var xid = window_manager.get_focus_tab_xid();
+                    if (xid > 0) {
+                        send_key_event(xid, e.keyval, e.state, e.time, true);
+                    }
                 }
                 
                 return true;
             });
         window_manager.key_release_event.connect((w, e) => {
-                send_key_event(focus_window, e.keyval, e.state, e.time, false);
+                var xid = window_manager.get_focus_tab_xid();
+                if (xid > 0) {
+                    send_key_event(xid, e.keyval, e.state, e.time, false);
+                }
                 
                 return true;
             });
