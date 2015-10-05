@@ -83,10 +83,6 @@ namespace Widgets {
                 index = 0;
             }
             switch_tab(index);
-            
-            make_current_visible(true);
-            
-            queue_draw();
         }
         
         public void select_prev_tab() {
@@ -95,18 +91,10 @@ namespace Widgets {
                 index = tab_list.size - 1;
             }
             switch_tab(index);
-            
-            make_current_visible(false);
-            
-            queue_draw();
         }
         
         public void select_first_tab() {
             switch_tab(0);
-            
-            make_current_visible(false);
-            
-            queue_draw();
         }
         
         public void select_end_tab() {
@@ -117,18 +105,14 @@ namespace Widgets {
                 index = tab_list.size - 1;
             }
             switch_tab(index);
-            
-            make_current_visible(true);
-            
-            queue_draw();
         }
         
         public void select_nth_tab(int index) {
             switch_tab(index);
-            
-            make_current_visible(true);
-            
-            queue_draw();
+        }
+        
+        public void select_tab_with_id(int tab_id) {
+            switch_tab(tab_list.index_of(tab_id));
         }
         
         public void close_current_tab() {
@@ -493,6 +477,9 @@ namespace Widgets {
                 switch_page(old_xid, new_xid);
                 
                 tab_index = new_index;
+                
+                make_current_visible(true);
+                queue_draw();
             }
         }
     }

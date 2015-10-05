@@ -97,6 +97,7 @@ namespace Widgets {
             }
             
             window.tabbar.set_tab_xid(tab_id, app_win_id);
+            window.tabbar.select_tab_with_id(tab_id);
             
             conn.reparent_window(app_win_id, xid,
                                  (uint16)window_alloc.x + (uint16)tab_box_alloc.x,
