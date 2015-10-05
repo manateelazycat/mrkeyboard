@@ -79,7 +79,7 @@ public class ClientServer : Object {
         return false;
     }
     
-    private void create_window(string[] args) {
+    public void create_window(string[] args) {
         var width = int.parse(args[1]);
         var height = int.parse(args[2]);
         var tab_id = int.parse(args[3]);
