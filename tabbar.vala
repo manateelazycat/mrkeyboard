@@ -11,6 +11,7 @@ namespace Widgets {
         public HashMap<int, string> tab_name_set;
         public HashMap<int, int> tab_xid_set;
         public int height = 32;
+        public HashMap<int, string> tab_path_set;
         
         public Gdk.Color background_color = Utils.color_from_hex("#171814");
         public Gdk.Color active_tab_color = Utils.color_from_hex("#272822");
@@ -52,6 +53,7 @@ namespace Widgets {
             tab_list = new ArrayList<int>();
             tab_name_set = new HashMap<int, string>();
             tab_xid_set = new HashMap<int, int>();
+            tab_path_set = new HashMap<int, string>();
             set_size_request(-1, height);
             
             normal_surface = new Cairo.ImageSurface.from_png("image/" + image_path + "_normal.png");
@@ -59,16 +61,17 @@ namespace Widgets {
             press_surface = new Cairo.ImageSurface.from_png("image/" + image_path + "_press.png");
             
             draw.connect(on_draw);
-            configure_event.connect(on_config);
+            configure_event.connect(on_configure);
             button_press_event.connect(on_button_press);
             button_release_event.connect(on_button_release);
             motion_notify_event.connect(on_motion_notify);
             leave_notify_event.connect(on_leave_notify);
         }
         
-        public void add_tab(string tab_name, int tab_id) {
+        public void add_tab(string tab_name, int tab_id, string app_path) {
             tab_list.add(tab_id);
             tab_name_set.set(tab_id, tab_name);
+            tab_path_set.set(tab_id, app_path);
             
             out_of_area();
             
@@ -130,6 +133,7 @@ namespace Widgets {
                 
                 tab_list.remove_at(index);
                 tab_name_set.unset(tab_id);
+                tab_path_set.unset(tab_id);
                 tab_xid_set.unset(tab_id);
 
                 if (tab_list.size == 0) {
@@ -180,7 +184,7 @@ namespace Widgets {
             queue_draw();
         }
         
-        public bool on_config(Gtk.Widget widget, Gdk.EventConfigure event) {
+        public bool on_configure(Gtk.Widget widget, Gdk.EventConfigure event) {
             out_of_area();
             make_current_visible(true);
             
@@ -467,6 +471,24 @@ namespace Widgets {
             }
         }
         
+        public ArrayList<int> get_all_xids() {
+            ArrayList<int> xids = new ArrayList<int>();
+            foreach (int index in tab_list) {
+                xids.add(tab_xid_set.get(index));
+            }
+            
+            return xids;
+        }
+
+        public ArrayList<string> get_all_paths() {
+            ArrayList<string> paths = new ArrayList<string>();
+            foreach (int index in tab_list) {
+                paths.add(tab_path_set.get(index));
+            }
+            
+            return paths;
+        }
+
         public void switch_tab(int new_index) {
             if (tab_index != new_index) {
                 var old_xid = tab_xid_set.get(tab_list.get(tab_index));

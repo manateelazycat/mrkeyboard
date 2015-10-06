@@ -14,9 +14,11 @@ public class DaemonServer : Object {
     }
 
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
+    public signal void init_window(int window_id);
     public signal void hide_window(int window_id);
-    public signal void show_window(int window_id);
+    public signal void show_window(int window_id, int width, int height);
     public signal void destroy_window(int window_id);
+    public signal void resize_window(int window_id, int width, int height);
     public signal void quit_app();
     
     public void init(string[] args) {
@@ -57,6 +59,14 @@ public class DaemonServer : Object {
                 } else if (keyevent_name == "Ctrl + w") {
                     var window = window_manager.get_focus_window();
                     window.tabbar.close_current_tab();
+                } else if (keyevent_name == "Alt + ;") {
+                    window_manager.split_window_horizontal();
+                } else if (keyevent_name == "Alt + :") {
+                    window_manager.split_window_vertical();
+                } else if (keyevent_name == "Alt + '") {
+                    window_manager.close_other_windows();
+                } else if (keyevent_name == "Alt + \"") {
+                    window_manager.close_current_window();
                 } else {
                     var xid = window_manager.get_focus_tab_xid();
                     if (xid != null) {
@@ -74,16 +84,24 @@ public class DaemonServer : Object {
                 
                 return true;
             });
-        window_manager.switch_page.connect((old_xid, new_xid) => {
-                hide_window(old_xid);
-                show_window(new_xid);
+        window_manager.init_page.connect((xid) => {
+                init_window(xid);
             });
-        window_manager.focus_page.connect((xid) => {
-                show_window(xid);
+        window_manager.switch_page.connect((old_xid, new_xid, width, height) => {
+                hide_window(old_xid);
+                show_window(new_xid, width, height);
+            });
+        window_manager.focus_page.connect((xid, width, height) => {
+                show_window(xid, width, height);
             });
         window_manager.close_page.connect((xid) => {
                 destroy_window(xid);
             });
+        window_manager.resize_page.connect((xid, width, height) => {
+                resize_window(xid, width, height);
+                print("Track here!!!!!!!!!!!!!!\n");
+            });
+        
         app.box.pack_start(window_manager, true, true, 0);
 
         app.show_all();
