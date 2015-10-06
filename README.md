@@ -39,6 +39,7 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 * Write file-manager that powerful like dired.
 * Write pdf viewer for study.
 * Write image viewer to see my girl. ;)
+* Write markdown editor with previewer.
 * Write process manager to control process.
 * Write basic editor, such as language highlight, code completion.
 * Write hackable editor that powerful as emacs, then we can reach editor-strap. 
