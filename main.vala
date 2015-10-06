@@ -54,6 +54,9 @@ public class DaemonServer : Object {
                 } else if (keyevent_name == "Alt + .") {
                     var window = window_manager.get_focus_window();
                     window.tabbar.select_next_tab();
+                } else if (keyevent_name == "Ctrl + w") {
+                    var window = window_manager.get_focus_window();
+                    window.tabbar.close_current_tab();
                 } else {
                     var xid = window_manager.get_focus_tab_xid();
                     if (xid != null) {
