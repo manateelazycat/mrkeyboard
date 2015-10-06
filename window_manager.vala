@@ -4,6 +4,7 @@ using Keymap;
 using Xcb;
 using Gee;
 using Widgets;
+using Draw;
 
 namespace Widgets {
     public class WindowManager : Gtk.Fixed {
@@ -33,15 +34,14 @@ namespace Widgets {
             int width = widget.get_allocated_width();
             int height = widget.get_allocated_height();
             cr.set_source_rgb(23 / 255.0, 24 / 255.0, 20 / 255.0);
-            cr.rectangle(0, 0, width, height);
-            cr.fill();
+            Draw.draw_rectangle(cr, 0, 0, width, height);
             
             return false;
         }
         
-        public int get_focus_tab_xid() {
+        public int? get_focus_tab_xid() {
             if (window_list.size == 0) {
-                return 0;
+                return null;
             } else {
                 var window = get_focus_window();
                 

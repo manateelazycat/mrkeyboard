@@ -60,23 +60,12 @@ namespace Keymap {
 
     public bool has_ctrl_mask(Gdk.EventKey key_event) {
         string[] mask_list = {"Control_L", "Control_R"};
-        foreach (string mask in mask_list) {
-            if (get_key_name(key_event.keyval) == mask) {
-                return true;
-            }
-        }
         
-        return false;
+        return get_key_name(key_event.keyval) in mask_list;
     }
 
     public bool has_shift_mask(Gdk.EventKey key_event) {
         string[] mask_list = {"Shift_L", "Shift_R"};
-        foreach (string mask in mask_list) {
-            if (get_key_name(key_event.keyval) == mask) {
-                return true;
-            }
-        }
-        
-        return false;
+        return get_key_name(key_event.keyval) in mask_list;
     }
 }

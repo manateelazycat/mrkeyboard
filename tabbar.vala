@@ -360,13 +360,11 @@ namespace Widgets {
             widget.get_allocation(out alloc);
             
             Utils.set_context_color(cr, background_color);
-            cr.rectangle(0, 0, alloc.width, alloc.height);
-            cr.fill();
+            Draw.draw_rectangle(cr, 0, 0, alloc.width, alloc.height);
             
             if (draw_arrow) {
                 Utils.set_context_color(cr, inactive_arrow_color);
-                cr.rectangle(alloc.x, alloc.y, arrow_width, alloc.height);
-                cr.fill();
+                Draw.draw_rectangle(cr, alloc.x, alloc.y, arrow_width, alloc.height);
                 
                 if (draw_hover) {
                     if (hover_x < arrow_width) {
@@ -377,14 +375,10 @@ namespace Widgets {
                 } else {
                     Utils.set_context_color(cr, text_color);
                 }
-                var layout = create_pango_layout("<");
-                cr.move_to(arrow_padding_x, arrow_padding_y);
-                Pango.cairo_update_layout(cr, layout);
-                Pango.cairo_show_layout(cr, layout);
+                Draw.draw_text(this, cr, "<", arrow_padding_x, arrow_padding_y);
                 
                 Utils.set_context_color(cr, inactive_arrow_color);
-                cr.rectangle(alloc.width - arrow_width, alloc.y, arrow_width, alloc.height);
-                cr.fill();
+                Draw.draw_rectangle(cr, alloc.width - arrow_width, alloc.y, arrow_width, alloc.height);
                 
                 if (draw_hover) {
                     if (hover_x > alloc.width - arrow_width) {
@@ -395,13 +389,9 @@ namespace Widgets {
                 } else {
                     Utils.set_context_color(cr, text_color);
                 }
-                layout = create_pango_layout(">");
-                cr.move_to(alloc.width - 12, arrow_padding_y);
-                Pango.cairo_update_layout(cr, layout);
-                Pango.cairo_show_layout(cr, layout);
+                Draw.draw_text(this, cr, ">", alloc.width - 12, arrow_padding_y);
                 
-                cr.rectangle(alloc.x + arrow_width, alloc.y, alloc.width - arrow_width * 2, alloc.height);
-                cr.clip();
+                Draw.clip_rectangle(cr, alloc.x + arrow_width, alloc.y, alloc.width - arrow_width * 2, alloc.height);
             }
             
             int draw_x = 0;
@@ -417,8 +407,7 @@ namespace Widgets {
                 
                 if (counter == tab_index) {
                     Utils.set_context_color(cr, active_tab_color);
-                    cr.rectangle(draw_x, 0, get_tab_width(name_width), height);
-                    cr.fill();
+                    Draw.draw_rectangle(cr, draw_x, 0, get_tab_width(name_width), height);
                 } else {
                     if (draw_hover) {
                         if (hover_x > draw_x && hover_x < draw_x + get_tab_width(name_width)) {
@@ -429,8 +418,7 @@ namespace Widgets {
                     } else {
                         Utils.set_context_color(cr, inactive_tab_color);
                     }
-                    cr.rectangle(draw_x, 0, get_tab_width(name_width), height);
-                    cr.fill();
+                    Draw.draw_rectangle(cr, draw_x, 0, get_tab_width(name_width), height);
                 }
                 
                 draw_x += text_padding_x;
@@ -449,11 +437,10 @@ namespace Widgets {
                     }
                 }
                 
-                cr.move_to(draw_x, draw_padding_y);
                 Utils.set_context_color(cr, text_color);
+                Draw.draw_layout(cr, layout, draw_x, draw_padding_y);
+                
                 draw_x += name_width + close_button_width + text_padding_x;
-                Pango.cairo_update_layout(cr, layout);
-                Pango.cairo_show_layout(cr, layout);
                 
                 counter += 1;
             }
@@ -465,7 +452,7 @@ namespace Widgets {
             return name_width + close_button_width + text_padding_x * 2;
         }
         
-        public int get_current_tab_xid() {
+        public int? get_current_tab_xid() {
             return tab_xid_set.get(tab_list.get(tab_index));
         }
         

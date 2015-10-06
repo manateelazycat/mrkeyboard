@@ -9,10 +9,8 @@ public class DaemonServer : Object {
     private Widgets.Application app;
     private Widgets.WindowManager window_manager;
 
-    public bool send_app_tab_info(int app_win_id, string mode_name, int tab_id) {
+    public void send_app_tab_info(int app_win_id, string mode_name, int tab_id) {
         window_manager.show_tab(app_win_id, mode_name, tab_id);
-        
-        return true;
     }
 
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
@@ -52,7 +50,7 @@ public class DaemonServer : Object {
                     window.tabbar.select_next_tab();
                 } else {
                     var xid = window_manager.get_focus_tab_xid();
-                    if (xid > 0) {
+                    if (xid != null) {
                         send_key_event(xid, e.keyval, e.state, e.time, true);
                     }
                 }
@@ -61,7 +59,7 @@ public class DaemonServer : Object {
             });
         window_manager.key_release_event.connect((w, e) => {
                 var xid = window_manager.get_focus_tab_xid();
-                if (xid > 0) {
+                if (xid != null) {
                     send_key_event(xid, e.keyval, e.state, e.time, false);
                 }
                 
@@ -73,9 +71,7 @@ public class DaemonServer : Object {
                 show_window(new_xid);
             });
         app.box.pack_start(window_manager, true, true, 0);
-    }
-    
-    public void run() {
+
         app.show_all();
         Gtk.main();
     }
@@ -91,7 +87,6 @@ void on_bus_aquired(DBusConnection conn, DaemonServer daemon_server) {
 
 void main(string[] args) {
     var daemon_server = new DaemonServer();
-    daemon_server.init(args);
 
     Bus.own_name(BusType.SESSION,
                  "org.mrkeyboard.Daemon",
@@ -100,5 +95,5 @@ void main(string[] args) {
                  () => {},
                  () => stderr.printf ("Could not aquire name\n"));
     
-    daemon_server.run();
+    daemon_server.init(args);
 }

@@ -7,7 +7,7 @@ using Gee;
 
 [DBus (name = "org.mrkeyboard.Daemon")]
 interface Daemon : Object {
-    public abstract bool send_app_tab_info(int app_win_id, string mode_name, int tab_id) throws IOError;
+    public abstract void send_app_tab_info(int app_win_id, string mode_name, int tab_id) throws IOError;
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
     public signal void hide_window(int window_id);
     public signal void show_window(int window_id);
@@ -43,40 +43,9 @@ public class ClientServer : Object {
         window_list = new ArrayList<Application.Window>();
         create_window(args);
         
+        Gtk.main();
+        
         return 0;
-    }
-    
-    private bool handle_send_key_event(int focus_window, uint key_val, int key_state, uint32 key_time, bool press) {
-        foreach (Application.Window window in window_list) {
-            if (focus_window == window.window_id) {
-                window.handle_key_event(key_val, key_state, key_time, press);
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
-    private bool handle_hide(int hide_window_id) {
-        foreach (Application.Window window in window_list) {
-            if (hide_window_id == window.window_id) {
-                window.hide();
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
-    private bool handle_show(int show_window_id) {
-        foreach (Application.Window window in window_list) {
-            if (show_window_id == window.window_id) {
-                window.show();
-                return true;
-            }
-        }
-        
-        return false;
     }
     
     public void create_window(string[] args) {
@@ -96,8 +65,35 @@ public class ClientServer : Object {
         window_list.add(window);
     }
     
-    public void run() {
-        Gtk.main();
+    private void handle_send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press) {
+        var window = get_match_window(window_id);
+        if (window != null) {
+            window.handle_key_event(key_val, key_state, key_time, press);
+        }
+    }
+    
+    private void handle_hide(int window_id) {
+        var window = get_match_window(window_id);
+        if (window != null) {
+            window.hide();
+        }
+    }
+    
+    private void handle_show(int window_id) {
+        var window = get_match_window(window_id);
+        if (window != null) {
+            window.show();
+        }
+    }
+    
+    private Application.Window? get_match_window(int window_id) {
+        foreach (Application.Window window in window_list) {
+            if (window_id == window.window_id) {
+                return window;
+            }
+        }
+        
+        return null;
     }
 }
 
@@ -136,7 +132,6 @@ int main(string[] args) {
                  });
 
     client_server.init(args);
-    client_server.run();
     
     return 0;
 }

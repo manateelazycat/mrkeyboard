@@ -1,5 +1,6 @@
 using Gee;
 using Widgets;
+using Draw;
 
 namespace Widgets {
     public class Window : Gtk.EventBox {
@@ -10,10 +11,9 @@ namespace Widgets {
         public int window_width;
         public int window_height;
         public string mode_name = "";
+        public int padding = 1;
 
         public Gdk.Color window_frame_color = Utils.color_from_hex("#262721");
-
-        public int padding = 1;
         
         public Window() {
             var align = new Gtk.Alignment(0, 0, 1, 1);
@@ -40,8 +40,7 @@ namespace Widgets {
             int width = widget.get_allocated_width();
             int height = widget.get_allocated_height();
             Utils.set_context_color(cr, window_frame_color);
-            cr.rectangle(0, 0, width, height);
-            cr.stroke();
+            Draw.draw_rectangle(cr, 0, 0, width, height, false);
             
             return false;
         }
