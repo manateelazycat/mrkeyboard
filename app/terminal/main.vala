@@ -11,6 +11,7 @@ interface Daemon : Object {
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
     public signal void hide_window(int window_id);
     public signal void show_window(int window_id);
+    public signal void quit_app();
 }
 
 [DBus (name = "org.mrkeyboard.app.terminal")]
@@ -35,6 +36,10 @@ public class ClientServer : Object {
                 });
             daemon.show_window.connect((show_window_id) => {
                     handle_show(show_window_id);
+                });
+            daemon.quit_app.connect(() => {
+                    print("Receive quit signal from daemon, quit app process...\n");
+                    Gtk.main_quit();
                 });
         } catch (IOError e) {
             stderr.printf("%s\n", e.message);

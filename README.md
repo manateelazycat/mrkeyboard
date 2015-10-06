@@ -20,8 +20,6 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
-* Handle daemon process signals.
-* Use global signal to fixed signal-list in many files.
 * Handle tab operate: close;
 * Handle Window operate: split, delete, focus.
 * Design buffer/view framework like Emacs.

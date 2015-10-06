@@ -52,10 +52,6 @@ namespace Widgets {
                     ((Gtk.Window)this.get_toplevel()).iconify() ;
                     return true;
                 });
-            close_button.button_press_event.connect((event) => {
-                    Gtk.main_quit();
-                    return true;
-                });
             button_press_event.connect((event) => {
                     if (Utils.is_double_click(event)) {
                         Utils.toggle_max_window((Gtk.Window)this.get_toplevel());

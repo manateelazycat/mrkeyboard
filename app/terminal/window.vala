@@ -12,7 +12,6 @@ namespace Application {
         public Window(int width, int height, int tab_id) {
             set_decorated(false);
             set_default_size(width, height);
-            destroy.connect(Gtk.main_quit);
             
             var box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
             add(box);
@@ -25,7 +24,6 @@ namespace Application {
             } catch (GLib.ShellError e) {
                 print("Got error when get_shell: %s\n", e.message);
             }
-            term.child_exited.connect((t) => {Gtk.main_quit();});
             try {
                 term.fork_command_full(PtyFlags.DEFAULT, null, arguments, null, SpawnFlags.SEARCH_PATH, null, null);
             } catch (GLib.Error e) {
@@ -43,7 +41,7 @@ namespace Application {
         private static string get_shell() {
             string? shell = Vte.get_user_shell();
         
-            if(shell == null) {
+            if (shell == null) {
                 shell = "/bin/sh";
             }
         

@@ -16,6 +16,7 @@ public class DaemonServer : Object {
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
     public signal void hide_window(int window_id);
     public signal void show_window(int window_id);
+    public signal void quit_app();
     
     public void init(string[] args) {
         if (GtkClutter.init(ref args) != Clutter.InitError.SUCCESS) {
@@ -23,7 +24,7 @@ public class DaemonServer : Object {
         }
         
         app = new Widgets.Application();
-
+        app.destroy.connect(quit);
         Utils.load_css_theme("style.css");
         
         var titlebar = new Widgets.Titlebar();
@@ -32,6 +33,10 @@ public class DaemonServer : Object {
                     window_manager.grab_focus();
                 }
                 return false;
+            });
+        titlebar.close_button.button_press_event.connect((event) => {
+                quit();
+                return true;
             });
         app.box.pack_start(titlebar, false, false, 0);
         
@@ -74,6 +79,11 @@ public class DaemonServer : Object {
 
         app.show_all();
         Gtk.main();
+    }
+    
+    private void quit() {
+        quit_app();
+        Gtk.main_quit();
     }
 }
 
