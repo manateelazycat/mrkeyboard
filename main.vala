@@ -16,6 +16,7 @@ public class DaemonServer : Object {
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
     public signal void hide_window(int window_id);
     public signal void show_window(int window_id);
+    public signal void destroy_window(int window_id);
     public signal void quit_app();
     
     public void init(string[] args) {
@@ -71,9 +72,14 @@ public class DaemonServer : Object {
                 return true;
             });
         window_manager.switch_page.connect((old_xid, new_xid) => {
-                print("Switch page: %i %i\n", old_xid, new_xid);
                 hide_window(old_xid);
                 show_window(new_xid);
+            });
+        window_manager.focus_page.connect((xid) => {
+                show_window(xid);
+            });
+        window_manager.close_page.connect((xid) => {
+                destroy_window(xid);
             });
         app.box.pack_start(window_manager, true, true, 0);
 

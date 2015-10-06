@@ -11,6 +11,7 @@ interface Daemon : Object {
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
     public signal void hide_window(int window_id);
     public signal void show_window(int window_id);
+    public signal void destroy_window(int window_id);
     public signal void quit_app();
 }
 
@@ -31,11 +32,14 @@ public class ClientServer : Object {
             daemon.send_key_event.connect((focus_window, key_val, key_state, key_time, press) => {
                     handle_send_key_event(focus_window, key_val, key_state, key_time, press);
                 });
-            daemon.hide_window.connect((hide_window_id) => {
-                    handle_hide(hide_window_id);
+            daemon.hide_window.connect((window_id) => {
+                    handle_hide(window_id);
                 });
-            daemon.show_window.connect((show_window_id) => {
-                    handle_show(show_window_id);
+            daemon.show_window.connect((window_id) => {
+                    handle_show(window_id);
+                });
+            daemon.destroy_window.connect((window_id) => {
+                    handle_destroy(window_id) ;
                 });
             daemon.quit_app.connect(() => {
                     print("Receive quit signal from daemon, quit app process...\n");
@@ -88,6 +92,14 @@ public class ClientServer : Object {
         var window = get_match_window(window_id);
         if (window != null) {
             window.show();
+        }
+    }
+    
+    private void handle_destroy(int window_id) {
+        var window = get_match_window(window_id);
+        if (window != null) {
+            window_list.remove(window);
+            window.destroy();
         }
     }
     

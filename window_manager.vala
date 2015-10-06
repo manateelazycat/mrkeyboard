@@ -15,6 +15,8 @@ namespace Widgets {
         private int xid;
         
         public signal void switch_page(int old_xid, int new_xid);
+        public signal void close_page(int xid);
+        public signal void focus_page(int xid);
         
         public WindowManager() {
             set_can_focus(true);
@@ -55,6 +57,12 @@ namespace Widgets {
                 window.set_allocate(this, 0, 0, this.get_allocated_width(), this.get_allocated_height());
                 window.tabbar.switch_page.connect((old_xid, new_xid) => {
                         switch_page(old_xid, new_xid);
+                    });
+                window.tabbar.close_page.connect((xid) => {
+                        close_page(xid);
+                    });
+                window.tabbar.focus_page.connect((xid) => {
+                        focus_page(xid);
                     });
                 
                 window_list.add(window);

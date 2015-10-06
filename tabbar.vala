@@ -40,6 +40,8 @@ namespace Widgets {
         private Cairo.ImageSurface press_surface;
         
         public signal void switch_page(int old_xid, int new_xid);
+        public signal void close_page(int xid);
+        public signal void focus_page(int xid);
         
         public Tabbar(string image_path) {
             add_events (Gdk.EventMask.BUTTON_PRESS_MASK
@@ -122,6 +124,9 @@ namespace Widgets {
         public void close_nth_tab(int index) {
             if (tab_list.size > 0) {
                 var tab_id = tab_list.get(index);
+                var tab_xid = tab_xid_set.get(tab_id);
+                
+                close_page(tab_xid);
                 
                 tab_list.remove_at(index);
                 tab_name_set.unset(tab_id);
@@ -132,6 +137,8 @@ namespace Widgets {
                 } else if (tab_index >= tab_list.size) {
                     tab_index = tab_list.size - 1;
                 }
+                
+                focus_tab(tab_index);
                 
                 out_of_area();
                 make_current_visible(false);
@@ -453,7 +460,11 @@ namespace Widgets {
         }
         
         public int? get_current_tab_xid() {
-            return tab_xid_set.get(tab_list.get(tab_index));
+            if (tab_list.size > 0) {
+                return tab_xid_set.get(tab_list.get(tab_index));
+            } else {
+                return null;
+            }
         }
         
         public void switch_tab(int new_index) {
@@ -467,6 +478,15 @@ namespace Widgets {
                 
                 make_current_visible(true);
                 queue_draw();
+            }
+        }
+        
+        public void focus_tab(int index) {
+            if (tab_list.size > 0) {
+                int tab_id = tab_list.get(index);
+                int tab_xid = tab_xid_set.get(tab_id);
+                
+                focus_page(tab_xid);
             }
         }
     }
