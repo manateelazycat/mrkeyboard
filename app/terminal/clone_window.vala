@@ -10,6 +10,7 @@ namespace Application {
         public string buffer_id;
         
         public ClutterX11.TexturePixmap texture;
+        public Clutter.Actor stage;
         public int parent_window_id;
         
         public signal void create_app(int app_win_id, string mode_name, int tab_id);
@@ -27,7 +28,7 @@ namespace Application {
             texture = new ClutterX11.TexturePixmap.with_window(parent_window_id);
             texture.set_automatic(true);
             
-            var stage = embed.get_stage();
+            stage = embed.get_stage();
             stage.set_background_color(Color.from_string("black"));
             stage.add_child(texture);
             
@@ -48,6 +49,16 @@ namespace Application {
             get_allocation(out alloc);
             
             texture.update_area(0, 0, alloc.width, alloc.height);
+        }
+        
+        public void replace_texture() {
+            stage.remove(texture);
+            texture = new ClutterX11.TexturePixmap.with_window(parent_window_id);
+            texture.set_automatic(true);            
+            
+            stage.add_child(texture);
+            
+            stage.show();
         }
     }
 }

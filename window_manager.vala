@@ -14,6 +14,7 @@ namespace Widgets {
         public Xcb.Connection conn;
         
         public signal void init_page(int xid);
+        public signal void reparent_page(int xid);
         public signal void close_page(int xid);
         public signal void resize_page(int xid, int width, int height);
         

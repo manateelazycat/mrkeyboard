@@ -20,7 +20,7 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
-* Handle operate: clone graphics sync, tab close, other window tab focus, window focus, delete current window, delete other windows.
+* Handle operate: tab close, window focus, delete current window, delete other windows.
 * Exit app process when last window destroy by dameon.
 * Design buffer/view framework like Emacs.
 * Create application interface template, make create application easier.

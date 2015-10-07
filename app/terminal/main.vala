@@ -10,6 +10,7 @@ interface Daemon : Object {
     public abstract void send_app_tab_info(int app_win_id, string mode_name, int tab_id, string buffer_id) throws IOError;
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
     public signal void init_window(int window_id);
+    public signal void reparent_window(int window_id);
     public signal void destroy_window(int window_id);
     public signal void resize_window(int window_id, int width, int height);
     public signal void quit_app();
@@ -20,6 +21,7 @@ public class ClientServer : Object {
     private ArrayList<Application.Window> window_list;
     private ArrayList<Application.CloneWindow> clone_window_list;
     private HashMap<string, Application.Window> buffer_window_set;
+    private HashMap<string, HashSet<Application.CloneWindow>> buffer_clone_set;
     private Daemon daemon;
     
     public int init(string[] args) {
@@ -36,6 +38,9 @@ public class ClientServer : Object {
                 });
             daemon.init_window.connect((window_id) => {
                     handle_init(window_id);
+                });
+            daemon.reparent_window.connect((window_id) => {
+                    handle_reparent(window_id);
                 });
             daemon.destroy_window.connect((window_id) => {
                     handle_destroy(window_id) ;
@@ -54,6 +59,7 @@ public class ClientServer : Object {
         window_list = new ArrayList<Application.Window>();
         clone_window_list = new ArrayList<Application.CloneWindow>();
         buffer_window_set = new HashMap<string, Application.Window>();
+        buffer_clone_set = new HashMap<string, HashSet<Application.CloneWindow>>();
         
         create_window(args);
         
@@ -121,6 +127,15 @@ public class ClientServer : Object {
                     });
                 clone_window.show_all();
                 clone_window_list.add(clone_window);
+
+                var clone_window_set = buffer_clone_set.get(clone_window.buffer_id);
+                if (clone_window_set == null) {
+                    var clone_set = new HashSet<Application.CloneWindow>();
+                    clone_set.add(clone_window);
+                    buffer_clone_set.set(clone_window.buffer_id, clone_set);
+                } else {
+                    clone_window_set.add(clone_window);
+                }
             }
         }
     }
@@ -136,6 +151,21 @@ public class ClientServer : Object {
         foreach (Application.CloneWindow window in clone_window_list) {
             if (window_id == window.window_id) {
                 window.update_texture();
+            }
+        }
+    }
+    
+    private void handle_reparent(int window_id) {
+        foreach (Application.Window window in window_list) {
+            if (window_id == window.window_id) {
+                var clone_windows = buffer_clone_set.get(window.buffer_id);
+                if (clone_windows != null) {
+                    foreach (Application.CloneWindow clone_window in clone_windows) {
+                        // Use replace texture to avoid clone texture freeze
+                        // when parent window do x11 reparent operation.
+                        clone_window.replace_texture();
+                    }
+                }
             }
         }
     }

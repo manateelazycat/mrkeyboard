@@ -67,6 +67,8 @@ namespace Widgets {
                     (uint16)tab_box_alloc.x,
                     (uint16)tab_box_alloc.y);
                 window_manager.conn.flush();
+                
+                window_manager.reparent_page(xid);
         }
         
         public bool on_draw(Gtk.Widget widget, Cairo.Context cr) {

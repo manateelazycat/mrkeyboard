@@ -15,6 +15,7 @@ public class DaemonServer : Object {
 
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
     public signal void init_window(int window_id);
+    public signal void reparent_window(int window_id);
     public signal void destroy_window(int window_id);
     public signal void resize_window(int window_id, int width, int height);
     public signal void quit_app();
@@ -84,6 +85,9 @@ public class DaemonServer : Object {
             });
         window_manager.init_page.connect((xid) => {
                 init_window(xid);
+            });
+        window_manager.reparent_page.connect((xid) => {
+                reparent_window(xid);
             });
         window_manager.close_page.connect((xid) => {
                 destroy_window(xid);
