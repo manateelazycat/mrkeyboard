@@ -98,18 +98,11 @@ public class ClientServer : Object {
             var width = int.parse(args[1]);
             var height = int.parse(args[2]);
             var tab_id = int.parse(args[3]);
-            var parent_window_id = 0;
+            var buffer_id = args[4];
             
-            // If four argment has '-' char, we consider it is buffer_id (uuid format).
-            if ("-" in args[4]) {
-                var buffer_id = args[4];
-                
-                var parent_window = buffer_window_set.get(buffer_id);
-                parent_window_id = parent_window.window_id;
-            } else {
-                parent_window_id = int.parse(args[4]);
-            }
-            
+            var parent_window = buffer_window_set.get(buffer_id);
+            var parent_window_id = parent_window.window_id;
+
             var window = get_match_window_with_id(parent_window_id);
             if (window != null) {
                 
