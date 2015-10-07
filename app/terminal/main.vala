@@ -149,8 +149,13 @@ public class ClientServer : Object {
                 var clone_windows = buffer_clone_set.get(window.buffer_id);
                 if (clone_windows != null) {
                     foreach (Application.CloneWindow clone_window in clone_windows) {
-                        // Use replace texture to avoid clone texture freeze
-                        // when parent window do x11 reparent operation.
+                        /* This is HACKING WAY!!!
+                        /* TexturePixmap will freeze once parent window reparent by daemon proces.
+                        /* So i use function 'replace_texture' to re-bulid new texture when parent window do x11 reparent operation.
+                        /* To avoid clone texture freeze.
+                        /* 
+                        /* Please fix this with better way if you configure why TexturePixmap will freeze when parent window reparent.
+                        */  
                         clone_window.update_texture();
                     }
                 }
@@ -167,8 +172,6 @@ public class ClientServer : Object {
     private void handle_destroy(string buffer_id) {
         var window = buffer_window_set.get(buffer_id);
         if (window != null) {
-            print("Destroy window: %i\n", window.window_id);
-            
             buffer_window_set.unset(window.buffer_id);
             window_list.remove(window);
             window.destroy();
@@ -177,7 +180,6 @@ public class ClientServer : Object {
         var clone_windows = buffer_clone_set.get(buffer_id);
         if (clone_windows != null) {
             foreach (Application.CloneWindow clone_window in clone_windows) {
-                print("Destroy clone window: %i\n", clone_window.window_id);
                 clone_window_list.remove(clone_window);
                 clone_window.destroy();
             }

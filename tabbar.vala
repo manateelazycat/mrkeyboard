@@ -133,14 +133,14 @@ namespace Widgets {
             if (tab_list.size > 0) {
                 var tab_id = tab_list.get(index);
                 
-                if (emit_close_signal) {
-                    close_page(index, tab_buffer_set.get(tab_id));
-                }
-                
                 tab_list.remove_at(index);
                 tab_name_set.unset(tab_id);
                 tab_path_set.unset(tab_id);
                 tab_xid_set.unset(tab_id);
+
+                if (emit_close_signal) {
+                    close_page(index, tab_buffer_set.get(tab_id));
+                }
                 tab_buffer_set.unset(tab_id);
 
                 if (tab_list.size == 0) {

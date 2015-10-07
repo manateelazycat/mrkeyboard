@@ -5,6 +5,7 @@ using Xcb;
 using Gee;
 using Widgets;
 using Draw;
+using Utils;
 
 namespace Widgets {
     public class WindowManager : Gtk.Fixed {
@@ -189,6 +190,30 @@ namespace Widgets {
             }
             
             close_page(buffer_id);
+            
+            var window_cleaner = new Utils.WindowCleaner(window_list);
+            window_cleaner.print_clean_result();
+            window_cleaner.remove_blank_windows();
+            window_cleaner.print_clean_result();
+            
+            foreach (Utils.WindowRectangle rect in window_cleaner.window_rectangle_list) {
+                foreach (Window window in window_list) {
+                    if (window.window_xid == rect.id) {
+                        window.set_allocate(this, rect.x, rect.y, rect.width, rect.height);
+                        break;
+                    }
+                }
+            }
+            
+            foreach (Utils.WindowRectangle rect in window_cleaner.window_remove_list) {
+                foreach (Window window in window_list) {
+                    if (window.window_xid == rect.id) {
+                        window_list.remove(window);
+                        window.destroy();
+                        break;
+                    }
+                }
+            }
         }
         
         public Window? get_window_with_tab_id(int tab_id) {

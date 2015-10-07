@@ -104,7 +104,7 @@ namespace Widgets {
             if (alloc.x != -1) {
                 int x, y;
                 this.translate_coordinates(window_manager, 0, 0, out x, out y);
-                
+
                 window_alloc.x = x;
                 window_alloc.y = y;
                 window_alloc.width = alloc.width;
@@ -120,8 +120,8 @@ namespace Widgets {
         }
         
         public void set_allocate(Gtk.Fixed parent, int x, int y, int w, int h) {
-            set_size_request(w, h);
             parent.move(this, x, y);
+            set_size_request(w, h);
         }
     }
 }
