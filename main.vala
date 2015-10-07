@@ -9,14 +9,12 @@ public class DaemonServer : Object {
     private Widgets.Application app;
     private Widgets.WindowManager window_manager;
 
-    public void send_app_tab_info(int app_win_id, string mode_name, int tab_id) {
-        window_manager.show_tab(app_win_id, mode_name, tab_id);
+    public void send_app_tab_info(int app_win_id, string mode_name, int tab_id, string buffer_id) {
+        window_manager.show_tab(app_win_id, mode_name, tab_id, buffer_id);
     }
 
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
     public signal void init_window(int window_id);
-    public signal void hide_window(int window_id);
-    public signal void show_window(int window_id, int width, int height);
     public signal void destroy_window(int window_id);
     public signal void resize_window(int window_id, int width, int height);
     public signal void quit_app();
@@ -87,19 +85,11 @@ public class DaemonServer : Object {
         window_manager.init_page.connect((xid) => {
                 init_window(xid);
             });
-        window_manager.switch_page.connect((old_xid, new_xid, width, height) => {
-                hide_window(old_xid);
-                show_window(new_xid, width, height);
-            });
-        window_manager.focus_page.connect((xid, width, height) => {
-                show_window(xid, width, height);
-            });
         window_manager.close_page.connect((xid) => {
                 destroy_window(xid);
             });
         window_manager.resize_page.connect((xid, width, height) => {
                 resize_window(xid, width, height);
-                print("Track here!!!!!!!!!!!!!!\n");
             });
         
         app.box.pack_start(window_manager, true, true, 0);

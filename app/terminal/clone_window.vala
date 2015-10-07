@@ -7,11 +7,17 @@ namespace Application {
     public class CloneWindow : Gtk.Window {
         public string mode_name = "terminal";
         public int window_id;
+        public string buffer_id;
+        
         public ClutterX11.TexturePixmap texture;
+        public int parent_window_id;
         
         public signal void create_app(int app_win_id, string mode_name, int tab_id);
         
-        public CloneWindow(int width, int height, int tab_id, int parent_window_id) {
+        public CloneWindow(int width, int height, int tab_id, int pwid, string bid) {
+            parent_window_id = pwid;
+            buffer_id = bid;
+            
             set_decorated(false);
             set_default_size(width, height);
 
@@ -24,6 +30,11 @@ namespace Application {
             var stage = embed.get_stage();
             stage.set_background_color(Color.from_string("black"));
             stage.add_child(texture);
+            
+            var tag_actor = new Clutter.Actor();
+            tag_actor.width = tag_actor.height = 20;
+            tag_actor.background_color = Color.from_string("red");
+            stage.add_child(tag_actor);
             
             realize.connect((w) => {
                     var xid = (int)((Gdk.X11.Window) get_window()).get_xid();

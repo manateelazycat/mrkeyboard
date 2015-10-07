@@ -11,13 +11,11 @@ namespace Widgets {
         public int tab_counter;
         public ArrayList<Widgets.Window> window_list;
         public Widgets.Window focus_window;
-        private Xcb.Connection conn;
-        private int xid;
+        public Xcb.Connection conn;
+        public int xid;
         
-        public signal void switch_page(int old_xid, int new_xid, int width, int height);
         public signal void init_page(int xid);
         public signal void close_page(int xid);
-        public signal void focus_page(int xid, int width, int height);
         public signal void resize_page(int xid, int width, int height);
         
         public WindowManager() {
@@ -199,11 +197,9 @@ namespace Widgets {
             return null;
         }
         
-        public void show_tab(int app_win_id, string mode_name, int tab_id) {
+        public void show_tab(int app_win_id, string mode_name, int tab_id, string buffer_id) {
             var window = get_window_with_tab_id(tab_id);
             if (window != null) {
-                print("show: %i\n", app_win_id);
-                
                 Gtk.Allocation window_alloc;
                 window.get_allocation(out window_alloc);
                 
@@ -215,6 +211,7 @@ namespace Widgets {
                 }
                 
                 window.tabbar.set_tab_xid(tab_id, app_win_id);
+                window.tabbar.set_tab_buffer(tab_id, buffer_id);
                 window.tabbar.select_tab_with_id(tab_id);
                 
                 conn.reparent_window(app_win_id, xid,
@@ -223,8 +220,46 @@ namespace Widgets {
                 conn.flush();
                 
                 init_page(app_win_id);
+                
+                sync_windows(window);
             } else {
                 print("Can't found window that contain tab_id: %i\n", tab_id);
+            }
+        }
+        
+        private void sync_windows(Widgets.Window current_window) {
+            var current_buffers = current_window.tabbar.get_all_buffers();
+            var current_paths = current_window.tabbar.get_all_paths();
+            foreach (Widgets.Window window in window_list) {
+                if (window != current_window && window.mode_name == current_window.mode_name) {
+                    var buffers = window.tabbar.get_all_buffers();
+                    var clone_buffers = current_buffers[(buffers.size - 1):(current_buffers.size - 1)];
+                    var clone_paths = current_paths[(buffers.size - 1):(current_buffers.size - 1)];
+
+                    int counter = 0; 
+                    foreach (string clone_buffer in clone_buffers) {
+                        var app_path = clone_paths.get(counter);
+                        var window_alloc = window.get_allocate();
+                        tab_counter += 1;
+                        
+                        window.tabbar.add_tab("Tab", tab_counter, app_path);
+
+                        string app_command = "%s %i %i %i %s".printf(
+                            app_path,
+                            window_alloc.width - window.padding * 2,
+                            window_alloc.height - window.padding * 2 - window.tabbar.height,
+                            tab_counter,
+                            clone_buffer);
+                        
+                        try {
+                            Process.spawn_command_line_async(app_command);
+                        } catch (SpawnError e) {
+                            print("Got error when spawn_command_line_async: %s\n", e.message);
+                        }
+                        
+                        counter++;
+                    }
+                }
             }
         }
     }

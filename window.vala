@@ -39,20 +39,28 @@ namespace Widgets {
                     on_size_allocate(w, r);
                 });
 
-            tabbar.switch_page.connect((old_xid, new_xid) => {
-                    var alloc = get_allocate();
-                    window_manager.switch_page(old_xid, new_xid, alloc.width, alloc.height);
-                });
             tabbar.close_page.connect((xid) => {
                     window_manager.close_page(xid);
                 });
             tabbar.focus_page.connect((xid) => {
-                    var alloc = get_allocate();
-                    window_manager.focus_page(xid, alloc.width, alloc.height);
+                    visible_tab(xid);
                 });
             
             show_all();
             window_manager.add(this);
+        }
+        
+        public void visible_tab(int xid) {
+                Gtk.Allocation window_alloc;
+                get_allocation(out window_alloc);
+                
+                Gtk.Allocation tab_box_alloc;
+                window_content_area.get_allocation(out tab_box_alloc);
+                
+                window_manager.conn.reparent_window(xid, window_manager.xid,
+                                     (uint16)window_alloc.x + (uint16)tab_box_alloc.x,
+                                     (uint16)window_alloc.y + (uint16)tab_box_alloc.y);
+                window_manager.conn.flush();
         }
         
         public bool on_draw(Gtk.Widget widget, Cairo.Context cr) {
@@ -69,10 +77,8 @@ namespace Widgets {
         }
         
         public bool on_size_allocate(Gtk.Widget widget, Gdk.Rectangle rect) {
-            print("#############################%s %i %i %i %i\n", this.get_name(), rect.x, rect.y, rect.width, rect.height);
-            var xid = tabbar.get_current_tab_xid();
-            if (xid != null) {
-                print("************************:%i\n", xid);
+            var xids = tabbar.get_all_xids();
+            foreach (int xid in xids) {
                 window_manager.resize_page(xid,
                                            rect.width - padding * 2,
                                            rect.height - padding *2 - tabbar.height);
@@ -87,13 +93,9 @@ namespace Widgets {
             Gtk.Allocation alloc;
             get_allocation(out alloc);
             
-            print("alloc is: %i %i %i %i\n", alloc.x, alloc.y, alloc.width, alloc.height);
-            
             if (alloc.x != -1) {
                 int x, y;
                 this.translate_coordinates(window_manager, 0, 0, out x, out y);
-                
-                print("Translate: %i %i\n", x, y);
                 
                 window_alloc.x = x;
                 window_alloc.y = y;
@@ -106,8 +108,6 @@ namespace Widgets {
                 window_alloc.height = this.get_parent().get_allocated_height();
             }
             
-            print("window_alloc is: %i %i %i %i\n", window_alloc.x, window_alloc.y, window_alloc.width, window_alloc.height);
-
             return window_alloc;
         }
         

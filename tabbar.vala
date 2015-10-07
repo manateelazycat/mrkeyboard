@@ -10,6 +10,7 @@ namespace Widgets {
         public ArrayList<int> tab_list;
         public HashMap<int, string> tab_name_set;
         public HashMap<int, int> tab_xid_set;
+        public HashMap<int, string> tab_buffer_set;
         public int height = 32;
         public HashMap<int, string> tab_path_set;
         
@@ -40,7 +41,6 @@ namespace Widgets {
         private Cairo.ImageSurface hover_surface;
         private Cairo.ImageSurface press_surface;
         
-        public signal void switch_page(int old_xid, int new_xid);
         public signal void close_page(int xid);
         public signal void focus_page(int xid);
         
@@ -53,6 +53,7 @@ namespace Widgets {
             tab_list = new ArrayList<int>();
             tab_name_set = new HashMap<int, string>();
             tab_xid_set = new HashMap<int, int>();
+            tab_buffer_set = new HashMap<int, string>();
             tab_path_set = new HashMap<int, string>();
             set_size_request(-1, height);
             
@@ -80,6 +81,10 @@ namespace Widgets {
         
         public void set_tab_xid(int tab_id, int xid) {
             tab_xid_set.set(tab_id, xid);
+        }
+        
+        public void set_tab_buffer(int tab_id, string buffer_id) {
+            tab_buffer_set.set(tab_id, buffer_id);
         }
         
         public void select_next_tab() {
@@ -135,6 +140,7 @@ namespace Widgets {
                 tab_name_set.unset(tab_id);
                 tab_path_set.unset(tab_id);
                 tab_xid_set.unset(tab_id);
+                tab_buffer_set.unset(tab_id);
 
                 if (tab_list.size == 0) {
                     tab_index = 0;
@@ -488,13 +494,21 @@ namespace Widgets {
             
             return paths;
         }
+        
+        public ArrayList<string> get_all_buffers() {
+            ArrayList<string> buffers = new ArrayList<string>();
+            foreach (int index in tab_list) {
+                buffers.add(tab_buffer_set.get(index));
+            }
+            
+            return buffers;
+        }
 
         public void switch_tab(int new_index) {
             if (tab_index != new_index) {
-                var old_xid = tab_xid_set.get(tab_list.get(tab_index));
                 var new_xid = tab_xid_set.get(tab_list.get(new_index));
                 
-                switch_page(old_xid, new_xid);
+                focus_page(new_xid);
                 
                 tab_index = new_index;
                 

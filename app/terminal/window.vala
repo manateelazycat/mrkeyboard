@@ -6,10 +6,13 @@ namespace Application {
         public Vte.Terminal term;
         public string mode_name = "terminal";
         public int window_id;
+        public string buffer_id;
         
         public signal void create_app(int app_win_id, string mode_name, int tab_id);
         
-        public Window(int width, int height, int tab_id) {
+        public Window(int width, int height, int tab_id, string bid) {
+            buffer_id = bid;
+            
             set_decorated(false);
             set_default_size(width, height);
             
