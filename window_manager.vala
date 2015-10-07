@@ -108,11 +108,28 @@ namespace Widgets {
             window_list.add(clone_window);
             
             // Clone tabs.
-            var buffer_ids = window.tabbar.get_all_buffers();
+            var xids = window.tabbar.get_all_xids();
             var paths = window.tabbar.get_all_paths();
             var counter = 0;
-            foreach (string buffer_id in buffer_ids) {
-                clone_tab(clone_window, "Tab", paths.get(counter), buffer_id);
+            foreach (int xid in xids) {
+                var app_path = paths.get(counter);
+                
+                tab_counter += 1;
+                clone_window.tabbar.add_tab("Tab", tab_counter, app_path);
+                
+                string app_command = "%s %i %i %i %i".printf(
+                    app_path,
+                    clone_window_width - clone_window.padding * 2,
+                    clone_window_height - clone_window.padding * 2 - clone_window.tabbar.height,
+                    tab_counter,
+                    xid);
+            
+                try {
+                    Process.spawn_command_line_async(app_command);
+                } catch (SpawnError e) {
+                    print("Got error when spawn_command_line_async: %s\n", e.message);
+                }
+                
                 counter++;
             }
             
@@ -329,30 +346,29 @@ namespace Widgets {
 
                     int counter = 0; 
                     foreach (string clone_buffer in clone_buffers) {
-                        clone_tab(window, "Tab", clone_paths.get(counter), clone_buffer);
+                        var app_path = clone_paths.get(counter);
+                        var window_alloc = window.get_allocate();
+                        tab_counter += 1;
+                        
+                        window.tabbar.add_tab("Tab", tab_counter, app_path);
+
+                        string app_command = "%s %i %i %i %s".printf(
+                            app_path,
+                            window_alloc.width - window.padding * 2,
+                            window_alloc.height - window.padding * 2 - window.tabbar.height,
+                            tab_counter,
+                            clone_buffer);
+                        
+                        try {
+                            Process.spawn_command_line_async(app_command);
+                        } catch (SpawnError e) {
+                            print("Got error when spawn_command_line_async: %s\n", e.message);
+                        }
+                        
                         counter++;
                     }
                 }
             }
         }
-        
-        private void clone_tab(Window window, string tab_name, string app_path, string buffer_id) {
-            tab_counter += 1;
-            var window_alloc = window.get_allocate();
-            string app_command = "%s %i %i %i %s".printf(
-                app_path,
-                window_alloc.width - window.padding * 2,
-                window_alloc.height - window.padding * 2 - window.tabbar.height,
-                tab_counter,
-                buffer_id);
-                        
-            try {
-                Process.spawn_command_line_async(app_command);
-            } catch (SpawnError e) {
-                print("Got error when spawn_command_line_async: %s\n", e.message);
-            }
-                        
-            window.tabbar.add_tab("Tab", tab_counter, app_path);
-       }
     }
 }
