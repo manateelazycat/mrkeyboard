@@ -107,7 +107,7 @@ public class ClientServer : Object {
                 var parent_window = buffer_window_set.get(buffer_id);
                 parent_window_id = parent_window.window_id;
             } else {
-                parent_window_id = int.parse(args[4]);
+                parent_window_id = get_parent_window_id(int.parse(args[4]));
             }
             
             var window = get_match_window_with_id(parent_window_id);
@@ -134,6 +134,23 @@ public class ClientServer : Object {
                 }
             }
         }
+    }
+    
+    private int get_parent_window_id(int window_id) {
+        foreach (Application.Window window in window_list) {
+            if (window.window_id == window_id) {
+                return window_id;
+            }
+        }
+        
+        foreach (Application.CloneWindow clone_window in clone_window_list) {
+            if (clone_window.window_id == window_id) {
+                return buffer_window_set.get(clone_window.buffer_id).window_id;
+            }
+        }
+        
+        print("ERROR: get_parent_window_id can't found valid window id.\n");
+        return 0;
     }
     
     private void handle_send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press) {
