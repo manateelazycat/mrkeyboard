@@ -20,6 +20,7 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
+* Add app process signal, such as exit from terminal.
 * Handle operate: delete current window, delete other windows.
 * Fixed configure event.
 * Design buffer/view framework like Emacs.
