@@ -8,6 +8,7 @@ namespace Widgets {
         public Gtk.Box window_content_area;
         public string mode_name = "";
         public int padding = 1;
+        public int window_xid;
 
         // public Gdk.Color window_frame_color = Utils.color_from_hex("#262721");
         public Gdk.Color window_frame_color = Utils.color_from_hex("#FF0000");
@@ -35,6 +36,9 @@ namespace Widgets {
             box.pack_start(window_content_area, true, true, 0);
             
             draw.connect(on_draw);
+            realize.connect((w) => {
+                    window_xid = (int)((Gdk.X11.Window) get_window()).get_xid();
+                });
             size_allocate.connect((w, r) => {
                     on_size_allocate(w, r);
                 });
@@ -57,9 +61,11 @@ namespace Widgets {
                 Gtk.Allocation tab_box_alloc;
                 window_content_area.get_allocation(out tab_box_alloc);
                 
-                window_manager.conn.reparent_window(xid, (int)((Gdk.X11.Window) get_window()).get_xid(),
-                                     (uint16)tab_box_alloc.x,
-                                     (uint16)tab_box_alloc.y);
+                window_manager.conn.reparent_window(
+                    xid,
+                    window_xid,
+                    (uint16)tab_box_alloc.x,
+                    (uint16)tab_box_alloc.y);
                 window_manager.conn.flush();
         }
         

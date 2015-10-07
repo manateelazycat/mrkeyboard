@@ -54,27 +54,33 @@ public class ClientServer : Object {
         window_list = new ArrayList<Application.Window>();
         clone_window_list = new ArrayList<Application.CloneWindow>();
         buffer_window_set = new HashMap<string, Application.Window>();
-        create_window(args);
         
-        Gtk.main();
+        create_window(args);
         
         return 0;
     }
     
-    public void create_window(string[] args) {
+    private string get_buffer_id() {
+        string buffer_id;
+        string[] spawn_args = {"uuidgen"};
+        try {
+            Process.spawn_sync(null, spawn_args, null, SpawnFlags.SEARCH_PATH, null, out buffer_id);
+        } catch (SpawnError e) {
+            print("Got error when spawn__line_async: %s\n", e.message);
+        }
+        
+        return buffer_id[0:buffer_id.length - 2];  // remove \n char at end
+    }
+    
+    public void create_window(string[] args, bool from_dbus=false) {
         if (args.length == 4) {
             var width = int.parse(args[1]);
             var height = int.parse(args[2]);
             var tab_id = int.parse(args[3]);
 
-            string buffer_id;
-            string[] spawn_args = {"uuidgen"};
-            try {
-                Process.spawn_sync(null, spawn_args, null, SpawnFlags.SEARCH_PATH, null, out buffer_id);
-            } catch (SpawnError e) {
-                print("Got error when spawn__line_async: %s\n", e.message);
-            }
+            var buffer_id = get_buffer_id();
             var window = new Application.Window(width, height, tab_id, buffer_id);
+            
             window.create_app.connect((app_win_id, mode_name, tab_id) => {
                     try {
                         daemon.send_app_tab_info(app_win_id, mode_name, tab_id, window.buffer_id);
@@ -83,8 +89,8 @@ public class ClientServer : Object {
                     }
                 });
             window.show_all();
-            window_list.add(window);
             
+            window_list.add(window);
             buffer_window_set.set(buffer_id, window);
         } else if (args.length == 5) {
             var width = int.parse(args[1]);
@@ -92,9 +98,10 @@ public class ClientServer : Object {
             var tab_id = int.parse(args[3]);
             var parent_window_id = 0;
             
-            // If four argment length is 37, we consider it is buffer_id (uuid format).
-            if (args[4].length == 37) {
+            // If four argment has '-' char, we consider it is buffer_id (uuid format).
+            if ("-" in args[4]) {
                 var buffer_id = args[4];
+                
                 var parent_window = buffer_window_set.get(buffer_id);
                 parent_window_id = parent_window.window_id;
             } else {
@@ -162,7 +169,7 @@ public class ClientServer : Object {
 
 [DBus (name = "org.mrkeyboard.app.terminal")]
 interface Client : Object {
-    public abstract void create_window(string[] args) throws IOError;
+    public abstract void create_window(string[] args, bool from_dbus) throws IOError;
 }
 
 void on_bus_aquired(DBusConnection conn, ClientServer client_server) {
@@ -180,21 +187,23 @@ int main(string[] args) {
                  "org.mrkeyboard.app.terminal",
                  BusNameOwnerFlags.NONE,
                  ((con) => {on_bus_aquired(con, client_server);}),
-                 () => {},
+                 () => {
+                     client_server.init(args);
+                 },
                  () => {
                      Client client = null;
                      
                      try {
                          client = Bus.get_proxy_sync(BusType.SESSION, "org.mrkeyboard.app.terminal", "/org/mrkeyboard/app/terminal");
-                         client.create_window(args);
+                         client.create_window(args, true);
                      } catch (IOError e) {
                          stderr.printf("%s\n", e.message);
                      }
                      
                      Gtk.main_quit();
                  });
-
-    client_server.init(args);
+    
+    Gtk.main();
     
     return 0;
 }

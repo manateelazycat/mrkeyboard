@@ -144,13 +144,11 @@ namespace Widgets {
         }
         
         public void split_window_horizontal() {
-            print("horizontal\n");
             var window = get_focus_window();
             create_clone_window(window, true);
         }
         
         public void split_window_vertical() {
-            print("vertical\n");
             var window = get_focus_window();
             create_clone_window(window, false);
         }
@@ -222,8 +220,8 @@ namespace Widgets {
             foreach (Widgets.Window window in window_list) {
                 if (window != current_window && window.mode_name == current_window.mode_name) {
                     var buffers = window.tabbar.get_all_buffers();
-                    var clone_buffers = current_buffers[(buffers.size - 1):(current_buffers.size - 1)];
-                    var clone_paths = current_paths[(buffers.size - 1):(current_buffers.size - 1)];
+                    var clone_buffers = current_buffers[buffers.size:current_buffers.size];
+                    var clone_paths = current_paths[buffers.size:current_buffers.size];
 
                     int counter = 0; 
                     foreach (string clone_buffer in clone_buffers) {
