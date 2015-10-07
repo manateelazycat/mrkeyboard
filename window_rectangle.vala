@@ -13,8 +13,7 @@ namespace Utils {
         public int tab_numbers;
         
         public WindowRectangle(Widgets.Window window) {
-            Gtk.Allocation alloc;
-            window.get_allocation(out alloc);
+            Gtk.Allocation alloc = window.get_allocate();
             
             id = window.window_xid;
             x = alloc.x;

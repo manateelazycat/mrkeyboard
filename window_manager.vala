@@ -272,6 +272,18 @@ namespace Widgets {
             }
         }
         
+        public void close_tab_with_buffer(string mode_name, string buffer_id) {
+            foreach (Window window in window_list) {
+                if (window.mode_name == mode_name) {
+                    window.tabbar.close_tab_with_buffer(buffer_id);
+                }
+            }
+            
+            close_page(buffer_id);
+
+            clean_windows();
+        }
+        
         public void close_tab(Window current_window, string mode_name, int tab_index, string buffer_id) {
             foreach (Window window in window_list) {
                 if (window != current_window && window.mode_name == current_window.mode_name) {
@@ -280,13 +292,18 @@ namespace Widgets {
             }
             
             close_page(buffer_id);
-            
+
+            clean_windows();
+        }
+        
+        public void clean_windows() {
             var window_rect_manager = new Utils.WindowRectangleManager(window_list);
             window_rect_manager.remove_blank_windows();
             
             foreach (Utils.WindowRectangle rect in window_rect_manager.window_rectangle_list) {
                 foreach (Window window in window_list) {
                     if (window.window_xid == rect.id) {
+                        print("set_allocate: %i %i %i %i\n", rect.x, rect.y, rect.width, rect.height);
                         window.set_allocate(this, rect.x, rect.y, rect.width, rect.height);
                         break;
                     }
@@ -319,7 +336,7 @@ namespace Widgets {
         public void show_tab(int app_win_id, string mode_name, int tab_id, string buffer_id) {
             var window = get_window_with_tab_id(tab_id);
             if (window != null) {
-                if (window.mode_name != "") {
+                if (window.mode_name == "") {
                     window.mode_name = mode_name;
                 }
                 

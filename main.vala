@@ -12,6 +12,10 @@ public class DaemonServer : Object {
     public void send_app_tab_info(int app_win_id, string mode_name, int tab_id, string buffer_id) {
         window_manager.show_tab(app_win_id, mode_name, tab_id, buffer_id);
     }
+    
+    public void exit_app_tab(string mode_name, string buffer_id) {
+        window_manager.close_tab_with_buffer(mode_name, buffer_id);
+    }
 
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
     public signal void reparent_window(int window_id);

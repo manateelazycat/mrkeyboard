@@ -129,6 +129,20 @@ namespace Widgets {
             close_nth_tab(tab_index);
         }
         
+        public bool close_tab_with_buffer(string buffer_id) {
+            foreach (var entry in tab_buffer_set.entries) {
+                if (entry.value == buffer_id) {
+                    int? tab_index = tab_list.index_of(entry.key);
+                    if (tab_index != null) {
+                        close_nth_tab(tab_index, false);
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
         public void close_nth_tab(int index, bool emit_close_signal=true) {
             if (tab_list.size > 0) {
                 var tab_id = tab_list.get(index);

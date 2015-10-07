@@ -8,6 +8,7 @@ using Gee;
 [DBus (name = "org.mrkeyboard.Daemon")]
 interface Daemon : Object {
     public abstract void send_app_tab_info(int app_win_id, string mode_name, int tab_id, string buffer_id) throws IOError;
+    public abstract void exit_app_tab(string mode_name, string buffer_id) throws IOError;
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
     public signal void reparent_window(int window_id);
     public signal void destroy_window(string buffer_id);
@@ -90,6 +91,13 @@ public class ClientServer : Object {
                         stderr.printf("%s\n", e.message);
                     }
                 });
+            window.exit_app_tab.connect((mode_name, buffer_id) => {
+                    try {
+                        daemon.exit_app_tab(mode_name, buffer_id);
+                    } catch (IOError e) {
+                        stderr.printf("%s\n", e.message);
+                    }
+                });
             window.show_all();
             
             window_list.add(window);
@@ -98,7 +106,7 @@ public class ClientServer : Object {
             var width = int.parse(args[1]);
             var height = int.parse(args[2]);
             var tab_id = int.parse(args[3]);
-            var parent_window_id = 0;
+            int? parent_window_id = 0;
             
             // If four argment has '-' char, we consider it is buffer_id (uuid format).
             if ("-" in args[4]) {
@@ -110,33 +118,37 @@ public class ClientServer : Object {
                 parent_window_id = get_parent_window_id(int.parse(args[4]));
             }
             
-            var window = get_match_window_with_id(parent_window_id);
-            if (window != null) {
+            if (parent_window_id != null) {
+                var window = get_match_window_with_id(parent_window_id);
+                if (window != null) {
+                    
+                    var clone_window = new Application.CloneWindow(width, height, tab_id, parent_window_id, window.buffer_id);
+                    clone_window.create_app.connect((app_win_id, mode_name, tab_id) => {
+                            try {
+                                daemon.send_app_tab_info(app_win_id, mode_name, tab_id, clone_window.buffer_id);
+                            } catch (IOError e) {
+                                stderr.printf("%s\n", e.message);
+                            }
+                        });
+                    clone_window.show_all();
+                    clone_window_list.add(clone_window);
                 
-                var clone_window = new Application.CloneWindow(width, height, tab_id, parent_window_id, window.buffer_id);
-                clone_window.create_app.connect((app_win_id, mode_name, tab_id) => {
-                        try {
-                            daemon.send_app_tab_info(app_win_id, mode_name, tab_id, clone_window.buffer_id);
-                        } catch (IOError e) {
-                            stderr.printf("%s\n", e.message);
-                        }
-                    });
-                clone_window.show_all();
-                clone_window_list.add(clone_window);
-
-                var clone_window_set = buffer_clone_set.get(clone_window.buffer_id);
-                if (clone_window_set == null) {
-                    var clone_set = new HashSet<Application.CloneWindow>();
-                    clone_set.add(clone_window);
-                    buffer_clone_set.set(clone_window.buffer_id, clone_set);
-                } else {
-                    clone_window_set.add(clone_window);
+                    var clone_window_set = buffer_clone_set.get(clone_window.buffer_id);
+                    if (clone_window_set == null) {
+                        var clone_set = new HashSet<Application.CloneWindow>();
+                        clone_set.add(clone_window);
+                        buffer_clone_set.set(clone_window.buffer_id, clone_set);
+                    } else {
+                        clone_window_set.add(clone_window);
+                    }
                 }
+            } else {
+                print("ERROR: get_parent_window_id can't found valid window id.\n");
             }
         }
     }
     
-    private int get_parent_window_id(int window_id) {
+    private int? get_parent_window_id(int window_id) {
         foreach (Application.Window window in window_list) {
             if (window.window_id == window_id) {
                 return window_id;
@@ -149,15 +161,16 @@ public class ClientServer : Object {
             }
         }
         
-        print("ERROR: get_parent_window_id can't found valid window id.\n");
-        return 0;
+        return null;
     }
     
     private void handle_send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press) {
         var wid = get_parent_window_id(window_id);
-        var window = get_match_window_with_id(wid);
-        if (window != null) {
-            window.handle_key_event(key_val, key_state, key_time, press);
+        if (wid != null) {
+            var window = get_match_window_with_id(wid);
+            if (window != null) {
+                window.handle_key_event(key_val, key_state, key_time, press);
+            }
         }
     }
     
