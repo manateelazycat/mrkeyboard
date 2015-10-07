@@ -168,6 +168,12 @@ public class ClientServer : Object {
                 }
             }
         }
+        
+        foreach (Application.CloneWindow window in clone_window_list) {
+            if (window_id == window.window_id) {
+                window.update_texture_area();
+            }
+        }
     }
     
     private void handle_destroy(string buffer_id) {

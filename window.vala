@@ -55,20 +55,20 @@ namespace Widgets {
         }
         
         public void visible_tab(int xid) {
-                Gtk.Allocation window_alloc;
-                get_allocation(out window_alloc);
+            Gtk.Allocation window_alloc;
+            get_allocation(out window_alloc);
                 
-                Gtk.Allocation tab_box_alloc;
-                window_content_area.get_allocation(out tab_box_alloc);
+            Gtk.Allocation tab_box_alloc;
+            window_content_area.get_allocation(out tab_box_alloc);
                 
-                window_manager.conn.reparent_window(
-                    xid,
-                    window_xid,
-                    (uint16)tab_box_alloc.x,
-                    (uint16)tab_box_alloc.y);
-                window_manager.conn.flush();
+            window_manager.conn.reparent_window(
+                xid,
+                window_xid,
+                (uint16)tab_box_alloc.x,
+                (uint16)tab_box_alloc.y);
+            window_manager.conn.flush();
                 
-                window_manager.reparent_page(xid);
+            window_manager.reparent_page(xid);
         }
         
         public bool on_draw(Gtk.Widget widget, Cairo.Context cr) {
