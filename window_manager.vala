@@ -55,7 +55,7 @@ namespace Widgets {
             window.set_allocate(this, 0, 0, this.get_allocated_width(), this.get_allocated_height());
             
             window_list.add(window);
-            focus_window = window;
+            set_focus_window(window);
 
             return window;
         }
@@ -154,6 +154,96 @@ namespace Widgets {
             create_clone_window(window, false);
         }
         
+        public void set_focus_window(Window new_window) {
+            focus_window = new_window;
+            foreach (Window window in window_list) {
+                window.queue_draw();
+            }
+        }
+        
+        public bool focus_left_window() {
+            focus_horizontal_window(true);
+            
+            return false;
+        }
+        
+        public void focus_right_window() {
+            focus_horizontal_window(false);
+        }
+
+        public void focus_up_window() {
+            focus_vertical_window(true);
+        }
+        
+        public void focus_down_window() {
+            focus_vertical_window(false);
+        }
+        
+        private bool focus_horizontal_window(bool focus_left) {
+            if (window_list.size > 1) {
+                var overlap_windows = new HashMap<int, Window>();
+                int max_overlap = 0;
+                
+                var w_alloc = focus_window.get_allocate();
+                foreach (Window brother_window in window_list) {
+                    var b_alloc = brother_window.get_allocate();
+                    if ((focus_left && w_alloc.x == b_alloc.x + b_alloc.width) || (!focus_left && w_alloc.x + w_alloc.width == b_alloc.x)) {
+                        if (b_alloc.y < w_alloc.y && b_alloc.y + b_alloc.height >= w_alloc.y + w_alloc.height) {
+                            set_focus_window(brother_window);
+                            return true;
+                        }
+                        var overlap = (b_alloc.height + w_alloc.height - (b_alloc.y - w_alloc.y).abs() - (b_alloc.y + b_alloc.height - w_alloc.y - w_alloc.height).abs() / 2);
+                        
+                        if (overlap > max_overlap) {
+                            max_overlap = overlap;
+                        }
+                        
+                        overlap_windows.set(overlap, brother_window);
+                    }
+                }
+                
+                var max_overlap_window = overlap_windows.get(max_overlap);
+                if (max_overlap_window != null) {
+                    set_focus_window(max_overlap_window);
+                }
+            }
+            
+            return false;
+        }
+
+        private bool focus_vertical_window(bool focus_up) {
+            if (window_list.size > 1) {
+                var overlap_windows = new HashMap<int, Window>();
+                int max_overlap = 0;
+                
+                var w_alloc = focus_window.get_allocate();
+                foreach (Window brother_window in window_list) {
+                    var b_alloc = brother_window.get_allocate();
+                    if ((focus_up && w_alloc.y == b_alloc.y + b_alloc.height) || (!focus_up && w_alloc.y + w_alloc.height == b_alloc.y)) {
+                        if (b_alloc.x < w_alloc.x && b_alloc.x + b_alloc.width >= w_alloc.x + w_alloc.width) {
+                            set_focus_window(brother_window);
+                            return true;
+                        }
+                        
+                        var overlap = (b_alloc.width + w_alloc.width - (b_alloc.x - w_alloc.x).abs() - (b_alloc.x + b_alloc.width - w_alloc.x - w_alloc.width).abs() / 2);
+                        
+                        if (overlap > max_overlap) {
+                            max_overlap = overlap;
+                        }
+                        
+                        overlap_windows.set(overlap, brother_window);
+                    }
+                }
+                
+                var max_overlap_window = overlap_windows.get(max_overlap);
+                if (max_overlap_window != null) {
+                    set_focus_window(max_overlap_window);
+                }
+            }
+            
+            return false;
+        }
+        
         public void close_other_windows() {
             print("close other windows\n");
         }
@@ -191,12 +281,10 @@ namespace Widgets {
             
             close_page(buffer_id);
             
-            var window_cleaner = new Utils.WindowCleaner(window_list);
-            window_cleaner.print_clean_result();
-            window_cleaner.remove_blank_windows();
-            window_cleaner.print_clean_result();
+            var window_rect_manager = new Utils.WindowRectangleManager(window_list);
+            window_rect_manager.remove_blank_windows();
             
-            foreach (Utils.WindowRectangle rect in window_cleaner.window_rectangle_list) {
+            foreach (Utils.WindowRectangle rect in window_rect_manager.window_rectangle_list) {
                 foreach (Window window in window_list) {
                     if (window.window_xid == rect.id) {
                         window.set_allocate(this, rect.x, rect.y, rect.width, rect.height);
@@ -205,7 +293,7 @@ namespace Widgets {
                 }
             }
             
-            foreach (Utils.WindowRectangle rect in window_cleaner.window_remove_list) {
+            foreach (Utils.WindowRectangle rect in window_rect_manager.window_remove_list) {
                 foreach (Window window in window_list) {
                     if (window.window_xid == rect.id) {
                         window_list.remove(window);

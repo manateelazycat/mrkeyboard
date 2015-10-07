@@ -65,6 +65,14 @@ public class DaemonServer : Object {
                     window_manager.close_other_windows();
                 } else if (keyevent_name == "Alt + \"") {
                     window_manager.close_current_window();
+                } else if (keyevent_name == "Alt + h") {
+                    window_manager.focus_left_window();
+                } else if (keyevent_name == "Alt + l") {
+                    window_manager.focus_right_window();
+                } else if (keyevent_name == "Alt + j") {
+                    window_manager.focus_down_window();
+                } else if (keyevent_name == "Alt + k") {
+                    window_manager.focus_up_window();
                 } else {
                     var xid = window_manager.get_focus_tab_xid();
                     if (xid != null) {

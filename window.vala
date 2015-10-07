@@ -10,9 +10,8 @@ namespace Widgets {
         public int padding = 1;
         public int window_xid;
 
-        // public Gdk.Color window_frame_color = Utils.color_from_hex("#262721");
-        public Gdk.Color window_frame_color = Utils.color_from_hex("#FF0000");
-        public Gdk.Color window_frame_active_color = Utils.color_from_hex("#2DB213");
+        public Gdk.Color window_frame_color = Utils.color_from_hex("#262721");
+        public Gdk.Color window_frame_active_color = Utils.color_from_hex("#707F3D");
         
         private Widgets.WindowManager window_manager;
         

@@ -25,11 +25,11 @@ namespace Utils {
         }
     }
 
-    public class WindowCleaner : Object {
+    public class WindowRectangleManager : Object {
         public ArrayList<WindowRectangle> window_rectangle_list;
         public ArrayList<WindowRectangle> window_remove_list;
         
-        public WindowCleaner(ArrayList<Widgets.Window> window_list) {
+        public WindowRectangleManager(ArrayList<Widgets.Window> window_list) {
             window_rectangle_list = new ArrayList<WindowRectangle>();
             window_remove_list = new ArrayList<WindowRectangle>();
             
@@ -121,9 +121,6 @@ namespace Utils {
         private void get_area_to_brother_window(WindowRectangle window, WindowRectangle brother_window) {
             // Find brother at left.
             if (window.x == brother_window.x + brother_window.width) {
-                print("*** left %i %i\n", window.id, brother_window.id);
-                print("test: %i %i\n", window.width, brother_window.width);
-                
                 brother_window.x = brother_window.x;
                 brother_window.y = brother_window.y;
                 brother_window.width = window.width + brother_window.width;
@@ -132,8 +129,6 @@ namespace Utils {
             
             // Find brother at right.
             if (window.x + window.width == brother_window.x) {
-                print("*** right %i %i\n", window.id, brother_window.id);
-                
                 brother_window.x = window.x;
                 brother_window.y = window.y;
                 brother_window.width = window.width + brother_window.width;
@@ -142,8 +137,6 @@ namespace Utils {
             
             // Find brother at up or down.
             if (window.y == brother_window.y + brother_window.height) {
-                print("*** up %i %i\n", window.id, brother_window.id);
-                
                 brother_window.x = brother_window.x;
                 brother_window.y = brother_window.y;
                 brother_window.width = window.width;
@@ -152,8 +145,6 @@ namespace Utils {
             
             // Find brother at down.
             if (window.y + window.height == brother_window.y) {
-                print("*** down %i %i\n", window.id, brother_window.id);
-                
                 brother_window.x = window.x;
                 brother_window.y = window.y;
                 brother_window.width = window.width;
