@@ -11,7 +11,7 @@ namespace Widgets {
         public int window_xid;
 
         public Gdk.Color window_frame_color = Utils.color_from_hex("#262721");
-        public Gdk.Color window_frame_active_color = Utils.color_from_hex("#707F3D");
+        public Gdk.Color window_frame_active_color = Utils.color_from_hex("#536773");
         
         private Widgets.WindowManager window_manager;
         
