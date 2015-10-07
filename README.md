@@ -20,10 +20,8 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
-* Build window id in app process to id tab window and clone window.
-* Handle Window operate: split, delete, focus.
-* XCB can handle window show/hide/destroy, don't need pass command through process.
-* If we want show window, just use reparent, don't hide any window, then clone window won't freeze.
+* Handle operate: clone graphics sync, tab close, other window tab focus, window focus, delete current window, delete other windows.
+* XCB can handle window destroy, don't need pass command through process.
 * Exit app process when last window destroy by dameon.
 * Design buffer/view framework like Emacs.
 * Create application interface template, make create application easier.

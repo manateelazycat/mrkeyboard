@@ -57,9 +57,9 @@ namespace Widgets {
                 Gtk.Allocation tab_box_alloc;
                 window_content_area.get_allocation(out tab_box_alloc);
                 
-                window_manager.conn.reparent_window(xid, window_manager.xid,
-                                     (uint16)window_alloc.x + (uint16)tab_box_alloc.x,
-                                     (uint16)window_alloc.y + (uint16)tab_box_alloc.y);
+                window_manager.conn.reparent_window(xid, (int)((Gdk.X11.Window) get_window()).get_xid(),
+                                     (uint16)tab_box_alloc.x,
+                                     (uint16)tab_box_alloc.y);
                 window_manager.conn.flush();
         }
         

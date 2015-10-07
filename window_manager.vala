@@ -12,7 +12,6 @@ namespace Widgets {
         public ArrayList<Widgets.Window> window_list;
         public Widgets.Window focus_window;
         public Xcb.Connection conn;
-        public int xid;
         
         public signal void init_page(int xid);
         public signal void close_page(int xid);
@@ -27,7 +26,6 @@ namespace Widgets {
             window_list = new ArrayList<Widgets.Window>();
             
             realize.connect((w) => {
-                    xid = (int)((Gdk.X11.Window) get_window()).get_xid(); 
                     grab_focus();
                 });
         }
@@ -200,12 +198,6 @@ namespace Widgets {
         public void show_tab(int app_win_id, string mode_name, int tab_id, string buffer_id) {
             var window = get_window_with_tab_id(tab_id);
             if (window != null) {
-                Gtk.Allocation window_alloc;
-                window.get_allocation(out window_alloc);
-                
-                Gtk.Allocation tab_box_alloc;
-                window.window_content_area.get_allocation(out tab_box_alloc);
-                
                 if (window.mode_name != "") {
                     window.mode_name = mode_name;
                 }
@@ -214,10 +206,7 @@ namespace Widgets {
                 window.tabbar.set_tab_buffer(tab_id, buffer_id);
                 window.tabbar.select_tab_with_id(tab_id);
                 
-                conn.reparent_window(app_win_id, xid,
-                                     (uint16)window_alloc.x + (uint16)tab_box_alloc.x,
-                                     (uint16)window_alloc.y + (uint16)tab_box_alloc.y);
-                conn.flush();
+                window.visible_tab(app_win_id);
                 
                 init_page(app_win_id);
                 
