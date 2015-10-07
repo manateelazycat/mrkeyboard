@@ -9,7 +9,6 @@ using Gee;
 interface Daemon : Object {
     public abstract void send_app_tab_info(int app_win_id, string mode_name, int tab_id, string buffer_id) throws IOError;
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
-    public signal void init_window(int window_id);
     public signal void reparent_window(int window_id);
     public signal void destroy_window(string buffer_id);
     public signal void resize_window(int window_id, int width, int height);
@@ -35,9 +34,6 @@ public class ClientServer : Object {
         
             daemon.send_key_event.connect((focus_window, key_val, key_state, key_time, press) => {
                     handle_send_key_event(focus_window, key_val, key_state, key_time, press);
-                });
-            daemon.init_window.connect((window_id) => {
-                    handle_init(window_id);
                 });
             daemon.reparent_window.connect((window_id) => {
                     handle_reparent(window_id);
@@ -144,14 +140,6 @@ public class ClientServer : Object {
         var window = get_match_window_with_id(window_id);
         if (window != null) {
             window.handle_key_event(key_val, key_state, key_time, press);
-        }
-    }
-    
-    private void handle_init(int window_id) {
-        foreach (Application.CloneWindow window in clone_window_list) {
-            if (window_id == window.window_id) {
-                window.update_texture_area();
-            }
         }
     }
     

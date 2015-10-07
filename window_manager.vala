@@ -13,7 +13,6 @@ namespace Widgets {
         public Widgets.Window focus_window;
         public Xcb.Connection conn;
         
-        public signal void init_page(int xid);
         public signal void reparent_page(int xid);
         public signal void close_page(string buffer_id);
         public signal void resize_page(int xid, int width, int height);
@@ -216,8 +215,6 @@ namespace Widgets {
                 window.tabbar.select_tab_with_id(tab_id);
                 
                 window.visible_tab(app_win_id);
-                
-                init_page(app_win_id);
                 
                 sync_windows(window);
             } else {
