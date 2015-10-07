@@ -43,8 +43,8 @@ namespace Widgets {
                     on_size_allocate(w, r);
                 });
 
-            tabbar.close_page.connect((xid) => {
-                    window_manager.close_page(xid);
+            tabbar.close_page.connect((index, buffer_id) => {
+                    window_manager.close_tab(this, mode_name, index, buffer_id);
                 });
             tabbar.focus_page.connect((xid) => {
                     visible_tab(xid);

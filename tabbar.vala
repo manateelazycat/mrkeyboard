@@ -41,7 +41,7 @@ namespace Widgets {
         private Cairo.ImageSurface hover_surface;
         private Cairo.ImageSurface press_surface;
         
-        public signal void close_page(int xid);
+        public signal void close_page(int index, string buffer_id);
         public signal void focus_page(int xid);
         
         public Tabbar(string image_path) {
@@ -129,12 +129,13 @@ namespace Widgets {
             close_nth_tab(tab_index);
         }
         
-        public void close_nth_tab(int index) {
+        public void close_nth_tab(int index, bool emit_close_signal=true) {
             if (tab_list.size > 0) {
                 var tab_id = tab_list.get(index);
-                var tab_xid = tab_xid_set.get(tab_id);
                 
-                close_page(tab_xid);
+                if (emit_close_signal) {
+                    close_page(index, tab_buffer_set.get(tab_id));
+                }
                 
                 tab_list.remove_at(index);
                 tab_name_set.unset(tab_id);

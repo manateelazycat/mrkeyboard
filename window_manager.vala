@@ -15,7 +15,7 @@ namespace Widgets {
         
         public signal void init_page(int xid);
         public signal void reparent_page(int xid);
-        public signal void close_page(int xid);
+        public signal void close_page(string buffer_id);
         public signal void resize_page(int xid, int width, int height);
         
         public WindowManager() {
@@ -180,6 +180,16 @@ namespace Widgets {
             } catch (SpawnError e) {
                 print("Got error when spawn_command_line_async: %s\n", e.message);
             }
+        }
+        
+        public void close_tab(Window current_window, string mode_name, int tab_index, string buffer_id) {
+            foreach (Window window in window_list) {
+                if (window != current_window && window.mode_name == current_window.mode_name) {
+                    window.tabbar.close_nth_tab(tab_index, false);
+                }
+            }
+            
+            close_page(buffer_id);
         }
         
         public Window? get_window_with_tab_id(int tab_id) {

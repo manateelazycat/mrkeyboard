@@ -48,7 +48,7 @@ namespace Application {
         
         public void update_texture() {
             if (texture != null) {
-                stage.remove(texture);
+                stage.remove_child(texture);
             }
             texture = new ClutterX11.TexturePixmap.with_window(parent_window_id);
             texture.set_automatic(true);            
@@ -64,7 +64,7 @@ namespace Application {
         
         private void add_clone_tag() {
             if (clone_tag != null) {
-                stage.remove(clone_tag);
+                stage.remove_child(clone_tag);
             }
             clone_tag = new Clutter.Actor();
             clone_tag.width = clone_tag.height = 20;

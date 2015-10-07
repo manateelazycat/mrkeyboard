@@ -11,7 +11,7 @@ interface Daemon : Object {
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
     public signal void init_window(int window_id);
     public signal void reparent_window(int window_id);
-    public signal void destroy_window(int window_id);
+    public signal void destroy_window(string buffer_id);
     public signal void resize_window(int window_id, int width, int height);
     public signal void quit_app();
 }
@@ -42,8 +42,8 @@ public class ClientServer : Object {
             daemon.reparent_window.connect((window_id) => {
                     handle_reparent(window_id);
                 });
-            daemon.destroy_window.connect((window_id) => {
-                    handle_destroy(window_id) ;
+            daemon.destroy_window.connect((buffer_id) => {
+                    handle_destroy(buffer_id) ;
                 });
             daemon.resize_window.connect((window_id, width, height) => {
                     handle_resize(window_id, width, height);
@@ -114,7 +114,7 @@ public class ClientServer : Object {
                 parent_window_id = int.parse(args[4]);
             }
             
-            var window = get_match_window(parent_window_id);
+            var window = get_match_window_with_id(parent_window_id);
             if (window != null) {
                 
                 var clone_window = new Application.CloneWindow(width, height, tab_id, parent_window_id, window.buffer_id);
@@ -141,7 +141,7 @@ public class ClientServer : Object {
     }
     
     private void handle_send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press) {
-        var window = get_match_window(window_id);
+        var window = get_match_window_with_id(window_id);
         if (window != null) {
             window.handle_key_event(key_val, key_state, key_time, press);
         }
@@ -170,23 +170,45 @@ public class ClientServer : Object {
         }
     }
     
-    private void handle_destroy(int window_id) {
-        var window = get_match_window(window_id);
+    private void handle_destroy(string buffer_id) {
+        var window = buffer_window_set.get(buffer_id);
         if (window != null) {
+            print("Destroy window: %i\n", window.window_id);
+            
             buffer_window_set.unset(window.buffer_id);
             window_list.remove(window);
             window.destroy();
         }
+        
+        var clone_windows = buffer_clone_set.get(buffer_id);
+        if (clone_windows != null) {
+            foreach (Application.CloneWindow clone_window in clone_windows) {
+                print("Destroy clone window: %i\n", clone_window.window_id);
+                clone_window_list.remove(clone_window);
+                clone_window.destroy();
+            }
+            
+            buffer_clone_set.unset(buffer_id);
+        }
+        
+        if (window_list.size == 0) {
+            if (clone_window_list.size != 0 || buffer_window_set.size != 0 || buffer_clone_set.size != 0) {
+                print("It's something wrong with clone_window_list or buffer_window_set or buffer_clone_set.\n");
+            }
+            
+            print("All app window destroy, exit terminal app process.\n");
+            Gtk.main_quit();
+        }
     }
     
     private void handle_resize(int window_id, int width, int height) {
-        var window = get_match_window(window_id);
+        var window = get_match_window_with_id(window_id);
         if (window != null) {
             window.resize(width, height);
         }
     }
     
-    private Application.Window? get_match_window(int window_id) {
+    private Application.Window? get_match_window_with_id(int window_id) {
         foreach (Application.Window window in window_list) {
             if (window_id == window.window_id) {
                 return window;
