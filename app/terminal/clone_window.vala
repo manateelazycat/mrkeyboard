@@ -13,6 +13,8 @@ namespace Application {
         public Clutter.Actor stage;
         public int parent_window_id;
         
+        private Clutter.Actor clone_tag;
+        
         public signal void create_app(int app_win_id, string mode_name, int tab_id);
         
         public CloneWindow(int width, int height, int tab_id, int pwid, string bid) {
@@ -25,17 +27,10 @@ namespace Application {
             var embed = new GtkClutter.Embed();
             add(embed);
     
-            texture = new ClutterX11.TexturePixmap.with_window(parent_window_id);
-            texture.set_automatic(true);
-            
             stage = embed.get_stage();
             stage.set_background_color(Color.from_string("black"));
-            stage.add_child(texture);
             
-            var tag_actor = new Clutter.Actor();
-            tag_actor.width = tag_actor.height = 20;
-            tag_actor.background_color = Color.from_string("red");
-            stage.add_child(tag_actor);
+            update_texture();
             
             realize.connect((w) => {
                     var xid = (int)((Gdk.X11.Window) get_window()).get_xid();
@@ -44,21 +39,37 @@ namespace Application {
                 });
         }
         
-        public void update_texture() {
+        public void update_texture_area() {
             Gtk.Allocation alloc;
             get_allocation(out alloc);
             
             texture.update_area(0, 0, alloc.width, alloc.height);
         }
         
-        public void replace_texture() {
-            stage.remove(texture);
+        public void update_texture() {
+            if (texture != null) {
+                stage.remove(texture);
+            }
             texture = new ClutterX11.TexturePixmap.with_window(parent_window_id);
             texture.set_automatic(true);            
-            
             stage.add_child(texture);
             
+            // Remove this function when debug clone operation finish.
+            add_clone_tag();
+            
             stage.show();
+            
+            update_texture_area();
+        }
+        
+        private void add_clone_tag() {
+            if (clone_tag != null) {
+                stage.remove(clone_tag);
+            }
+            clone_tag = new Clutter.Actor();
+            clone_tag.width = clone_tag.height = 20;
+            clone_tag.background_color = Color.from_string("red");
+            stage.add_child(clone_tag);
         }
     }
 }

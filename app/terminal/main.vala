@@ -150,7 +150,7 @@ public class ClientServer : Object {
     private void handle_init(int window_id) {
         foreach (Application.CloneWindow window in clone_window_list) {
             if (window_id == window.window_id) {
-                window.update_texture();
+                window.update_texture_area();
             }
         }
     }
@@ -163,7 +163,7 @@ public class ClientServer : Object {
                     foreach (Application.CloneWindow clone_window in clone_windows) {
                         // Use replace texture to avoid clone texture freeze
                         // when parent window do x11 reparent operation.
-                        clone_window.replace_texture();
+                        clone_window.update_texture();
                     }
                 }
             }
