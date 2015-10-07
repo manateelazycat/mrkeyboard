@@ -154,7 +154,8 @@ public class ClientServer : Object {
     }
     
     private void handle_send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press) {
-        var window = get_match_window_with_id(window_id);
+        var wid = get_parent_window_id(window_id);
+        var window = get_match_window_with_id(wid);
         if (window != null) {
             window.handle_key_event(key_val, key_state, key_time, press);
         }
