@@ -220,6 +220,7 @@ public class ClientServer : Object {
                     
                     return true;
                 } else {
+                    print("!!!!!!!!!!!!!!!!!!!\n");
                     foreach (CloneWindow clone_window in clone_window_set) {
                         try {
                             var size = daemon.replace_app_tab(clone_window.mode_name, clone_window.tab_id, window.window_id);
