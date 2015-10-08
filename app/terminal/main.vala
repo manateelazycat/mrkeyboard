@@ -89,6 +89,10 @@ public class ClientServer : Object {
             var buffer_id = get_buffer_id();
             var window = new Application.Window(width, height, tab_id, buffer_id);
             
+            window.event.connect((w, e) => {
+                    print("Window %i got event %s\n", window.window_id, e.type.to_string());
+                    return false;
+                });
             // window.delete_event.connect((w, e) => {
             //         print("got delete-event with tab_id %i window_id %i\n", tab_id, window.window_id);
             //         // Avoid unparent operation to kill window.
@@ -138,6 +142,11 @@ public class ClientServer : Object {
                 if (window != null) {
                     
                     var clone_window = new Application.CloneWindow(width, height, tab_id, parent_window_id, window.buffer_id);
+                    
+                    clone_window.event.connect((w, e) => {
+                            print("Clone window %i got event %s\n", clone_window.window_id, e.type.to_string());
+                            return false;
+                        });
                     // clone_window.delete_event.connect((w, e) => {
                     //         print("got delete-event with tab_id %i window_id %i\n", tab_id, clone_window.window_id);                            
                     //         // Avoid unparent operation to kill window.
@@ -204,7 +213,7 @@ public class ClientServer : Object {
             if (window.window_id == window_id) {
                 var clone_window_set = buffer_clone_set.get(window.buffer_id);
                 if (clone_window_set == null || clone_window_set.size == 0) {
-                    print("###################### *******************\n");
+                    print("######################\n");
                     destroy_window(window);
                     
                     try_quit();
@@ -214,32 +223,45 @@ public class ClientServer : Object {
                     foreach (CloneWindow clone_window in clone_window_set) {
                         try {
                             var size = daemon.replace_app_tab(clone_window.mode_name, clone_window.tab_id, window.window_id);
-                            print("replace %s %i %i\n", clone_window.mode_name, clone_window.tab_id, window.window_id);
+                            print("app: replace %s %i %i\n", clone_window.mode_name, clone_window.tab_id, window.window_id);
                             window.resize(size[0], size[1]);
-                            print("resize: %i %i %i\n", window.window_id, size[0], size[0]);
+                            print("app: resize %i %i %i\n", window.window_id, size[0], size[0]);
                         } catch (IOError e) {
                             stderr.printf("Could not register service\n");
                         }
                         
                         destroy_clone_window(clone_window);
                         
-                        print("window size: %i\n", window_list.size);
-                        print("clone window size: %i\n", clone_window_list.size);
+                        print("app: window size %i\n", window_list.size);
+                        print("app: clone window size %i\n", clone_window_list.size);
                         
                         return true;
                     }
-                    
-                    return false;
                 }                
             }
-            
-            return false;
         }
         
+        print("**********************\n");
+        // Use temp list to remove destroy from clone_window_list to avoid error: "index < size".
+        ArrayList<CloneWindow> destroy_window_list = new ArrayList<CloneWindow>();
         foreach (Application.CloneWindow clone_window in clone_window_list) {
             if (clone_window.window_id == window_id) {
-                destroy_clone_window(clone_window);
+                var clone_window_set = buffer_clone_set.get(clone_window.buffer_id);
+                if (clone_window_set != null) {
+                    clone_window_set.remove(clone_window);
+                    if (clone_window_set.size == 0) {
+                        buffer_clone_set.unset(clone_window.buffer_id);
+                    }
+                    
+                }
+                
+                destroy_window_list.add(clone_window);
             }
+        }
+        
+        foreach (Application.CloneWindow destroy_window in destroy_window_list) {
+            clone_window_list.remove(destroy_window);
+            destroy_window.destroy();
         }
         
         return false;

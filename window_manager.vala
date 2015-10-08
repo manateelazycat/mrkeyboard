@@ -263,6 +263,7 @@ namespace Widgets {
         
         public void close_other_windows() {
             if (window_list.size > 1) {
+                ArrayList<int> destroy_window_list = new ArrayList<int>();
                 foreach (Window window in window_list) {
                     if (window != focus_window) {
                         foreach (int window_id in window.tabbar.get_all_xids()) {
@@ -271,12 +272,18 @@ namespace Widgets {
                             conn.unmap_subwindows(window_id);
                             conn.flush();
                             
-                            destroy_window(window_id);
-                            
-                            window_list.remove(window);
-                            window.destroy();
+                            destroy_window_list.add(window_id);
                         }
+                        
+                        window.destroy();
                     }
+                }
+                
+                window_list = new ArrayList<Window> ();
+                window_list.add(focus_window);
+
+                foreach (int window_id in destroy_window_list) {
+                    destroy_window(window_id);
                 }
                 
                 focus_window.set_allocate(this, 0, 0, this.get_allocated_width(), this.get_allocated_height());
@@ -297,7 +304,7 @@ namespace Widgets {
             var window_rect_manager = new Utils.WindowRectangleManager(window_list);
             
             if (brother_window != null) {
-                print("Focus brother window: %i\n", brother_window.window_xid);
+                print("focus brother window: %i\n", brother_window.window_xid);
                 set_focus_window(brother_window);
             }
             
@@ -316,10 +323,9 @@ namespace Widgets {
                 foreach (Window win in window_list) {
                     if (win.window_xid == rect.id) {
                         window_list.remove(window);
-                        var xids = win.tabbar.get_all_xids();
-                        
-                        foreach (int xid in xids) {
-                            print("destroy window: %i\n", xid);
+
+                        foreach (int xid in win.tabbar.get_all_xids()) {
+                            print("destroy app window: %i\n", xid);
                             
                             // We need reparent app window first,
                             // otherwise app window will destroy along with daemon window destroy.
@@ -328,8 +334,10 @@ namespace Widgets {
                             
                             destroy_window(xid);
                         }
-            
-                        print("debug: destroy window %i\n", win.window_xid);
+
+                        window.destroy();
+                        
+                        print("destroy window %i\n", win.window_xid);
                         break;
                     }
                 }
@@ -380,18 +388,6 @@ namespace Widgets {
             }
         }
         
-        public void close_tab_with_buffer(string mode_name, string buffer_id) {
-            foreach (Window window in window_list) {
-                if (window.mode_name == mode_name) {
-                    window.tabbar.close_tab_with_buffer(buffer_id);
-                }
-            }
-            
-            destroy_buffer(buffer_id);
-
-            clean_windows();
-        }
-        
         public int[] replace_tab(string mode_name, int tab_id, int new_win_id) {
             print("debug: **********************\n");
             int[] size = {0, 0};
@@ -415,6 +411,18 @@ namespace Widgets {
             return size;
         }
         
+        public void close_tab_with_buffer(string mode_name, string buffer_id) {
+            foreach (Window window in window_list) {
+                if (window.mode_name == mode_name) {
+                    window.tabbar.close_tab_with_buffer(buffer_id);
+                }
+            }
+            
+            destroy_buffer(buffer_id);
+
+            clean_windows();
+        }
+        
         public void close_tab(Window current_window, string mode_name, int tab_index, string buffer_id) {
             foreach (Window window in window_list) {
                 if (window != current_window && window.mode_name == current_window.mode_name) {
@@ -431,10 +439,6 @@ namespace Widgets {
             var window_rect_manager = new Utils.WindowRectangleManager(window_list);
             window_rect_manager.remove_blank_windows();
 
-            rebuild_windows(window_rect_manager);
-        }
-        
-        public void rebuild_windows(WindowRectangleManager window_rect_manager) {
             foreach (Utils.WindowRectangle rect in window_rect_manager.window_rectangle_list) {
                 foreach (Window window in window_list) {
                     if (window.window_xid == rect.id) {
