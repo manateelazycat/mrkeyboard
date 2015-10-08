@@ -7,6 +7,7 @@ namespace Application {
     public class CloneWindow : Gtk.Window {
         public string mode_name = "terminal";
         public int window_id;
+        public int tab_id;
         public string buffer_id;
         
         public ClutterX11.TexturePixmap texture;
@@ -17,7 +18,8 @@ namespace Application {
         
         public signal void create_app(int app_win_id, string mode_name, int tab_id);
         
-        public CloneWindow(int width, int height, int tab_id, int pwid, string bid) {
+        public CloneWindow(int width, int height, int tid, int pwid, string bid) {
+            tab_id = tid;
             parent_window_id = pwid;
             buffer_id = bid;
             

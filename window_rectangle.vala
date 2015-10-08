@@ -51,6 +51,36 @@ namespace Utils {
             print("#######################\n");
         }
         
+        public bool remove_window(int window_id) {
+            WindowRectangle? match_window = null;
+            foreach (WindowRectangle window in window_rectangle_list) {
+                if (window.id == window_id) {
+                    match_window = window;
+                    break;
+                }
+            }
+            
+            if (match_window != null) {
+                if (window_rectangle_list.size == 1) {
+                    window_rectangle_list.remove(match_window);
+                    window_remove_list.add(match_window);
+                    
+                    return true;
+                } else {
+                    var brother_window = find_brother_window(match_window);
+                    if (brother_window != null) {
+                        get_area_to_brother_window(match_window, brother_window);
+                        
+                        window_rectangle_list.remove(match_window);
+                        window_remove_list.add(match_window);
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
         public void remove_blank_windows() {
             var windows = find_blank_windows();
             print("blank windows size: %i\n", windows.size);
@@ -76,40 +106,24 @@ namespace Utils {
         }
         
         private bool remove_blank_window(WindowRectangle window) {
-            if (window_rectangle_list.size == 1) {
-                window_rectangle_list.remove(window);
-                window_remove_list.add(window);
-                
-                return true;
-            } else {
-                var brother_window = find_brother_window(window);
-                if (brother_window != null) {
-                    print("------------------\n");
-                    print("Found %i' brother window: %i\n", window.id, brother_window.id);
-                    get_area_to_brother_window(window, brother_window);
-                    
-                    window_rectangle_list.remove(window);
-                    window_remove_list.add(window);
-                    return true;
-                }
-            }
-            
-            return false;
+            return remove_window(window.id);
         }
         
-        private WindowRectangle? find_brother_window(WindowRectangle window) {
+        public WindowRectangle? find_brother_window(WindowRectangle window) {
             foreach (WindowRectangle brother_window in window_rectangle_list) {
-                // Find brother at left or right.
-                if (window.x == brother_window.x + brother_window.width || window.x + window.width == brother_window.x) {
-                    if (window.y == brother_window.y && window.y + window.height == brother_window.y + brother_window.height) {
-                        return brother_window;
+                if (brother_window.id != window.id) {
+                    // Find brother at left or right.
+                    if (window.x == brother_window.x + brother_window.width || window.x + window.width == brother_window.x) {
+                        if (window.y == brother_window.y && window.y + window.height == brother_window.y + brother_window.height) {
+                            return brother_window;
+                        }
                     }
-                }
-                
-                // Find brother at up or down.
-                if (window.y == brother_window.y + brother_window.height || window.y + window.height == brother_window.y) {
-                    if (window.x == brother_window.x && window.x + window.width == brother_window.x + brother_window.width) {
-                        return brother_window;
+                    
+                    // Find brother at up or down.
+                    if (window.y == brother_window.y + brother_window.height || window.y + window.height == brother_window.y) {
+                        if (window.x == brother_window.x && window.x + window.width == brother_window.x + brother_window.width) {
+                            return brother_window;
+                        }
                     }
                 }
             }

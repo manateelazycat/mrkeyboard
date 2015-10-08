@@ -6,12 +6,14 @@ namespace Application {
         public Vte.Terminal term;
         public string mode_name = "terminal";
         public int window_id;
+        public int tab_id;
         public string buffer_id;
         
         public signal void create_app(int app_win_id, string mode_name, int tab_id);
-        public signal void exit_app_tab(string mode_name, string buffer_id);
+        public signal void close_app_tab(string mode_name, string buffer_id);
         
-        public Window(int width, int height, int tab_id, string bid) {
+        public Window(int width, int height, int tid, string bid) {
+            tab_id = tid;
             buffer_id = bid;
             
             set_decorated(false);
@@ -22,7 +24,7 @@ namespace Application {
             
             term = new Terminal();
             term.child_exited.connect((t) => {
-                    exit_app_tab(mode_name, buffer_id);
+                    close_app_tab(mode_name, buffer_id);
                 });
             var arguments = new string[0];
             var shell = get_shell();

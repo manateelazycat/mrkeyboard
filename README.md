@@ -23,6 +23,8 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 * Handle operate: delete current window, delete other windows.
 * Fixed configure event.
 * Design buffer/view framework like Emacs.
+* Draw window frame above WindowManager.
+* Refactory code, make everything simpler.
 * Create application interface template, make create application easier.
 * Design search framework.
 * Design application package standard.

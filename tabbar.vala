@@ -11,7 +11,7 @@ namespace Widgets {
         public HashMap<int, string> tab_name_set;
         public HashMap<int, int> tab_xid_set;
         public HashMap<int, string> tab_buffer_set;
-        public int height = 32;
+        public int height = 28;
         public HashMap<int, string> tab_path_set;
         
         public Gdk.Color background_color = Utils.color_from_hex("#171814");
@@ -25,13 +25,13 @@ namespace Widgets {
         
         private int tab_index = 0;
         private int draw_padding_y = 2;
-        private int text_padding_x = 8;
+        private int text_padding_x = 12;
         private int close_button_padding_x = 8;
         private int close_button_padding_y = 8;
-        private int close_button_width = 16;
+        private int close_button_width = 12;
         private int arrow_width = 16;
         private int arrow_padding_x = 4;
-        private int arrow_padding_y = 4;
+        private int arrow_padding_y = 0;
         private bool is_button_press = false;
         private bool draw_hover = false;
         private int hover_x = 0;
@@ -41,8 +41,8 @@ namespace Widgets {
         private Cairo.ImageSurface hover_surface;
         private Cairo.ImageSurface press_surface;
         
-        public signal void close_page(int index, string buffer_id);
-        public signal void focus_page(int xid);
+        public signal void destroy_buffer(int index, string buffer_id);
+        public signal void focus_window(int xid);
         
         public Tabbar(string image_path) {
             add_events (Gdk.EventMask.BUTTON_PRESS_MASK
@@ -81,6 +81,20 @@ namespace Widgets {
         
         public void set_tab_xid(int tab_id, int xid) {
             tab_xid_set.set(tab_id, xid);
+        }
+        
+        public bool has_tab(int tab_id) {
+            int? tab_xid = tab_xid_set.get(tab_id);
+            return (tab_xid != null);
+        }
+        
+        public bool is_focus_tab(int tab_id) {
+            int? index = tab_list.index_of(tab_id);
+            if (index != null) {
+                return tab_index == index;
+            } else {
+                return false;
+            }
         }
         
         public void set_tab_buffer(int tab_id, string buffer_id) {
@@ -153,7 +167,7 @@ namespace Widgets {
                 tab_xid_set.unset(tab_id);
 
                 if (emit_close_signal) {
-                    close_page(index, tab_buffer_set.get(tab_id));
+                    destroy_buffer(index, tab_buffer_set.get(tab_id));
                 }
                 tab_buffer_set.unset(tab_id);
 
@@ -523,7 +537,7 @@ namespace Widgets {
             if (tab_index != new_index) {
                 var new_xid = tab_xid_set.get(tab_list.get(new_index));
                 
-                focus_page(new_xid);
+                focus_window(new_xid);
                 
                 tab_index = new_index;
                 
@@ -537,7 +551,7 @@ namespace Widgets {
                 int tab_id = tab_list.get(index);
                 int tab_xid = tab_xid_set.get(tab_id);
                 
-                focus_page(tab_xid);
+                focus_window(tab_xid);
             }
         }
     }

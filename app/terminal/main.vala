@@ -7,12 +7,14 @@ using Gee;
 
 [DBus (name = "org.mrkeyboard.Daemon")]
 interface Daemon : Object {
-    public abstract void send_app_tab_info(int app_win_id, string mode_name, int tab_id, string buffer_id) throws IOError;
-    public abstract void exit_app_tab(string mode_name, string buffer_id) throws IOError;
+    public abstract void show_app_tab(int app_win_id, string mode_name, int tab_id, string buffer_id) throws IOError;
+    public abstract void close_app_tab(string mode_name, string buffer_id) throws IOError;
+    public abstract int[] replace_app_tab(string mode_name, int tab_id, int new_win_id) throws IOError;
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
+    public signal void destroy_window(int window_id);
     public signal void reparent_window(int window_id);
-    public signal void destroy_window(string buffer_id);
     public signal void resize_window(int window_id, int width, int height);
+    public signal void destroy_buffer(string buffer_id);
     public signal void quit_app();
 }
 
@@ -36,11 +38,14 @@ public class ClientServer : Object {
             daemon.send_key_event.connect((focus_window, key_val, key_state, key_time, press) => {
                     handle_send_key_event(focus_window, key_val, key_state, key_time, press);
                 });
+            daemon.destroy_window.connect((window_id) => {
+                    handle_destroy_window(window_id);
+                });
             daemon.reparent_window.connect((window_id) => {
                     handle_reparent(window_id);
                 });
-            daemon.destroy_window.connect((buffer_id) => {
-                    handle_destroy(buffer_id) ;
+            daemon.destroy_buffer.connect((buffer_id) => {
+                    handle_destroy_buffer(buffer_id) ;
                 });
             daemon.resize_window.connect((window_id, width, height) => {
                     handle_resize(window_id, width, height);
@@ -84,16 +89,26 @@ public class ClientServer : Object {
             var buffer_id = get_buffer_id();
             var window = new Application.Window(width, height, tab_id, buffer_id);
             
+            // window.delete_event.connect((w, e) => {
+            //         print("got delete-event with tab_id %i window_id %i\n", tab_id, window.window_id);
+            //         // Avoid unparent operation to kill window.
+            //         return true;
+            //     });
+            // window.destroy_event.connect((w, e) => {
+            //         print("got destroy-event with tab_id %i window_id %i\n", tab_id, window.window_id);
+            //         // Avoid unparent operation to kill window.
+            //         return true;
+            //     });
             window.create_app.connect((app_win_id, mode_name, tab_id) => {
                     try {
-                        daemon.send_app_tab_info(app_win_id, mode_name, tab_id, window.buffer_id);
+                        daemon.show_app_tab(app_win_id, mode_name, tab_id, window.buffer_id);
                     } catch (IOError e) {
                         stderr.printf("%s\n", e.message);
                     }
                 });
-            window.exit_app_tab.connect((mode_name, buffer_id) => {
+            window.close_app_tab.connect((mode_name, buffer_id) => {
                     try {
-                        daemon.exit_app_tab(mode_name, buffer_id);
+                        daemon.close_app_tab(mode_name, buffer_id);
                     } catch (IOError e) {
                         stderr.printf("%s\n", e.message);
                     }
@@ -123,9 +138,19 @@ public class ClientServer : Object {
                 if (window != null) {
                     
                     var clone_window = new Application.CloneWindow(width, height, tab_id, parent_window_id, window.buffer_id);
+                    // clone_window.delete_event.connect((w, e) => {
+                    //         print("got delete-event with tab_id %i window_id %i\n", tab_id, clone_window.window_id);                            
+                    //         // Avoid unparent operation to kill window.
+                    //         return true;
+                    //     });
+                    // clone_window.destroy_event.connect((w, e) => {
+                    //         print("got destroy-event with tab_id %i window_id %i\n", tab_id, clone_window.window_id);                            
+                    //         // Avoid unparent operation to kill window.
+                    //         return true;
+                    //     });
                     clone_window.create_app.connect((app_win_id, mode_name, tab_id) => {
                             try {
-                                daemon.send_app_tab_info(app_win_id, mode_name, tab_id, clone_window.buffer_id);
+                                daemon.show_app_tab(app_win_id, mode_name, tab_id, clone_window.buffer_id);
                             } catch (IOError e) {
                                 stderr.printf("%s\n", e.message);
                             }
@@ -174,6 +199,75 @@ public class ClientServer : Object {
         }
     }
     
+    private bool handle_destroy_window(int window_id) {
+        foreach (Application.Window window in window_list) {
+            if (window.window_id == window_id) {
+                var clone_window_set = buffer_clone_set.get(window.buffer_id);
+                if (clone_window_set == null || clone_window_set.size == 0) {
+                    print("###################### *******************\n");
+                    destroy_window(window);
+                    
+                    try_quit();
+                    
+                    return true;
+                } else {
+                    foreach (CloneWindow clone_window in clone_window_set) {
+                        try {
+                            var size = daemon.replace_app_tab(clone_window.mode_name, clone_window.tab_id, window.window_id);
+                            print("replace %s %i %i\n", clone_window.mode_name, clone_window.tab_id, window.window_id);
+                            window.resize(size[0], size[1]);
+                            print("resize: %i %i %i\n", window.window_id, size[0], size[0]);
+                        } catch (IOError e) {
+                            stderr.printf("Could not register service\n");
+                        }
+                        
+                        destroy_clone_window(clone_window);
+                        
+                        print("window size: %i\n", window_list.size);
+                        print("clone window size: %i\n", clone_window_list.size);
+                        
+                        return true;
+                    }
+                    
+                    return false;
+                }                
+            }
+            
+            return false;
+        }
+        
+        foreach (Application.CloneWindow clone_window in clone_window_list) {
+            if (clone_window.window_id == window_id) {
+                destroy_clone_window(clone_window);
+            }
+        }
+        
+        return false;
+    }
+    
+    private void destroy_window(Application.Window window) {
+        buffer_window_set.unset(window.buffer_id);
+        window_list.remove(window);
+        window.destroy();
+    }
+    
+    private bool destroy_clone_window(CloneWindow clone_window) {
+        clone_window_list.remove(clone_window);
+        clone_window.destroy();
+                
+        var clone_window_set = buffer_clone_set.get(clone_window.buffer_id);
+        if (clone_window_set != null) {
+            clone_window_set.remove(clone_window);
+            if (clone_window_set.size == 0) {
+                buffer_clone_set.unset(clone_window.buffer_id);
+            }
+                    
+            return true;
+        }
+        
+        return true;
+    }
+    
     private void handle_reparent(int window_id) {
         foreach (Application.Window window in window_list) {
             if (window_id == window.window_id) {
@@ -200,7 +294,7 @@ public class ClientServer : Object {
         }
     }
     
-    private void handle_destroy(string buffer_id) {
+    private void handle_destroy_buffer(string buffer_id) {
         var window = buffer_window_set.get(buffer_id);
         if (window != null) {
             buffer_window_set.unset(window.buffer_id);
@@ -217,7 +311,11 @@ public class ClientServer : Object {
             
             buffer_clone_set.unset(buffer_id);
         }
-        
+
+        try_quit();
+    }
+    
+    private void try_quit() {
         if (window_list.size == 0) {
             if (clone_window_list.size != 0 || buffer_window_set.size != 0 || buffer_clone_set.size != 0) {
                 print("It's something wrong with clone_window_list or buffer_window_set or buffer_clone_set.\n");
