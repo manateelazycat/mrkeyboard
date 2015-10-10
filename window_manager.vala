@@ -20,6 +20,9 @@ namespace Widgets {
         public signal void destroy_buffer(string buffer_id);
         public signal void resize_window(int xid, int width, int height);
         
+        private int cache_width = 0;
+        private int cache_height = 0;
+        
         public WindowManager() {
             set_can_focus(true);
             draw.connect(on_draw);
@@ -422,6 +425,29 @@ namespace Widgets {
             }
             
             return null;
+        }
+        
+        public void update_windows_allocate() {
+            var alloc_width = get_allocated_width();
+            var alloc_height = get_allocated_height();
+            if (alloc_width != cache_width || alloc_height != cache_height) {
+                if (cache_width != 0 && cache_height != 0) {
+                    var window_rect_manager = new Utils.WindowRectangleManager(window_list);
+                    window_rect_manager.scale_windows(alloc_width / (float)cache_width, alloc_height / (float)cache_height, alloc_width, alloc_height);
+                    
+                    foreach (Utils.WindowRectangle rect in window_rect_manager.window_rectangle_list) {
+                        foreach (Window window in window_list) {
+                            if (window.window_xid == rect.id) {
+                                window.set_allocate(this, rect.x, rect.y, rect.width, rect.height, true);
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                cache_width = alloc_width;
+                cache_height = alloc_height;
+            }
         }
         
         public void new_tab(string app_path) {

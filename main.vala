@@ -30,7 +30,6 @@ public class DaemonServer : Object {
         }
         
         app = new Widgets.Application();
-        app.destroy.connect(quit);
         Utils.load_css_theme("style.css");
         
         var titlebar = new Widgets.Titlebar();
@@ -109,6 +108,11 @@ public class DaemonServer : Object {
             });
         
         app.box.pack_start(window_manager, true, true, 0);
+        
+        app.destroy.connect(quit);
+        app.size_allocate.connect_after((w, e) => {
+                window_manager.update_windows_allocate();
+            });
 
         app.show_all();
         Gtk.main();

@@ -20,7 +20,6 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
-* Fixed configure event.
 * Draw window frame above WindowManager.
 * Make unique mode name, not just string mode-name.
 * Refactory code, make everything simpler.

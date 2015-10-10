@@ -49,6 +49,15 @@ namespace Utils {
             }
         }
         
+        public void scale_windows(float scale_x, float scale_y, int alloc_width, int alloc_height) {
+            foreach (WindowRectangle window in window_rectangle_list) {
+                window.x = (int)(window.x * scale_x);
+                window.y = (int)(window.y * scale_y);
+                window.width = (int)(window.width * scale_x);
+                window.height = (int)(window.height * scale_y);
+            }
+        }
+        
         private ArrayList<WindowRectangle> find_blank_windows() {
             var windows = new ArrayList<WindowRectangle>();
             foreach (WindowRectangle window in window_rectangle_list) {
