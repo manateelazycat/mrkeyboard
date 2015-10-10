@@ -150,12 +150,6 @@ namespace Widgets {
             if (window_list.size > 0) {
                 var window = get_focus_window();
                 create_clone_window(window, true);
-                
-                print("---------------------\n");
-                foreach (Window win in window_list) {
-                    print("split to window: %i\n", win.window_xid);
-                }
-                print("---------------------\n");
             }
         }
         
@@ -163,12 +157,6 @@ namespace Widgets {
             if (window_list.size > 0) {
                 var window = get_focus_window();
                 create_clone_window(window, false);
-                
-                print("---------------------\n");
-                foreach (Widgets.Window win in window_list) {
-                    print("split to window: %i\n", win.window_xid);
-                }
-                print("---------------------\n");
             }
         }
         
@@ -275,23 +263,18 @@ namespace Widgets {
                 HashMap<int, int> replace_tab_set = new HashMap<int, int>();
                 foreach (Window window in destroy_window_list) {
                     if (window.mode_name == focus_window.mode_name) {
-                        print("******************\n");
                         var counter = 0;
                         foreach (int tab_id in window.tabbar.tab_list) {
                             var window_type = window.tabbar.tab_window_type_set.get(tab_id);
-                            print("################ %s\n", window_type);
                             if (window_type == "clone") {
                                 destroy_window_ids += window.tabbar.tab_xid_set.get(tab_id);
-                                print("close_other_windows: destroy list add window id %i\n", window.tabbar.tab_xid_set.get(tab_id));
                             } else if (window_type == "origin") {
                                 var focus_window_tab_id = focus_window.tabbar.tab_list.get(counter);
                                 var focus_xid = focus_window.tabbar.tab_xid_set.get(focus_window_tab_id);
                                 destroy_window_ids += focus_xid;
-                                print("close_other_windows: destroy list add window id %i\n", focus_xid);
                                 
                                 var tab_xid = window.tabbar.tab_xid_set.get(tab_id);
                                 replace_tab_set.set(focus_window_tab_id, tab_xid);
-                                print("close_other_windows: replace_tab_set %i %i\n", focus_window_tab_id, tab_xid);                                
                             }
                             
                             counter++;
@@ -300,16 +283,11 @@ namespace Widgets {
                         var windows_ids = window.tabbar.get_all_xids();
                         foreach (int window_id in windows_ids) {
                             destroy_window_ids += window_id;
-                            print("close_other_windows: add window id %i\n", window_id);
                         }
                     }
                     
                     window_list.remove(window);
                     window.destroy();
-                }
-                
-                foreach (int window_id in destroy_window_ids) {
-                    print("close_other_windows: destroy window %i\n", window_id);
                 }
                 
                 destroy_windows(destroy_window_ids);
@@ -333,8 +311,6 @@ namespace Widgets {
         }
         
         private void close_window(Window window) {
-            print("close window: %i\n", window.window_xid);
-            
             int[] destroy_window_ids = {};
             HashMap<int, int> replace_tab_set = new HashMap<int, int>();
             
@@ -343,11 +319,8 @@ namespace Widgets {
                 var tab_xid = focus_window.tabbar.tab_xid_set.get(tab_id);
                 var tab_window_type = focus_window.tabbar.tab_window_type_set.get(tab_id);
                 
-                print("################ %s\n", tab_window_type);
                 if (tab_window_type == "clone") {
                     destroy_window_ids += tab_xid;
-                    
-                    print("close_other_windows: destroy list add window id %i (%i)\n", tab_xid, counter);
                 } else if (tab_window_type == "origin") {
                     ArrayList<Window> same_mode_windows = new ArrayList<Window>();
                     foreach (Window win in window_list) {
@@ -358,18 +331,14 @@ namespace Widgets {
                     
                     if (same_mode_windows.size == 0) {
                         destroy_window_ids += tab_xid;
-                        
-                        print("close_other_windows: destroy list add window id %i (%i)\n", tab_xid, counter);
                     } else {
                         var replace_window = same_mode_windows.get(0);
                         var replace_window_tab_id = replace_window.tabbar.tab_list.get(counter)        ;
                         var replace_window_tab_xid = replace_window.tabbar.tab_xid_set.get(replace_window_tab_id);
                         
                         destroy_window_ids += replace_window_tab_xid;
-                        print("close_other_windows: destroy list add window id %i (%i)\n", replace_window_tab_xid, counter);
                         
                         replace_tab_set.set(replace_window_tab_id, tab_xid);
-                        print("close_other_windows: replace_tab_set %i %i\n", replace_window_tab_id, tab_xid);                                
                     }
                 }
                 
@@ -378,12 +347,10 @@ namespace Widgets {
             
             var brother_window = find_brother_window(window);
             if (brother_window != null) {
-                print("focus brother window: %i\n", brother_window.window_xid);
                 set_focus_window(brother_window);
             }
             
             var window_rect_manager = new Utils.WindowRectangleManager(window_list);
-            print("window_rect_list int size: %i\n", window_rect_manager.window_rectangle_list.size);
             
             window_rect_manager.remove_window(window.window_xid);
             window_list.remove(window);
@@ -405,10 +372,8 @@ namespace Widgets {
                 }
             }
             
-            print("window_rect_list size: %i\n", window_rect_manager.window_rectangle_list.size);
             foreach (Utils.WindowRectangle rect in window_rect_manager.window_rectangle_list) {
                 foreach (Window win in window_list) {
-                    print("rect window xid: %i %i\n", win.window_xid, rect.id);
                     if (win.window_xid == rect.id) {
                         Gtk.Allocation alloc = win.get_allocate();
                         
@@ -552,8 +517,6 @@ namespace Widgets {
                 window.tabbar.select_tab_with_id(tab_id);
                 
                 window.visible_tab(app_win_id);
-                
-                print("Debug: show tab %i (%i) in %i\n", tab_id, app_win_id, window.window_xid);
                 
                 sync_windows(window);
             } else {

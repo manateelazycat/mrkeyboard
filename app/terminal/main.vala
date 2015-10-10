@@ -88,20 +88,6 @@ public class ClientServer : Object {
             var buffer_id = get_buffer_id();
             var window = new Application.Window(width, height, tab_id, buffer_id);
             
-            // window.event.connect((w, e) => {
-            //         print("Window %i got event %s\n", window.window_id, e.type.to_string());
-            //         return false;
-            //     });
-            // window.delete_event.connect((w, e) => {
-            //         print("got delete-event with tab_id %i window_id %i\n", tab_id, window.window_id);
-            //         // Avoid unparent operation to kill window.
-            //         return true;
-            //     });
-            // window.destroy_event.connect((w, e) => {
-            //         print("got destroy-event with tab_id %i window_id %i\n", tab_id, window.window_id);
-            //         // Avoid unparent operation to kill window.
-            //         return true;
-            //     });
             window.create_app.connect((app_win_id, mode_name, tab_id) => {
                     try {
                         daemon.show_app_tab(app_win_id, mode_name, tab_id, window.buffer_id, "origin");
@@ -142,20 +128,6 @@ public class ClientServer : Object {
                     
                     var clone_window = new Application.CloneWindow(width, height, tab_id, parent_window_id, window.buffer_id);
                     
-                    // clone_window.event.connect((w, e) => {
-                    //         print("Clone window %i got event %s\n", clone_window.window_id, e.type.to_string());
-                    //         return false;
-                    //     });
-                    // clone_window.delete_event.connect((w, e) => {
-                    //         print("got delete-event with tab_id %i window_id %i\n", tab_id, clone_window.window_id);                            
-                    //         // Avoid unparent operation to kill window.
-                    //         return true;
-                    //     });
-                    // clone_window.destroy_event.connect((w, e) => {
-                    //         print("got destroy-event with tab_id %i window_id %i\n", tab_id, clone_window.window_id);                            
-                    //         // Avoid unparent operation to kill window.
-                    //         return true;
-                    //     });
                     clone_window.create_app.connect((app_win_id, mode_name, tab_id) => {
                             try {
                                 daemon.show_app_tab(app_win_id, mode_name, tab_id, clone_window.buffer_id, "clone");
@@ -236,14 +208,12 @@ public class ClientServer : Object {
     }
     
     private void destroy_window(Application.Window window) {
-        print("destroy_window: destroy window %i\n", window.window_id);
         buffer_window_set.unset(window.buffer_id);
         window_list.remove(window);
         window.destroy();
     }
     
     private bool destroy_clone_window(CloneWindow clone_window) {
-        print("destroy_clone_window: destroy clone window %i\n", clone_window.window_id);
         clone_window_list.remove(clone_window);
         clone_window.destroy();
                 

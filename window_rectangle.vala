@@ -39,7 +39,6 @@ namespace Utils {
         
         public void remove_blank_windows() {
             var windows = find_blank_windows();
-            print("blank windows size: %i\n", windows.size);
             if (windows.size > 0) {
                 foreach (WindowRectangle window in windows) {
                     remove_window(window.id);
@@ -78,7 +77,6 @@ namespace Utils {
                 } else {
                     var brother_window = find_brother_window(match_window);
                     if (brother_window != null) {
-                        print("brother line.\n");
                         get_area_to_brother_window(match_window, brother_window);
                         
                         window_rectangle_list.remove(match_window);
@@ -87,7 +85,6 @@ namespace Utils {
                     } else {
                         var neighblor_windows = find_neighblor_windows(match_window);
                         if (neighblor_windows.length > 0) {
-                            print("neighblor line.\n");
                             get_area_to_neighblor_windows(match_window, neighblor_windows);
                             
                             window_rectangle_list.remove(match_window);

@@ -67,18 +67,14 @@ namespace Widgets {
                 (uint16)y);
             window_manager.conn.flush();
             
-            print("visible_tab: reparent %i to %i (%i) with %i %i\n", xid, window_manager_xid, window_xid, x, y);
-                
             window_manager.reparent_window(xid);
         }
         
         public bool on_size_allocate(Gtk.Widget widget, Gdk.Rectangle rect) {
-            print("###########################\n");
             resize_tab_windows();
             
             if (visible_tab_after_size) {
                 var xid = tabbar.get_current_tab_xid();
-                print("current xid: %i\n", xid);
                 if (xid != null) {
                     visible_tab(xid);
                 }
@@ -99,7 +95,6 @@ namespace Widgets {
                     size[0],
                     size[1]
                     );
-                print("on_size_allocate: %i %i %i\n", xid, size[0], size[1]);
             }
         }
         
