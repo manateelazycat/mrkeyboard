@@ -346,6 +346,8 @@ namespace Widgets {
                 print("################ %s\n", tab_window_type);
                 if (tab_window_type == "clone") {
                     destroy_window_ids += tab_xid;
+                    
+                    print("close_other_windows: destroy list add window id %i (%i)\n", tab_xid, counter);
                 } else if (tab_window_type == "origin") {
                     ArrayList<Window> same_mode_windows = new ArrayList<Window>();
                     foreach (Window win in window_list) {
@@ -357,14 +359,14 @@ namespace Widgets {
                     if (same_mode_windows.size == 0) {
                         destroy_window_ids += tab_xid;
                         
-                        print("close_other_windows: destroy list add window id %i\n", tab_xid);
+                        print("close_other_windows: destroy list add window id %i (%i)\n", tab_xid, counter);
                     } else {
                         var replace_window = same_mode_windows.get(0);
                         var replace_window_tab_id = replace_window.tabbar.tab_list.get(counter)        ;
                         var replace_window_tab_xid = replace_window.tabbar.tab_xid_set.get(replace_window_tab_id);
                         
                         destroy_window_ids += replace_window_tab_xid;
-                        print("close_other_windows: destroy list add window id %i\n", replace_window_tab_xid);
+                        print("close_other_windows: destroy list add window id %i (%i)\n", replace_window_tab_xid, counter);
                         
                         replace_tab_set.set(replace_window_tab_id, tab_xid);
                         print("close_other_windows: replace_tab_set %i %i\n", replace_window_tab_id, tab_xid);                                
@@ -409,8 +411,6 @@ namespace Widgets {
                     print("rect window xid: %i %i\n", win.window_xid, rect.id);
                     if (win.window_xid == rect.id) {
                         Gtk.Allocation alloc = win.get_allocate();
-                        print("******* get_allocate: %i %i %i %i %i\n", win.window_xid, alloc.x, alloc.y, alloc.width, alloc.height);
-                        print("******* set_allocate: %i %i %i %i %i\n", win.window_xid, rect.x, rect.y, rect.width, rect.height);
                         
                         if (rect.x == alloc.x && rect.y == alloc.y && rect.width == alloc.width && rect.height == alloc.height) {
                             var current_tab_xid = win.tabbar.get_current_tab_xid();
@@ -441,6 +441,16 @@ namespace Widgets {
                     foreach (Window w in window_list) {
                         if (w.window_xid == brother_rect.id) {
                             return w;
+                        }
+                    }
+                } else {
+                    var neighblor_windows = window_rect_manager.find_neighblor_windows(window_rect);
+                    if (neighblor_windows.length > 0) {
+                        var neighblor_window = neighblor_windows[0];
+                        foreach (Window w in window_list) {
+                            if (w.window_xid == neighblor_window.id) {
+                                return w;
+                            }
                         }
                     }
                 }
@@ -510,7 +520,6 @@ namespace Widgets {
                 foreach (Window window in window_list) {
                     if (window.window_xid == rect.id) {
                         window_list.remove(window);
-                        print("* clean_windows: destroy window %i\n", window.window_xid);
                         window.destroy();
                         break;
                     }
