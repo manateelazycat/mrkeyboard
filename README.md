@@ -20,9 +20,8 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
-* Fixed bug: split three window, and do close_current_window twice.
+* Fixed bug: split three window, and create three tab in every window, then do 'close_current_window'.
 * Fixed configure event.
-* Design buffer/view framework like Emacs.
 * Draw window frame above WindowManager.
 * Refactory code, make everything simpler.
 * Build two communication protocol in daemon process and "one* application template interface, let application developer choose interface, daemon process handle protocol's difference automatically.

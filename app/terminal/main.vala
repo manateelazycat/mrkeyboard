@@ -9,9 +9,7 @@ using Gee;
 interface Daemon : Object {
     public abstract void show_app_tab(int app_win_id, string mode_name, int tab_id, string buffer_id, string window_type) throws IOError;
     public abstract void close_app_tab(string mode_name, string buffer_id) throws IOError;
-    public abstract void replace_app_tab(string mode_name, int tab_id, int new_win_id) throws IOError;
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
-    public signal void destroy_window(int window_id);
     public signal void destroy_windows(int[] window_ids);
     public signal void reparent_window(int window_id);
     public signal void resize_window(int window_id, int width, int height);
@@ -38,9 +36,6 @@ public class ClientServer : Object {
         
             daemon.send_key_event.connect((focus_window, key_val, key_state, key_time, press) => {
                     handle_send_key_event(focus_window, key_val, key_state, key_time, press);
-                });
-            daemon.destroy_window.connect((window_id) => {
-                    handle_destroy_window(window_id);
                 });
             daemon.destroy_windows.connect((window_id) => {
                     handle_destroy_windows(window_id);
@@ -238,64 +233,6 @@ public class ClientServer : Object {
         }
         
         try_quit();
-    }
-    
-    private bool handle_destroy_window(int window_id) {
-        foreach (Application.Window window in window_list) {
-            if (window.window_id == window_id) {
-                var clone_window_set = buffer_clone_set.get(window.buffer_id);
-                if (clone_window_set == null || clone_window_set.size == 0) {
-                    print("######################\n");
-                    destroy_window(window);
-                    
-                    try_quit();
-                    
-                    return true;
-                } else {
-                    print("!!!!!!!!!!!!!!!!!!!\n");
-                    foreach (CloneWindow clone_window in clone_window_set) {
-                        try {
-                            daemon.replace_app_tab(clone_window.mode_name, clone_window.tab_id, window.window_id);
-                            print("app: replace %s %i %i\n", clone_window.mode_name, clone_window.tab_id, window.window_id);
-                        } catch (IOError e) {
-                            stderr.printf("Could not register service\n");
-                        }
-                        
-                        destroy_clone_window(clone_window);
-                        
-                        print("app: window size %i\n", window_list.size);
-                        print("app: clone window size %i\n", clone_window_list.size);
-                        
-                        return true;
-                    }
-                }                
-            }
-        }
-        
-        print("**********************\n");
-        // Use temp list to remove destroy from clone_window_list to avoid error: "index < size".
-        ArrayList<CloneWindow> destroy_window_list = new ArrayList<CloneWindow>();
-        foreach (Application.CloneWindow clone_window in clone_window_list) {
-            if (clone_window.window_id == window_id) {
-                var clone_window_set = buffer_clone_set.get(clone_window.buffer_id);
-                if (clone_window_set != null) {
-                    clone_window_set.remove(clone_window);
-                    if (clone_window_set.size == 0) {
-                        buffer_clone_set.unset(clone_window.buffer_id);
-                    }
-                    
-                }
-                
-                destroy_window_list.add(clone_window);
-            }
-        }
-        
-        foreach (Application.CloneWindow destroy_window in destroy_window_list) {
-            clone_window_list.remove(destroy_window);
-            destroy_window.destroy();
-        }
-        
-        return false;
     }
     
     private void destroy_window(Application.Window window) {

@@ -17,12 +17,7 @@ public class DaemonServer : Object {
         window_manager.close_tab_with_buffer(mode_name, buffer_id);
     }
     
-    public void replace_app_tab(string mode_name, int tab_id, int new_win_id) {
-        window_manager.replace_tab(mode_name, tab_id, new_win_id);
-    }
-
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
-    public signal void destroy_window(int window_id);
     public signal void destroy_windows(int[] window_ids);
     public signal void reparent_window(int window_id);
     public signal void resize_window(int window_id, int width, int height);
@@ -100,11 +95,8 @@ public class DaemonServer : Object {
                 
                 return true;
             });
-        window_manager.destroy_window.connect((xid) => {
-                destroy_window(xid);
-            });
-        window_manager.destroy_windows.connect((xid) => {
-                destroy_windows(xid);
+        window_manager.destroy_windows.connect((xids) => {
+                destroy_windows(xids);
             });
         window_manager.reparent_window.connect((xid) => {
                 reparent_window(xid);

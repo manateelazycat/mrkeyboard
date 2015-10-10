@@ -77,12 +77,13 @@ namespace Widgets {
             resize_tab_windows();
             
             if (visible_tab_after_size) {
-                visible_tab_after_size = false;
-                
                 var xid = tabbar.get_current_tab_xid();
+                print("current xid: %i\n", xid);
                 if (xid != null) {
                     visible_tab(xid);
                 }
+                
+                visible_tab_after_size = false;
             }
             
             return false;

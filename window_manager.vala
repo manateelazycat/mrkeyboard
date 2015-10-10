@@ -335,47 +335,91 @@ namespace Widgets {
         private void close_window(Window window) {
             print("close window: %i\n", window.window_xid);
             
+            int[] destroy_window_ids = {};
+            HashMap<int, int> replace_tab_set = new HashMap<int, int>();
+            
+            var counter = 0;
+            foreach (int tab_id in focus_window.tabbar.tab_list) {
+                var tab_xid = focus_window.tabbar.tab_xid_set.get(tab_id);
+                var tab_window_type = focus_window.tabbar.tab_window_type_set.get(tab_id);
+                
+                print("################ %s\n", tab_window_type);
+                if (tab_window_type == "clone") {
+                    destroy_window_ids += tab_xid;
+                } else if (tab_window_type == "origin") {
+                    ArrayList<Window> same_mode_windows = new ArrayList<Window>();
+                    foreach (Window win in window_list) {
+                        if (win != focus_window && win.mode_name == focus_window.mode_name) {
+                            same_mode_windows.add(win);
+                        }
+                    }
+                    
+                    if (same_mode_windows.size == 0) {
+                        destroy_window_ids += tab_xid;
+                        
+                        print("close_other_windows: destroy list add window id %i\n", tab_xid);
+                    } else {
+                        var replace_window = same_mode_windows.get(0);
+                        var replace_window_tab_id = replace_window.tabbar.tab_list.get(counter)        ;
+                        var replace_window_tab_xid = replace_window.tabbar.tab_xid_set.get(replace_window_tab_id);
+                        
+                        destroy_window_ids += replace_window_tab_xid;
+                        print("close_other_windows: destroy list add window id %i\n", replace_window_tab_xid);
+                        
+                        replace_tab_set.set(replace_window_tab_id, tab_xid);
+                        print("close_other_windows: replace_tab_set %i %i\n", replace_window_tab_id, tab_xid);                                
+                    }
+                }
+                
+                counter++;
+            }
+            
             var brother_window = find_brother_window(window);
-            
-            var window_rect_manager = new Utils.WindowRectangleManager(window_list);
-            
             if (brother_window != null) {
                 print("focus brother window: %i\n", brother_window.window_xid);
                 set_focus_window(brother_window);
             }
             
-            window_rect_manager.remove_window(window.window_xid);
+            var window_rect_manager = new Utils.WindowRectangleManager(window_list);
+            print("window_rect_list int size: %i\n", window_rect_manager.window_rectangle_list.size);
             
-            foreach (Utils.WindowRectangle rect in window_rect_manager.window_rectangle_list) {
+            window_rect_manager.remove_window(window.window_xid);
+            window_list.remove(window);
+            window.destroy();
+            
+            destroy_windows(destroy_window_ids);
+            
+            foreach (var entry in replace_tab_set.entries) {
+                var replace_tab_id = entry.key;
+                var replace_win_id = entry.value;
+                
                 foreach (Window win in window_list) {
-                    if (win.window_xid == rect.id) {
-                        win.set_allocate(this, rect.x, rect.y, rect.width, rect.height);
-                        break;
+                    foreach (int tab_id in win.tabbar.tab_list) {
+                        if (tab_id == replace_tab_id) {
+                            win.tabbar.set_tab_xid(replace_tab_id, replace_win_id);
+                            win.tabbar.set_tab_window_type(replace_tab_id, "origin");
+                        }
                     }
                 }
             }
             
-            foreach (Utils.WindowRectangle rect in window_rect_manager.window_remove_list) {
+            print("window_rect_list size: %i\n", window_rect_manager.window_rectangle_list.size);
+            foreach (Utils.WindowRectangle rect in window_rect_manager.window_rectangle_list) {
                 foreach (Window win in window_list) {
+                    print("rect window xid: %i %i\n", win.window_xid, rect.id);
                     if (win.window_xid == rect.id) {
-                        window_list.remove(window);
-
-                        foreach (int xid in win.tabbar.get_all_xids()) {
-                            print("destroy app window: %i\n", xid);
-                            
-                            // We need reparent app window first,
-                            // otherwise app window will destroy along with daemon window destroy.
-                            conn.unmap_subwindows(xid);
-                            conn.flush();
-                            
-                            destroy_window(xid);
-                        }
-
-                        print("* close_window: destroy %i\n", window.window_xid);
-                        window.destroy();
+                        Gtk.Allocation alloc = win.get_allocate();
+                        print("******* get_allocate: %i %i %i %i %i\n", win.window_xid, alloc.x, alloc.y, alloc.width, alloc.height);
+                        print("******* set_allocate: %i %i %i %i %i\n", win.window_xid, rect.x, rect.y, rect.width, rect.height);
                         
-                        print("destroy window %i\n", win.window_xid);
-                        break;
+                        if (rect.x == alloc.x && rect.y == alloc.y && rect.width == alloc.width && rect.height == alloc.height) {
+                            var current_tab_xid = win.tabbar.get_current_tab_xid();
+                            if (current_tab_xid != null) {
+                                win.visible_tab(current_tab_xid);
+                            }
+                        } else {
+                            win.set_allocate(this, rect.x, rect.y, rect.width, rect.height, true);
+                        }
                     }
                 }
             }
@@ -423,20 +467,6 @@ namespace Widgets {
             } catch (SpawnError e) {
                 print("Got error when spawn_command_line_async: %s\n", e.message);
             }
-        }
-        
-        public void replace_tab(string mode_name, int tab_id, int new_win_id) {
-            print("replace_tab: start\n");
-            foreach (Window window in window_list) {
-                if (window.mode_name == mode_name && window.tabbar.has_tab(tab_id)) {
-                    print("replace_tab: set tab %i with new window id %i\n", tab_id, new_win_id);
-                    window.tabbar.set_tab_xid(tab_id, new_win_id);
-                    if (window.tabbar.is_focus_tab(tab_id)) {
-                        window.visible_tab(new_win_id);
-                    }
-                }
-            }
-            print("replace_tab: end\n");
         }
         
         public void close_tab_with_buffer(string mode_name, string buffer_id) {
