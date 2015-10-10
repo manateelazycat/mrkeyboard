@@ -170,10 +170,8 @@ namespace Widgets {
             }
         }
         
-        public bool focus_left_window() {
+        public void focus_left_window() {
             focus_horizontal_window(true);
-            
-            return false;
         }
         
         public void focus_right_window() {

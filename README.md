@@ -20,8 +20,7 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
-* Refactory code, make everything simpler.
-* Build two communication protocol in daemon process and "one* application template interface, let application developer choose interface, daemon process handle protocol's difference automatically.
+* Add change tab name interface.
 * Create application interface template, make create application easier.
 * Design search framework.
 * Design application package standard.

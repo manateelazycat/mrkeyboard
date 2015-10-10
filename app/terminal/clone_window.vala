@@ -15,8 +15,6 @@ namespace Application {
         
         public signal void create_app(int app_win_id, string mode_name, int tab_id);
         
-        private Clutter.Actor clone_tag;
-        
         public CloneWindow(int width, int height, int tid, int pwid, string bid) {
             tab_id = tid;
             parent_window_id = pwid;
@@ -55,22 +53,9 @@ namespace Application {
             texture.set_automatic(true);            
             stage.add_child(texture);
             
-            // Remove this function when debug clone operation finish.
-            add_clone_tag();
-            
             stage.show();
             
             update_texture_area();
-        }
-        
-        private void add_clone_tag() {
-            if (clone_tag != null) {
-                stage.remove_child(clone_tag);
-            }
-            clone_tag = new Clutter.Actor();
-            clone_tag.width = clone_tag.height = 20;
-            clone_tag.background_color = Color.from_string("red");
-            stage.add_child(clone_tag);
         }
     }
 }
