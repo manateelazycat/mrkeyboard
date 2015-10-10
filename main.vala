@@ -18,10 +18,10 @@ public class DaemonServer : Object {
     }
     
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
+    public signal void destroy_buffer(string buffer_id);
     public signal void destroy_windows(int[] window_ids);
     public signal void reparent_window(int window_id);
     public signal void resize_window(int window_id, int width, int height);
-    public signal void destroy_buffer(string buffer_id);
     public signal void quit_app();
     
     public void init(string[] args) {

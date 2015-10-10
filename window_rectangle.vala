@@ -1,5 +1,5 @@
-using Widgets;
 using Gee;
+using Widgets;
 
 namespace Utils {
     // Because widget's allocation won't change immediately even we call function 'set_size_request'.

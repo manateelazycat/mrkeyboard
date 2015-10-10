@@ -1,27 +1,27 @@
-using Gtk;
-using Gdk;
-using Keymap;
-using Xcb;
-using Gee;
-using Widgets;
 using Draw;
+using Gdk;
+using Gee;
+using Gtk;
+using Keymap;
 using Utils;
+using Widgets;
+using Xcb;
 
 namespace Widgets {
     public class WindowManager : Gtk.Fixed {
-        public int tab_counter;
         public ArrayList<Widgets.Window> window_list;
         public Widgets.Window focus_window;
         public Xcb.Connection conn;
+        public int tab_counter;
         
+        public signal void destroy_buffer(string buffer_id);
         public signal void destroy_window(int xid);
         public signal void destroy_windows(int[] xids);
         public signal void reparent_window(int xid);
-        public signal void destroy_buffer(string buffer_id);
         public signal void resize_window(int xid, int width, int height);
         
-        private int cache_width = 0;
         private int cache_height = 0;
+        private int cache_width = 0;
         
         public WindowManager() {
             set_can_focus(true);

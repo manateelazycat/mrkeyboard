@@ -4,10 +4,10 @@ using Vte;
 namespace Application {
     public class Window : Gtk.Window {
         public Vte.Terminal term;
-        public string mode_name = "terminal";
-        public int window_id;
         public int tab_id;
+        public int window_id;
         public string buffer_id;
+        public string mode_name = "terminal";
         
         public signal void create_app(int app_win_id, string mode_name, int tab_id);
         public signal void close_app_tab(string mode_name, string buffer_id);

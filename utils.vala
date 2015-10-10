@@ -1,5 +1,5 @@
-using Gtk;
 using Gdk;
+using Gtk;
 
 namespace Utils {
     public bool move_window(Gtk.Widget widget, Gdk.EventButton event, Gtk.Window window) {

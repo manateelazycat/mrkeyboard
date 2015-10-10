@@ -1,22 +1,21 @@
+using Clutter;
+using ClutterX11;
 using Gtk;
 using GtkClutter;
-using ClutterX11;
-using Clutter;
 
 namespace Application {
     public class CloneWindow : Gtk.Window {
-        public string mode_name = "terminal";
-        public int window_id;
-        public int tab_id;
-        public string buffer_id;
-        
-        public ClutterX11.TexturePixmap texture;
         public Clutter.Actor stage;
+        public ClutterX11.TexturePixmap texture;
         public int parent_window_id;
-        
-        private Clutter.Actor clone_tag;
+        public int tab_id;
+        public int window_id;
+        public string buffer_id;
+        public string mode_name = "terminal";
         
         public signal void create_app(int app_win_id, string mode_name, int tab_id);
+        
+        private Clutter.Actor clone_tag;
         
         public CloneWindow(int width, int height, int tid, int pwid, string bid) {
             tab_id = tid;

@@ -1,6 +1,6 @@
 using Cairo;
-using Gee;
 using Draw;
+using Gee;
 using Gtk;
 using Utils;
 using Widgets;
@@ -8,12 +8,12 @@ using Widgets;
 namespace Widgets {
     public class Tabbar : Gtk.DrawingArea {
         public ArrayList<int> tab_list;
-        public HashMap<int, string> tab_name_set;
         public HashMap<int, int> tab_xid_set;
         public HashMap<int, string> tab_buffer_set;
+        public HashMap<int, string> tab_name_set;
+        public HashMap<int, string> tab_path_set;
         public HashMap<int, string> tab_window_type_set;
         public int height = 28;
-        public HashMap<int, string> tab_path_set;
         
         public Gdk.Color background_color = Utils.color_from_hex("#171814");
         public Gdk.Color active_tab_color = Utils.color_from_hex("#272822");
@@ -24,23 +24,23 @@ namespace Widgets {
         public Gdk.Color text_color = Utils.color_from_hex("#aaaaaa");
         public Gdk.Color hover_text_color = Utils.color_from_hex("#ffffff");
         
-        private int tab_index = 0;
-        private int draw_padding_y = 2;
-        private int text_padding_x = 12;
+        private Cairo.ImageSurface hover_surface;
+        private Cairo.ImageSurface normal_surface;
+        private Cairo.ImageSurface press_surface;
+        private bool draw_arrow = false;
+        private bool draw_hover = false;
+        private bool is_button_press = false;
+        private int arrow_padding_x = 4;
+        private int arrow_padding_y = 0;
+        private int arrow_width = 16;
         private int close_button_padding_x = 8;
         private int close_button_padding_y = 8;
         private int close_button_width = 12;
-        private int arrow_width = 16;
-        private int arrow_padding_x = 4;
-        private int arrow_padding_y = 0;
-        private bool is_button_press = false;
-        private bool draw_hover = false;
-        private int hover_x = 0;
-        private bool draw_arrow = false;
         private int draw_offset = 0;
-        private Cairo.ImageSurface normal_surface;
-        private Cairo.ImageSurface hover_surface;
-        private Cairo.ImageSurface press_surface;
+        private int draw_padding_y = 2;
+        private int hover_x = 0;
+        private int tab_index = 0;
+        private int text_padding_x = 12;
         
         public signal void destroy_buffer(int index, string buffer_id);
         public signal void focus_window(int xid);

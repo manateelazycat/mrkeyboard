@@ -1,19 +1,19 @@
-using Gtk;
-using Vte;
+using Application;
 using GLib;
 using Gdk;
-using Application;
 using Gee;
+using Gtk;
+using Vte;
 
 [DBus (name = "org.mrkeyboard.Daemon")]
 interface Daemon : Object {
     public abstract void show_app_tab(int app_win_id, string mode_name, int tab_id, string buffer_id, string window_type) throws IOError;
     public abstract void close_app_tab(string mode_name, string buffer_id) throws IOError;
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
+    public signal void destroy_buffer(string buffer_id);
     public signal void destroy_windows(int[] window_ids);
     public signal void reparent_window(int window_id);
     public signal void resize_window(int window_id, int width, int height);
-    public signal void destroy_buffer(string buffer_id);
     public signal void quit_app();
 }
 

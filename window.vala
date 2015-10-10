@@ -1,20 +1,18 @@
+using Draw;
 using Gee;
 using Widgets;
-using Draw;
 
 namespace Widgets {
     public class Window : Gtk.EventBox {
-        public Widgets.Tabbar tabbar;
+        public Gdk.Color window_frame_active_color = Utils.color_from_hex("#536773");
+        public Gdk.Color window_frame_color = Utils.color_from_hex("#262721");
         public Gtk.Box window_content_area;
-        public string mode_name = "";
+        public Widgets.Tabbar tabbar;
         public int padding = 1;
         public int window_xid;
-        
-        public Gdk.Color window_frame_color = Utils.color_from_hex("#262721");
-        public Gdk.Color window_frame_active_color = Utils.color_from_hex("#536773");
+        public string mode_name = "";
         
         private Widgets.WindowManager window_manager;
-        
         private bool visible_tab_after_size = false;
         
         public Window(Widgets.WindowManager wm) {
