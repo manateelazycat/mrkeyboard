@@ -20,7 +20,6 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
-* Fixed bug: split three window, and focus clone window, do close_other_window.
 * Fixed bug: split three window, and do close_current_window twice.
 * Fixed configure event.
 * Design buffer/view framework like Emacs.

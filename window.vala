@@ -9,11 +9,13 @@ namespace Widgets {
         public string mode_name = "";
         public int padding = 1;
         public int window_xid;
-
+        
         public Gdk.Color window_frame_color = Utils.color_from_hex("#262721");
         public Gdk.Color window_frame_active_color = Utils.color_from_hex("#536773");
         
         private Widgets.WindowManager window_manager;
+        
+        private bool visible_tab_after_size = false;
         
         public Window(Widgets.WindowManager wm) {
             window_manager = wm;
@@ -54,22 +56,50 @@ namespace Widgets {
         }
         
         public void visible_tab(int xid) {
-            Gtk.Allocation window_alloc;
-            get_allocation(out window_alloc);
-                
-            Gtk.Allocation tab_box_alloc;
-            window_content_area.get_allocation(out tab_box_alloc);
-                
+            var window_manager_xid = (int)((Gdk.X11.Window) window_manager.get_window()).get_xid();
+            int x, y;
+            window_content_area.translate_coordinates(window_manager.get_toplevel(), 0, 0, out x, out y);
+            
             window_manager.conn.reparent_window(
                 xid,
-                window_xid,
-                (uint16)tab_box_alloc.x,
-                (uint16)tab_box_alloc.y);
+                window_manager_xid,
+                (uint16)x,
+                (uint16)y);
             window_manager.conn.flush();
             
-            print("reparent %i to %i with %i %i\n", xid, window_xid, tab_box_alloc.x, tab_box_alloc.y);
+            print("visible_tab: reparent %i to %i (%i) with %i %i\n", xid, window_manager_xid, window_xid, x, y);
                 
             window_manager.reparent_window(xid);
+        }
+        
+        public bool on_size_allocate(Gtk.Widget widget, Gdk.Rectangle rect) {
+            print("###########################\n");
+            resize_tab_windows();
+            
+            if (visible_tab_after_size) {
+                visible_tab_after_size = false;
+                
+                var xid = tabbar.get_current_tab_xid();
+                if (xid != null) {
+                    visible_tab(xid);
+                }
+            }
+            
+            return false;
+        }
+        
+        public void resize_tab_windows() {
+            var size = get_child_allocate();
+            
+            var xids = tabbar.get_all_xids();
+            foreach (int xid in xids) {
+                window_manager.resize_window(
+                    xid,
+                    size[0],
+                    size[1]
+                    );
+                print("on_size_allocate: %i %i %i\n", xid, size[0], size[1]);
+            }
         }
         
         public bool on_draw(Gtk.Widget widget, Cairo.Context cr) {
@@ -104,19 +134,6 @@ namespace Widgets {
             return window_height - padding * 2 - tabbar.height;
         }
         
-        public bool on_size_allocate(Gtk.Widget widget, Gdk.Rectangle rect) {
-            var xids = tabbar.get_all_xids();
-            foreach (int xid in xids) {
-                window_manager.resize_window(
-                    xid,
-                    get_child_width(rect.width),
-                    get_child_height(rect.height)
-                    );
-            }
-            
-            return false;
-        }
-        
         public Gtk.Allocation get_allocate() {
             Gtk.Allocation window_alloc = Gtk.Allocation();
 
@@ -141,7 +158,9 @@ namespace Widgets {
             return window_alloc;
         }
         
-        public void set_allocate(Gtk.Fixed parent, int x, int y, int w, int h) {
+        public void set_allocate(Gtk.Fixed parent, int x, int y, int w, int h, bool visible_tab=false) {
+            visible_tab_after_size = visible_tab;
+            
             parent.move(this, x, y);
             set_size_request(w, h);
         }

@@ -9,20 +9,21 @@ public class DaemonServer : Object {
     private Widgets.Application app;
     private Widgets.WindowManager window_manager;
 
-    public void show_app_tab(int app_win_id, string mode_name, int tab_id, string buffer_id) {
-        window_manager.show_tab(app_win_id, mode_name, tab_id, buffer_id);
+    public void show_app_tab(int app_win_id, string mode_name, int tab_id, string buffer_id, string window_type) {
+        window_manager.show_tab(app_win_id, mode_name, tab_id, buffer_id, window_type);
     }
     
     public void close_app_tab(string mode_name, string buffer_id) {
         window_manager.close_tab_with_buffer(mode_name, buffer_id);
     }
     
-    public int[] replace_app_tab(string mode_name, int tab_id, int new_win_id) {
-        return window_manager.replace_tab(mode_name, tab_id, new_win_id);
+    public void replace_app_tab(string mode_name, int tab_id, int new_win_id) {
+        window_manager.replace_tab(mode_name, tab_id, new_win_id);
     }
 
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
     public signal void destroy_window(int window_id);
+    public signal void destroy_windows(int[] window_ids);
     public signal void reparent_window(int window_id);
     public signal void resize_window(int window_id, int width, int height);
     public signal void destroy_buffer(string buffer_id);
@@ -101,6 +102,9 @@ public class DaemonServer : Object {
             });
         window_manager.destroy_window.connect((xid) => {
                 destroy_window(xid);
+            });
+        window_manager.destroy_windows.connect((xid) => {
+                destroy_windows(xid);
             });
         window_manager.reparent_window.connect((xid) => {
                 reparent_window(xid);

@@ -11,6 +11,7 @@ namespace Widgets {
         public HashMap<int, string> tab_name_set;
         public HashMap<int, int> tab_xid_set;
         public HashMap<int, string> tab_buffer_set;
+        public HashMap<int, string> tab_window_type_set;
         public int height = 28;
         public HashMap<int, string> tab_path_set;
         
@@ -54,6 +55,7 @@ namespace Widgets {
             tab_name_set = new HashMap<int, string>();
             tab_xid_set = new HashMap<int, int>();
             tab_buffer_set = new HashMap<int, string>();
+            tab_window_type_set = new HashMap<int, string>();
             tab_path_set = new HashMap<int, string>();
             set_size_request(-1, height);
             
@@ -99,6 +101,10 @@ namespace Widgets {
         
         public void set_tab_buffer(int tab_id, string buffer_id) {
             tab_buffer_set.set(tab_id, buffer_id);
+        }
+        
+        public void set_tab_window_type(int tab_id, string window_type) {
+            tab_window_type_set.set(tab_id, window_type);
         }
         
         public void select_next_tab() {
@@ -170,6 +176,7 @@ namespace Widgets {
                     destroy_buffer(index, tab_buffer_set.get(tab_id));
                 }
                 tab_buffer_set.unset(tab_id);
+                tab_window_type_set.unset(tab_id);
 
                 if (tab_list.size == 0) {
                     tab_index = 0;
