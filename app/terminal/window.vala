@@ -37,12 +37,14 @@ namespace Application {
                     } catch (SpawnError e) {
                         print("Got error when spawn__line_async: %s\n", e.message);
                     }
-        
-                    working_directory = working_directory[0:working_directory.length - 1];
-                    if (buffer_name != working_directory) {
-                        var paths = working_directory.split("/");
-                        rename_app_tab(mode_name, buffer_id, paths[paths.length - 1]);
-                        buffer_name = working_directory;
+                    
+                    if (working_directory.length > 0) {
+                        working_directory = working_directory[0:working_directory.length - 1];
+                        if (buffer_name != working_directory) {
+                            var paths = working_directory.split("/");
+                            rename_app_tab(mode_name, buffer_id, paths[paths.length - 1]);
+                            buffer_name = working_directory;
+                        }
                     }
                 });
             var arguments = new string[0];
