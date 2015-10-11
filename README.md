@@ -20,11 +20,10 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
-* Make window frame at above.
-* Add welcome page.
 * Make window resize as normal, not bigger and bigger.
 * Use startup patch to different mode, mode-name just name.
 * Add app command line parser.
+* Add welcome page.
 * Create application interface template, make create application easier.
 * Design search framework.
 * Design application package standard.

@@ -4,7 +4,7 @@ using Widgets;
 
 namespace Widgets {
     public class Window : Gtk.EventBox {
-        public Gdk.Color window_frame_active_color = Utils.color_from_hex("#536773");
+        public Gdk.Color window_frame_active_color = Utils.color_from_hex("#3880AB");
         public Gdk.Color window_frame_color = Utils.color_from_hex("#262721");
         public Gtk.Box window_content_area;
         public Widgets.Tabbar tabbar;
