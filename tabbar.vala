@@ -81,6 +81,17 @@ namespace Widgets {
             queue_draw();
         }
         
+        public void rename_tab(string buffer_id, string buffer_name) {
+            foreach (var name_entry in tab_buffer_set.entries) {
+                if (name_entry.value == buffer_id) {
+                    tab_name_set.set(name_entry.key, buffer_name);
+                    queue_draw();
+                    
+                    break;
+                }
+            }
+        }
+        
         public void set_tab_xid(int tab_id, int xid) {
             tab_xid_set.set(tab_id, xid);
         }
@@ -538,6 +549,15 @@ namespace Widgets {
             }
             
             return buffers;
+        }
+        
+        public ArrayList<string> get_all_names() {
+            ArrayList<string> names = new ArrayList<string>();
+            foreach (int index in tab_list) {
+                names.add(tab_name_set.get(index));
+            }
+            
+            return names;
         }
 
         public void switch_tab(int new_index) {

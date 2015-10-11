@@ -115,12 +115,14 @@ namespace Widgets {
             // Clone tabs.
             var windows_ids = window.tabbar.get_all_xids();
             var paths = window.tabbar.get_all_paths();
+            var names = window.tabbar.get_all_names();
             var counter = 0;
             foreach (int xid in windows_ids) {
                 var app_path = paths.get(counter);
+                var tab_name = names.get(counter);
                 
                 tab_counter += 1;
-                clone_window.tabbar.add_tab("Tab", tab_counter, app_path);
+                clone_window.tabbar.add_tab(tab_name, tab_counter, app_path);
                 
                 string app_command = "%s %i %i %i %i".printf(
                     app_path,
@@ -453,7 +455,7 @@ namespace Widgets {
             var window_child_size = window.get_child_allocate();
             
             tab_counter += 1;
-            window.tabbar.add_tab("Tab", tab_counter, app_path);
+            window.tabbar.add_tab("", tab_counter, app_path);
             
             string app_command = "%s %i %i %i".printf(
                 app_path,
@@ -478,6 +480,14 @@ namespace Widgets {
             destroy_buffer(buffer_id);
 
             clean_windows();
+        }
+        
+        public void rename_tab_with_buffer(string mode_name, string buffer_id, string buffer_name) {
+            foreach (Window window in window_list) {
+                if (window.mode_name == mode_name) {
+                    window.tabbar.rename_tab(buffer_id, buffer_name);
+                }
+            }
         }
         
         public void close_tab(Window current_window, string mode_name, int tab_index, string buffer_id) {
@@ -554,6 +564,7 @@ namespace Widgets {
             foreach (Widgets.Window window in window_list) {
                 if (window != current_window && window.mode_name == current_window.mode_name) {
                     var buffers = window.tabbar.get_all_buffers();
+                    var names = window.tabbar.get_all_names();
                     var clone_buffers = current_buffers[buffers.size:current_buffers.size];
                     var clone_paths = current_paths[buffers.size:current_buffers.size];
 
@@ -561,9 +572,10 @@ namespace Widgets {
                     foreach (string clone_buffer in clone_buffers) {
                         var app_path = clone_paths.get(counter);
                         var window_child_size = window.get_child_allocate();
+                        var tab_name = names.get(counter);
                         tab_counter += 1;
                         
-                        window.tabbar.add_tab("Tab", tab_counter, app_path);
+                        window.tabbar.add_tab(tab_name, tab_counter, app_path);
 
                         string app_command = "%s %i %i %i %s".printf(
                             app_path,

@@ -9,6 +9,7 @@ using Vte;
 interface Daemon : Object {
     public abstract void show_app_tab(int app_win_id, string mode_name, int tab_id, string buffer_id, string window_type) throws IOError;
     public abstract void close_app_tab(string mode_name, string buffer_id) throws IOError;
+    public abstract void rename_app_tab(string mode_name, string buffer_id, string buffer_name) throws IOError;
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
     public signal void destroy_buffer(string buffer_id);
     public signal void destroy_windows(int[] window_ids);
@@ -76,7 +77,7 @@ public class ClientServer : Object {
             print("Got error when spawn__line_async: %s\n", e.message);
         }
         
-        return buffer_id[0:buffer_id.length - 2];  // remove \n char at end
+        return buffer_id[0:buffer_id.length - 1];  // remove \n char at end
     }
     
     public void create_window(string[] args, bool from_dbus=false) {
@@ -98,6 +99,13 @@ public class ClientServer : Object {
             window.close_app_tab.connect((mode_name, buffer_id) => {
                     try {
                         daemon.close_app_tab(mode_name, buffer_id);
+                    } catch (IOError e) {
+                        stderr.printf("%s\n", e.message);
+                    }
+                });
+            window.rename_app_tab.connect((mode_name, buffer_id, buffer_name) => {
+                    try {
+                        daemon.rename_app_tab(mode_name, buffer_id, buffer_name);
                     } catch (IOError e) {
                         stderr.printf("%s\n", e.message);
                     }

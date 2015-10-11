@@ -20,13 +20,17 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
-* Add change tab name interface.
+* Make window frame at above.
+* Add welcome page.
+* Make window resize as normal, not bigger and bigger.
+* Use startup patch to different mode, mode-name just name.
+* Add app command line parser.
 * Create application interface template, make create application easier.
 * Design search framework.
 * Design application package standard.
 * Design keystroke standard and build one-key system for feature. ;)
 * Implement package manager and smart notify bar.
-* Write terminal application with vte widget.
+* Write terminal application with vte widget, steal ideas from https://github.com/thestinger/termite ;).
 * Write browser application with webkit widget.
 * Write vimium plugins for browser application.
 * Write IRC application for hacking team communication.

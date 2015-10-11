@@ -17,6 +17,10 @@ public class DaemonServer : Object {
         window_manager.close_tab_with_buffer(mode_name, buffer_id);
     }
     
+    public void rename_app_tab(string mode_name, string buffer_id, string buffer_name) {
+        window_manager.rename_tab_with_buffer(mode_name, buffer_id, buffer_name);
+    }
+    
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
     public signal void destroy_buffer(string buffer_id);
     public signal void destroy_windows(int[] window_ids);
