@@ -6,8 +6,13 @@ namespace Widgets {
         
         public Application() {
             set_decorated(false);
+            
             set_position(Gtk.WindowPosition.CENTER);
-            set_default_size(800, 600);
+            
+            Gdk.Geometry size = Gdk.Geometry();
+            size.min_width = 800;
+            size.min_height = 600;
+            set_geometry_hints(this, size, Gdk.WindowHints.MIN_SIZE);
             
             box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
             add(box);
