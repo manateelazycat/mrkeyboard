@@ -20,7 +20,6 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
-* Create application interface template, make create application easier.
 * Design search framework.
 * Design application package standard.
 * Design keystroke standard and build one-key system for feature. ;)

@@ -3,7 +3,7 @@ using ClutterX11;
 using Gtk;
 using GtkClutter;
 
-namespace Application {
+namespace Interface {
     public class CloneWindow : Gtk.Window {
         public Clutter.Actor stage;
         public ClutterX11.TexturePixmap texture;
@@ -11,11 +11,10 @@ namespace Application {
         public int tab_id;
         public int window_id;
         public string buffer_id;
-        public string mode_name = "terminal";
         
-        public signal void create_app(int app_win_id, string mode_name, int tab_id);
+        public signal void create_app_tab(int app_win_id, string mode_name, int tab_id);
         
-        public CloneWindow(int width, int height, int tid, int pwid, string bid) {
+        public CloneWindow(int width, int height, int tid, int pwid, string mode_name, string bid) {
             tab_id = tid;
             parent_window_id = pwid;
             buffer_id = bid;
@@ -27,15 +26,21 @@ namespace Application {
             add(embed);
     
             stage = embed.get_stage();
-            stage.set_background_color(Color.from_string("black"));
+            stage.set_background_color(Color.from_string(get_background_color()));
             
             update_texture();
             
             realize.connect((w) => {
                     var xid = (int)((Gdk.X11.Window) get_window()).get_xid();
                     window_id = xid;
-                    create_app(window_id, mode_name, tab_id);
+                    create_app_tab(window_id, mode_name, tab_id);
                 });
+        }
+        
+        public virtual string get_background_color() {
+            print("You need implement 'get_background_color' in your application code.\n");
+            
+            return "black";
         }
         
         public void update_texture_area() {
