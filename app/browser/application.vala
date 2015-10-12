@@ -35,7 +35,7 @@ namespace Application {
         }        
         
         public override string get_mode_name() {
-            return "browser";
+            return app_name;
         }
         
         public override Gdk.Window get_event_window() {

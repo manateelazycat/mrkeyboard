@@ -64,7 +64,7 @@ namespace Application {
         }        
         
         public override string get_mode_name() {
-            return "terminal";
+            return app_name;
         }
         
         public override Gdk.Window get_event_window() {
