@@ -20,9 +20,6 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
-* Use startup patch to different mode, mode-name just name.
-* Add app command line parser.
-* Add welcome page.
 * Create application interface template, make create application easier.
 * Design search framework.
 * Design application package standard.
@@ -43,6 +40,7 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 * Write process manager to control process.
 * Write basic editor, such as language highlight, code completion.
 * Write hackable editor that powerful as emacs, then we can reach editor-strap. 
+* Add welcome page.
 
 ## BUG
 
