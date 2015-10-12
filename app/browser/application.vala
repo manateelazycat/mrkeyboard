@@ -32,7 +32,13 @@ namespace Application {
             webview.title_changed.connect((source, frame, title) => {
                     rename_app_tab(mode_name, buffer_id, title);
                 });
+            
+            webview.create_web_view.connect(on_create_web_view);
         }        
+        
+        public WebView on_create_web_view(WebView web_view, WebFrame web_frame) {
+            return webview;
+        }
         
         public override string get_mode_name() {
             return app_name;
