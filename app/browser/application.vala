@@ -26,7 +26,7 @@ namespace Application {
         
         public override void init() {
             webview = new WebView();
-            webview.load_uri("http://www.google.com");
+            webview.load_uri("http://www.baidu.com");
             box.pack_start(webview, true, true, 0);
             
             webview.title_changed.connect((source, frame, title) => {

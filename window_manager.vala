@@ -121,11 +121,14 @@ namespace Widgets {
                 var app_path = paths.get(counter);
                 var tab_name = names.get(counter);
                 
+                var info = get_app_execute_info(app_path);
+                var app_execute_path = info[0];
+                
                 tab_counter += 1;
                 clone_window.tabbar.add_tab(tab_name, tab_counter, app_path);
                 
                 string app_command = "%s %i %i %i %i".printf(
-                    app_path,
+                    app_execute_path,
                     clone_window.get_child_width(clone_window_width),
                     clone_window.get_child_height(clone_window_height),
                     tab_counter,
@@ -451,23 +454,51 @@ namespace Widgets {
         }
         
         public void new_tab(string app_path) {
+            print("%s/app.json".printf(app_path));
+
+            var info = get_app_execute_info(app_path);
+            var app_execute_path = info[0];
+            var mode_name = info[1];
+            
             var window = get_focus_window();
-            var window_child_size = window.get_child_allocate();
-            
-            tab_counter += 1;
-            window.tabbar.add_tab("", tab_counter, app_path);
-            
-            string app_command = "%s %i %i %i".printf(
-                app_path,
-                window_child_size[0],
-                window_child_size[1],
-                tab_counter);
-            
-            try {
-                Process.spawn_command_line_async(app_command);
-            } catch (SpawnError e) {
-                print("Got error when spawn_command_line_async: %s\n", e.message);
+            if (window != null) {
+                if (window.mode_name != mode_name) {
+                    print("We need do mode switch here.\n");
+                }
+                
+                var window_child_size = window.get_child_allocate();
+                
+                tab_counter += 1;
+                window.tabbar.add_tab("", tab_counter, app_path);
+                
+                string app_command = "%s %i %i %i".printf(
+                    app_execute_path,
+                    window_child_size[0],
+                    window_child_size[1],
+                    tab_counter);
+                
+                try {
+                    Process.spawn_command_line_async(app_command);
+                } catch (SpawnError e) {
+                    print("Got error when spawn_command_line_async: %s\n", e.message);
+                }
             }
+        }
+        
+        private string[] get_app_execute_info(string app_path) {
+            string[] info = {};
+            
+            var parser = new Json.Parser();
+            try {
+                parser.load_from_file("%s/app.json".printf(app_path));
+            } catch (GLib.Error e) {
+                print("Got error when load %s/app.json: %s\n", app_path, e.message);
+            }
+            var root_object = parser.get_root ().get_object();
+            info += "%s/%s".printf(app_path, root_object.get_string_member("execute"));
+            info += root_object.get_string_member("mode-name");
+
+            return info;
         }
         
         public void close_tab_with_buffer(string mode_name, string buffer_id) {
@@ -575,10 +606,13 @@ namespace Widgets {
                         var tab_name = names.get(counter);
                         tab_counter += 1;
                         
+                        var info = get_app_execute_info(app_path);
+                        var app_execute_path = info[0];
+                        
                         window.tabbar.add_tab(tab_name, tab_counter, app_path);
 
                         string app_command = "%s %i %i %i %s".printf(
-                            app_path,
+                            app_execute_path,
                             window_child_size[0],
                             window_child_size[1],
                             tab_counter,

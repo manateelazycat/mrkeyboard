@@ -55,9 +55,9 @@ public class DaemonServer : Object {
                 if (keyevent_name == "Alt + x") {
                     titlebar.entry.grab_focus();
                 } else if (keyevent_name == "Super + n") {
-                    window_manager.new_tab("./app/terminal/main");
+                    window_manager.new_tab("./app/terminal");
                 } else if (keyevent_name == "Super + m") {
-                    window_manager.new_tab("./app/browser/main");
+                    window_manager.new_tab("./app/browser");
                 } else if (keyevent_name == "Alt + ,") {
                     var window = window_manager.get_focus_window();
                     window.tabbar.select_prev_tab();
