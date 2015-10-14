@@ -21,8 +21,8 @@ namespace Application {
         public Vte.Terminal term;
         public GLib.Pid process_id;
         
-        public Window(int width, int height, int tid, string bid) {
-            base(width, height, tid, bid);
+        public Window(int width, int height, string bid) {
+            base(width, height, bid);
         }
         
         public override void init() {
@@ -83,8 +83,8 @@ namespace Application {
     }
 
     public class CloneWindow : Interface.CloneWindow {
-        public CloneWindow(int width, int height, int tid, int pwid, string mode_name, string bid) {
-            base(width, height, tid, pwid, mode_name, bid);
+        public CloneWindow(int width, int height, int pwid, string mode_name, string bid) {
+            base(width, height, pwid, mode_name, bid);
         }
         
         public override string get_background_color() {

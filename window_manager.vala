@@ -462,9 +462,7 @@ namespace Widgets {
             
             var window = get_focus_window();
             if (window != null) {
-                if (window.mode_name != mode_name) {
-                    print("We need do mode switch here.\n");
-                }
+                switch_mode(window, mode_name);
                 
                 var window_child_size = window.get_child_allocate();
                 
@@ -482,6 +480,16 @@ namespace Widgets {
                 } catch (SpawnError e) {
                     print("Got error when spawn_command_line_async: %s\n", e.message);
                 }
+            }
+        }
+        
+        private void switch_mode(Window window, string mode_name) {
+            if (window.mode_name != mode_name) {
+                // Record buffers of current mode.
+                
+                // Switch to new mode.
+                
+                // Rebuild window's tabs.
             }
         }
         

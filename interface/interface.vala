@@ -87,9 +87,9 @@ namespace Interface {
                 var tab_id = int.parse(args[3]);
     
                 var buffer_id = get_buffer_id();
-                var window = new Application.Window(width, height, tab_id, buffer_id);
+                var window = new Application.Window(width, height, buffer_id);
                 
-                window.create_app_tab.connect((app_win_id, mode_name, tab_id) => {
+                window.create_app_tab.connect((app_win_id, mode_name) => {
                         try {
                             daemon.show_app_tab(app_win_id, mode_name, tab_id, window.buffer_id, "origin");
                         } catch (IOError e) {
@@ -134,9 +134,9 @@ namespace Interface {
                     var window = get_match_window_with_id(parent_window_id);
                     if (window != null) {
                         
-                        var clone_window = new Application.CloneWindow(width, height, tab_id, parent_window_id, window.mode_name, window.buffer_id);
+                        var clone_window = new Application.CloneWindow(width, height, parent_window_id, window.mode_name, window.buffer_id);
                         
-                        clone_window.create_app_tab.connect((app_win_id, mode_name, tab_id) => {
+                        clone_window.create_app_tab.connect((app_win_id, mode_name) => {
                                 try {
                                     daemon.show_app_tab(app_win_id, mode_name, tab_id, clone_window.buffer_id, "clone");
                                 } catch (IOError e) {

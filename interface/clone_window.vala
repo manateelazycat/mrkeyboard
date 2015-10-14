@@ -8,14 +8,12 @@ namespace Interface {
         public Clutter.Actor stage;
         public ClutterX11.TexturePixmap texture;
         public int parent_window_id;
-        public int tab_id;
         public int window_id;
         public string buffer_id;
         
-        public signal void create_app_tab(int app_win_id, string mode_name, int tab_id);
+        public signal void create_app_tab(int app_win_id, string mode_name);
         
-        public CloneWindow(int width, int height, int tid, int pwid, string mode_name, string bid) {
-            tab_id = tid;
+        public CloneWindow(int width, int height, int pwid, string mode_name, string bid) {
             parent_window_id = pwid;
             buffer_id = bid;
             
@@ -33,7 +31,7 @@ namespace Interface {
             realize.connect((w) => {
                     var xid = (int)((Gdk.X11.Window) get_window()).get_xid();
                     window_id = xid;
-                    create_app_tab(window_id, mode_name, tab_id);
+                    create_app_tab(window_id, mode_name);
                 });
         }
         

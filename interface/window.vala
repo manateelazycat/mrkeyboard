@@ -3,18 +3,16 @@ using Gtk;
 namespace Interface {
     public class Window : Gtk.Window {
         public Gtk.Box box;
-        public int tab_id;
         public int window_id;
         public string buffer_id;
         public string buffer_name = "";
         public string mode_name;
         
-        public signal void create_app_tab(int app_win_id, string mode_name, int tab_id);
+        public signal void create_app_tab(int app_win_id, string mode_name);
         public signal void close_app_tab(string mode_name, string buffer_id);
         public signal void rename_app_tab(string mode_name, string buffer_id, string buffer_name);
         
-        public Window(int width, int height, int tid, string bid) {
-            tab_id = tid;
+        public Window(int width, int height, string bid) {
             buffer_id = bid;
             
             set_decorated(false);
@@ -30,7 +28,7 @@ namespace Interface {
             realize.connect((w) => {
                     var xid = (int)((Gdk.X11.Window) get_window()).get_xid();
                     window_id = xid;
-                    create_app_tab(window_id, mode_name, tab_id);
+                    create_app_tab(window_id, mode_name);
                 });
         }
         
