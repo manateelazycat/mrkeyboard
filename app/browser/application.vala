@@ -19,7 +19,6 @@ namespace Application {
 
     public class Window : Interface.Window {
         public WebView webview;
-        public ScrolledWindow scrolled_window;
         
         public Window(int width, int height, string bid) {
             base(width, height, bid);
