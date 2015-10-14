@@ -10,6 +10,7 @@ using Xcb;
 namespace Widgets {
     public class WindowManager : Gtk.Fixed {
         public ArrayList<Widgets.Window> window_list;
+        public HashMap<string, ArrayList<string>> mode_buffer_set;
         public Widgets.Window focus_window;
         public Xcb.Connection conn;
         public int tab_counter;
@@ -30,8 +31,11 @@ namespace Widgets {
 
             tab_counter = 0;
             window_list = new ArrayList<Widgets.Window>();
+            mode_buffer_set = new HashMap<string, ArrayList<string>>();
             
             realize.connect((w) => {
+                    create_first_window();
+                    
                     grab_focus();
                 });
         }
@@ -55,14 +59,12 @@ namespace Widgets {
             }
         }
         
-        private Window create_first_window() {
+        private void create_first_window() {
             var window = new Widgets.Window(this);
             window.set_allocate(this, 0, 0, this.get_allocated_width(), this.get_allocated_height());
             
             window_list.add(window);
             set_focus_window(window);
-
-            return window;
         }
         
         private Window create_clone_window(Widgets.Window window, bool is_horizontal=true) {
@@ -147,11 +149,7 @@ namespace Widgets {
         }
         
         public Window get_focus_window() {
-            if (window_list.size == 0) {
-                return create_first_window();
-            } else {
-                return focus_window;
-            }
+            return focus_window;
         }
         
         public void split_window_horizontal() {
@@ -311,7 +309,7 @@ namespace Widgets {
         }
         
         public void close_current_window() {
-            if (window_list.size > 0) {
+            if (window_list.size > 1) {
                 close_window(focus_window);
             }
         }
@@ -454,8 +452,6 @@ namespace Widgets {
         }
         
         public void new_tab(string app_path) {
-            print("%s/app.json".printf(app_path));
-
             var info = get_app_execute_info(app_path);
             var app_execute_path = info[0];
             var mode_name = info[1];
@@ -493,6 +489,32 @@ namespace Widgets {
             }
         }
         
+        private void add_buffer_in_mode_set(string mode_name, string buffer_id) {
+            var buffer_list = mode_buffer_set.get(mode_name);
+            if (buffer_list != null) {
+                buffer_list.add(buffer_id);
+            } else {
+                var list = new ArrayList<string>();
+                list.add(buffer_id);
+                mode_buffer_set.set(mode_name, list);
+            }
+            
+            print("Add %s %s in mode_buffer_set\n", mode_name, buffer_id);
+        }
+        
+        private void remove_buffer_from_mode_set(string mode_name, string buffer_id) {
+            var buffer_list = mode_buffer_set.get(mode_name);
+            if (buffer_list != null) {
+                foreach (string buffer in buffer_list) {
+                    if (buffer == buffer_id) {
+                        print("Remove %s %s from mode_buffer_set\n", mode_name, buffer_id);
+                        buffer_list.remove(buffer);
+                        break;
+                    }
+                }
+            }
+        }
+        
         private string[] get_app_execute_info(string app_path) {
             string[] info = {};
             
@@ -516,6 +538,8 @@ namespace Widgets {
                 }
             }
             
+            remove_buffer_from_mode_set(mode_name, buffer_id);
+            
             destroy_buffer(buffer_id);
 
             clean_windows();
@@ -535,6 +559,8 @@ namespace Widgets {
                     window.tabbar.close_nth_tab(tab_index, false);
                 }
             }
+            
+            remove_buffer_from_mode_set(mode_name, buffer_id);
             
             destroy_buffer(buffer_id);
 
@@ -582,6 +608,10 @@ namespace Widgets {
             if (window != null) {
                 if (window.mode_name == "") {
                     window.mode_name = mode_name;
+                }
+                
+                if (window_type == "origin") {
+                    add_buffer_in_mode_set(mode_name, buffer_id);
                 }
                 
                 window.tabbar.set_tab_xid(tab_id, app_win_id);
