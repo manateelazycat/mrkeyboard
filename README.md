@@ -20,6 +20,8 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
+* Close all tab in window to cause window 'switch mode' and not cleaned.
+* close_current_window/close_other_window should make origin tab to hide and not be destroyed.
 * Test mode switch in window.
 * Design new protocol to make app create new tab to daemon, such as browser.
 * Design search framework.
