@@ -19,6 +19,7 @@ namespace Application {
 
     public class Window : Interface.Window {
         public WebView webview;
+        public ScrolledWindow scrolled_window;
         
         public Window(int width, int height, string bid) {
             base(width, height, bid);
@@ -27,13 +28,18 @@ namespace Application {
         public override void init() {
             webview = new WebView();
             webview.load_uri("http://www.baidu.com");
-            box.pack_start(webview, true, true, 0);
             
             webview.title_changed.connect((source, frame, title) => {
                     rename_app_tab(mode_name, buffer_id, title);
                 });
             
             webview.create_web_view.connect(on_create_web_view);
+            
+            var scrolled_window = new ScrolledWindow(null, null);
+            scrolled_window.set_policy(PolicyType.NEVER, PolicyType.AUTOMATIC);
+            scrolled_window.add(webview);
+            
+            box.pack_start(scrolled_window, true, true, 0);
         }        
         
         public WebView on_create_web_view(WebView web_view, WebFrame web_frame) {
