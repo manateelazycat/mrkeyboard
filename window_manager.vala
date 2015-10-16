@@ -143,17 +143,20 @@ namespace Widgets {
                     clone_window.get_child_height(clone_window_height),
                     tab_counter,
                     xid);
-            
-                try {
-                    Process.spawn_command_line_async(app_command);
-                } catch (SpawnError e) {
-                    print("Got error when spawn_command_line_async: %s\n", e.message);
-                }
+                spawn_app_process(app_command);
                 
                 counter++;
             }
             
             return clone_window;
+        }
+        
+        private void spawn_app_process(string app_command) {
+            try {
+                Process.spawn_command_line_async(app_command);
+            } catch (SpawnError e) {
+                print("Got error when spawn_command_line_async: %s\n", e.message);
+            }
         }
         
         public Window get_focus_window() {
@@ -479,11 +482,7 @@ namespace Widgets {
                     window_child_size[1],
                     tab_counter);
                 
-                try {
-                    Process.spawn_command_line_async(app_command);
-                } catch (SpawnError e) {
-                    print("Got error when spawn_command_line_async: %s\n", e.message);
-                }
+                spawn_app_process(app_command);
             }
         }
         
@@ -690,12 +689,7 @@ namespace Widgets {
                                             tab_counter,
                                             window_xid);
             
-                                        try {
-                                            Process.spawn_command_line_async(app_command);
-                                            print("switch_mode create clone tab %i with %i", tab_counter, window_xid);
-                                        } catch (SpawnError e) {
-                                            print("Got error when spawn_command_line_async: %s\n", e.message);
-                                        }
+                                        spawn_app_process(app_command);
                                     }
                                 }
                             }
@@ -859,11 +853,7 @@ namespace Widgets {
                             tab_counter,
                             clone_buffer);
                         
-                        try {
-                            Process.spawn_command_line_async(app_command);
-                        } catch (SpawnError e) {
-                            print("Got error when spawn_command_line_async: %s\n", e.message);
-                        }
+                        spawn_app_process(app_command);
                         
                         counter++;
                     }
