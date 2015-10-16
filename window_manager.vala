@@ -761,12 +761,16 @@ namespace Widgets {
             foreach (Window window in window_list) {
                 if (window.mode_name == mode_name) {
                     window.tabbar.close_tab_with_buffer(buffer_id);
+                    
+                    print("close_tab_with_buffer %i\n", window.tabbar.tab_list.size);
+                    
+                    if (window.tabbar.tab_list.size == 0) {
+                        switch_to_next_mode();
+                    }
                 }
             }
             
             destroy_buffer(buffer_id);
-
-            switch_to_next_mode();
             
             remove_from_mode_set(mode_name, buffer_id);
         }
@@ -775,13 +779,21 @@ namespace Widgets {
             foreach (Window window in window_list) {
                 if (window != current_window && window.mode_name == current_window.mode_name) {
                     window.tabbar.close_nth_tab(tab_index, false);
+                    
+                    print("close_tab %i\n", window.tabbar.tab_list.size);
+                    
+                    if (window.tabbar.tab_list.size == 0) {
+                        switch_to_next_mode();
+                    }
                 }
+            }
+            
+            if (current_window.tabbar.tab_list.size == 0) {
+                switch_to_next_mode();
             }
             
             destroy_buffer(buffer_id);
 
-            switch_to_next_mode();
-            
             remove_from_mode_set(mode_name, buffer_id);
         }
         
