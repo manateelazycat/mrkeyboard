@@ -483,6 +483,7 @@ namespace Widgets {
                     tab_counter);
                 
                 spawn_app_process(app_command);
+                print("*******************\n");
             }
         }
         
@@ -644,52 +645,54 @@ namespace Widgets {
                 
                 // Rebuild window's tabs.
                 var buffer_list = mode_buffer_set.get(mode_name);
-                foreach (string buffer_id in buffer_list) {
-                    tab_counter++;
+                if (buffer_list != null && buffer_list.size > 0) {
+                    foreach (string buffer_id in buffer_list) {
+                        tab_counter++;
+                        
+                        var buffer_origin_window = mode_window_set.get(buffer_id);
+                        int? hide_window = mode_hide_window_set.get(buffer_id);
+                        if (hide_window != null && buffer_origin_window == hide_window) {
+                            conn.map_window(buffer_origin_window);
+                            conn.flush();
+                            
+                            var app_path = mode_hide_path_set.get(buffer_id);
+                            var tab_name = mode_hide_name_set.get(buffer_id);
+                            window.tabbar.add_tab(tab_name, tab_counter, app_path);
+                            
+                            window.tabbar.set_tab_xid(tab_counter, hide_window);
+                            window.tabbar.set_tab_buffer(tab_counter, buffer_id);
+                            window.tabbar.set_tab_window_type(tab_counter, "origin");
+                            
+                            mode_hide_window_set.unset(buffer_id);
+                            mode_hide_path_set.unset(buffer_id);
+                            mode_hide_name_set.unset(buffer_id);
+                            
+                            window.visible_tab(hide_window);
+                            
+                            print("switch_mode visible tab %i %i\n", tab_counter, hide_window);
+                        } else {
+                            foreach (Window win in window_list) {
+                                if (win != window) {
+                                    foreach (int tab_id in win.tabbar.tab_list) {
+                                        var window_xid = win.tabbar.tab_xid_set.get(tab_id);
+                                        if (window_xid == buffer_origin_window) {
+                                            var tab_name = win.tabbar.tab_name_set.get(tab_id);
+                                            var app_path = win.tabbar.tab_path_set.get(tab_id);
+                                            window.tabbar.add_tab(tab_name, tab_counter, app_path);
+                                            
+                                            var info = get_app_execute_info(app_path);
+                                            var app_execute_path = info[0];
+                                            var window_child_size = window.get_child_allocate();
+                                            
+                                            string app_command = "%s %i %i %i %i".printf(
+                                                app_execute_path,
+                                                window_child_size[0],
+                                                window_child_size[1],
+                                                tab_counter,
+                                                window_xid);
                     
-                    var buffer_origin_window = mode_window_set.get(buffer_id);
-                    int? hide_window = mode_hide_window_set.get(buffer_id);
-                    if (hide_window != null && buffer_origin_window == hide_window) {
-                        conn.map_window(buffer_origin_window);
-                        conn.flush();
-                        
-                        var app_path = mode_hide_path_set.get(buffer_id);
-                        var tab_name = mode_hide_name_set.get(buffer_id);
-                        window.tabbar.add_tab(tab_name, tab_counter, app_path);
-                        
-                        window.tabbar.set_tab_xid(tab_counter, hide_window);
-                        window.tabbar.set_tab_buffer(tab_counter, buffer_id);
-                        window.tabbar.set_tab_window_type(tab_counter, "origin");
-                        
-                        mode_hide_window_set.unset(buffer_id);
-                        mode_hide_path_set.unset(buffer_id);
-                        mode_hide_name_set.unset(buffer_id);
-                        
-                        window.visible_tab(hide_window);
-                        
-                        print("switch_mode visible tab %i %i\n", tab_counter, hide_window);
-                    } else {
-                        foreach (Window win in window_list) {
-                            if (win != window) {
-                                foreach (int tab_id in win.tabbar.tab_list) {
-                                    var window_xid = win.tabbar.tab_xid_set.get(tab_id);
-                                    if (window_xid == buffer_origin_window) {
-                                        var tab_name = win.tabbar.tab_name_set.get(tab_id);
-                                        var app_path = win.tabbar.tab_path_set.get(tab_id);
-                                        window.tabbar.add_tab(tab_name, tab_counter, app_path);
-                                        
-                                        var info = get_app_execute_info(app_path);
-                                        var app_execute_path = info[0];
-                                        var window_child_size = window.get_child_allocate();
-                                        
-                                        string app_command = "%s %i %i %i %i".printf(
-                                            app_execute_path,
-                                            window_child_size[0],
-                                            window_child_size[1],
-                                            tab_counter,
-                                            window_xid);
-            
-                                        spawn_app_process(app_command);
+                                            spawn_app_process(app_command);
+                                        }
                                     }
                                 }
                             }
@@ -801,6 +804,7 @@ namespace Widgets {
         }
         
         public void show_tab(int app_win_id, string mode_name, int tab_id, string buffer_id, string window_type) {
+            print("!!!!!!!!!!!!!!!!!!!\n");
             var window = get_window_with_tab_id(tab_id);
             if (window != null) {
                 if (window.mode_name == "") {
@@ -819,6 +823,8 @@ namespace Widgets {
                 window.visible_tab(app_win_id);
                 
                 sync_windows(window);
+                
+                print("#################\n");
             } else {
                 print("Can't found window that contain tab_id: %i\n", tab_id);
             }

@@ -31,6 +31,9 @@ namespace Application {
             webview.title_changed.connect((source, frame, title) => {
                     rename_app_tab(mode_name, buffer_id, title);
                 });
+            webview.console_message.connect((message, line_number, source_id) => {
+                    return true;
+                });
             
             webview.create_web_view.connect(on_create_web_view);
             

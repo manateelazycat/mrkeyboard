@@ -24,6 +24,7 @@ namespace Widgets {
         public Gdk.Color text_color = Utils.color_from_hex("#aaaaaa");
         public Gdk.Color hover_text_color = Utils.color_from_hex("#ffffff");
         
+        private int tab_index = 0;
         private Cairo.ImageSurface hover_surface;
         private Cairo.ImageSurface normal_surface;
         private Cairo.ImageSurface press_surface;
@@ -39,7 +40,6 @@ namespace Widgets {
         private int draw_offset = 0;
         private int draw_padding_y = 2;
         private int hover_x = 0;
-        private int tab_index = 0;
         private int text_padding_x = 12;
         
         public signal void destroy_buffer(int index, string buffer_id);
@@ -79,6 +79,7 @@ namespace Widgets {
             tab_buffer_set = new HashMap<int, string>();
             tab_window_type_set = new HashMap<int, string>();
             tab_path_set = new HashMap<int, string>();
+            tab_index = 0;
         }
         
         public void add_tab(string tab_name, int tab_id, string app_path) {
