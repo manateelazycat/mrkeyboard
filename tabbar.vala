@@ -57,6 +57,7 @@ namespace Widgets {
             tab_buffer_set = new HashMap<int, string>();
             tab_window_type_set = new HashMap<int, string>();
             tab_path_set = new HashMap<int, string>();
+            
             set_size_request(-1, height);
             
             normal_surface = new Cairo.ImageSurface.from_png("image/" + image_path + "_normal.png");
@@ -69,6 +70,15 @@ namespace Widgets {
             button_release_event.connect(on_button_release);
             motion_notify_event.connect(on_motion_notify);
             leave_notify_event.connect(on_leave_notify);
+        }
+        
+        public void reset() {
+            tab_list = new ArrayList<int>();
+            tab_name_set = new HashMap<int, string>();
+            tab_xid_set = new HashMap<int, int>();
+            tab_buffer_set = new HashMap<int, string>();
+            tab_window_type_set = new HashMap<int, string>();
+            tab_path_set = new HashMap<int, string>();
         }
         
         public void add_tab(string tab_name, int tab_id, string app_path) {

@@ -20,9 +20,11 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
-* Close all tab in window to cause window 'switch mode' and not cleaned.
+* Fixed bug: create two terminal and create browser failed, but create one terminal and create browser is correct.
+* Fixed bug: after close last tab in current window, switch mode failed, but switch mode manually is correct.
+* Fixed bug: split window first, and new different mode tab to cause clone window freeze.
+* Fixed bug: create different mode and then split window, switch mode to make xwindow hide other window, we need resize xwindow when switch mode.
 * close_current_window/close_other_window should make origin tab to hide and not be destroyed.
-* Test mode switch in window.
 * Design new protocol to make app create new tab to daemon, such as browser.
 * Design search framework.
 * Design application package standard.

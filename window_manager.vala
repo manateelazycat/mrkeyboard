@@ -11,6 +11,10 @@ namespace Widgets {
     public class WindowManager : Gtk.Fixed {
         public ArrayList<Widgets.Window> window_list;
         public HashMap<string, ArrayList<string>> mode_buffer_set;
+        public HashMap<string, int> mode_window_set;
+        public HashMap<string, int> mode_hide_window_set;
+        public HashMap<string, string> mode_hide_path_set;
+        public HashMap<string, string> mode_hide_name_set;
         public Widgets.Window focus_window;
         public Xcb.Connection conn;
         public int tab_counter;
@@ -32,6 +36,10 @@ namespace Widgets {
             tab_counter = 0;
             window_list = new ArrayList<Widgets.Window>();
             mode_buffer_set = new HashMap<string, ArrayList<string>>();
+            mode_window_set = new HashMap<string, int>();
+            mode_hide_window_set = new HashMap<string, int>();
+            mode_hide_path_set = new HashMap<string, string>();
+            mode_hide_name_set = new HashMap<string, string>();
             
             realize.connect((w) => {
                     create_first_window();
@@ -479,17 +487,228 @@ namespace Widgets {
             }
         }
         
-        private void switch_mode(Window window, string mode_name) {
-            if (window.mode_name != mode_name) {
-                // Record buffers of current mode.
+        public void switch_to_next_mode() {
+            if (mode_buffer_set.size > 1) {
+                print("switch_to_next_mode: %s %i\n", focus_window.mode_name, mode_buffer_set.size);
                 
-                // Switch to new mode.
+                bool found_current_mode = false;
+                string? first_mode_name = null;
+                string? next_mode_name = null;
+                var counter = 0;
+                foreach (var entry in mode_buffer_set.entries) {
+                    string mode_name = entry.key;
+                    
+                    if (counter == 0) {
+                        first_mode_name = mode_name;
+                    }
+                    
+                    if (found_current_mode) {
+                        next_mode_name = mode_name;
+                        break;
+                    } else if (focus_window.mode_name == mode_name && counter != mode_buffer_set.size - 1) {
+                        found_current_mode = true;
+                    }
+                    
+                    counter++;
+                }
                 
-                // Rebuild window's tabs.
+                if (!found_current_mode) {
+                    next_mode_name = first_mode_name;
+                }
+                
+                if (next_mode_name != null) {
+                    switch_mode(focus_window, next_mode_name);
+                    print("switch_to_next_mode\n");
+                } else {
+                    print("switch_to_next_mode: possible here!\n");
+                }
             }
         }
         
-        private void add_buffer_in_mode_set(string mode_name, string buffer_id) {
+        public void switch_to_prev_mode() {
+            if (mode_buffer_set.size > 1) {
+                print("switch_to_prev_mode: %s %i\n", focus_window.mode_name, mode_buffer_set.size);
+                
+                bool found_current_mode = false;
+                string? prev_mode_name = null;
+                foreach (var entry in mode_buffer_set.entries) {
+                    string mode_name = entry.key;
+                    
+                    if (focus_window.mode_name == mode_name) {
+                        found_current_mode = true;
+                        break;
+                    }
+                    
+                    prev_mode_name = mode_name;
+                }
+                
+                if (found_current_mode) {
+                    if (prev_mode_name == null) {
+                        var counter = 0;
+                        foreach (var entry in mode_buffer_set.entries) {
+                            string mode_name = entry.key;
+                            
+                            if (counter == mode_buffer_set.size - 1) {
+                                switch_mode(focus_window, mode_name);
+                                print("switch_to_prev_mode 1\n");
+                                break;
+                            }
+                            
+                            counter++;
+                        }
+                    } else {
+                        switch_mode(focus_window, prev_mode_name);
+                        print("switch_to_prev_mode 2\n");
+                    }
+                }
+
+            }
+        }
+        
+        private void switch_mode(Window window, string mode_name) {
+            if (window.mode_name != mode_name) {
+                print("** switch_mode window %i mode_name %s\n", window.window_xid, window.mode_name);
+                
+                // Record buffers of current mode.
+                int[] remove_clone_windows = {};
+                var hide_windows = new ArrayList<int>();
+                var replace_tab_set = new HashMap<int, int>();
+                int counter = 0;
+                foreach (int tab_id in window.tabbar.tab_list) {
+                    var window_type = window.tabbar.tab_window_type_set.get(tab_id);
+                    var window_xid = window.tabbar.tab_xid_set.get(tab_id);
+                    var buffer_id = window.tabbar.tab_buffer_set.get(tab_id);
+                    var app_path = window.tabbar.tab_path_set.get(tab_id);
+                    var tab_name = window.tabbar.tab_name_set.get(tab_id);
+                    
+                    print("switch_mode tab %i with window type %s\n", tab_id, window_type);
+                    
+                    if (window_type == "clone") {
+                        remove_clone_windows += window_xid;
+                    } else if (window_type == "origin") {
+                        var same_mode = false;
+                        foreach (Window win in window_list) {
+                            if (win != window && win.mode_name == window.mode_name) {
+                                same_mode = true;
+                                
+                                int replace_tab_id = win.tabbar.tab_list.get(counter);
+                                int replace_window_xid = win.tabbar.tab_xid_set.get(replace_tab_id);
+                                
+                                replace_tab_set.set(replace_tab_id, window_xid);
+                                
+                                remove_clone_windows += replace_window_xid;
+                                break;
+                            }
+                        }
+                        
+                        print("switch_mode same_mode %s\n", same_mode.to_string());
+                        
+                        if (!same_mode) {
+                            hide_windows.add(window_xid);
+                            mode_hide_window_set.set(buffer_id, window_xid);
+                            mode_hide_path_set.set(buffer_id, app_path);
+                            mode_hide_name_set.set(buffer_id, tab_name);
+                        }
+                    }
+
+                    counter++;
+                }
+                
+                destroy_windows(remove_clone_windows);
+                print("switch_mode destroy_windows %i\n", remove_clone_windows.length);
+                
+                foreach (int hide_window in hide_windows) {
+                    conn.unmap_window(hide_window);
+                    conn.flush();
+                    
+                    print("switch_mode hide_window %i\n", hide_window);
+                }
+                
+                foreach (var entry in replace_tab_set.entries) {
+                    var replace_tab_id = entry.key;
+                    var replace_win_id = entry.value;
+                    
+                    foreach (Window win in window_list) {
+                        foreach (int tab_id in win.tabbar.tab_list) {
+                            if (tab_id == replace_tab_id) {
+                                win.tabbar.set_tab_xid(replace_tab_id, replace_win_id);
+                                win.tabbar.set_tab_window_type(replace_tab_id, "origin");
+                                
+                                print("switch_mode replace %i with %i\n", replace_tab_id, replace_win_id);
+                            }
+                        }
+                    }
+                }
+                
+                window.tabbar.reset();
+                print("switch_mode %i reset tab\n", window.window_xid);
+                
+                // Rebuild window's tabs.
+                var buffer_list = mode_buffer_set.get(mode_name);
+                foreach (string buffer_id in buffer_list) {
+                    tab_counter++;
+                    
+                    var buffer_origin_window = mode_window_set.get(buffer_id);
+                    int? hide_window = mode_hide_window_set.get(buffer_id);
+                    if (hide_window != null && buffer_origin_window == hide_window) {
+                        conn.map_window(buffer_origin_window);
+                        conn.flush();
+                        
+                        var app_path = mode_hide_path_set.get(buffer_id);
+                        var tab_name = mode_hide_name_set.get(buffer_id);
+                        window.tabbar.add_tab(tab_name, tab_counter, app_path);
+                        
+                        window.tabbar.set_tab_xid(tab_counter, hide_window);
+                        window.tabbar.set_tab_buffer(tab_counter, buffer_id);
+                        window.tabbar.set_tab_window_type(tab_counter, "origin");
+                        
+                        mode_hide_window_set.unset(buffer_id);
+                        mode_hide_path_set.unset(buffer_id);
+                        mode_hide_name_set.unset(buffer_id);
+                        
+                        window.visible_tab(hide_window);
+                        
+                        print("switch_mode visible tab %i %i\n", tab_counter, hide_window);
+                    } else {
+                        foreach (Window win in window_list) {
+                            if (win != window) {
+                                foreach (int tab_id in win.tabbar.tab_list) {
+                                    var window_xid = win.tabbar.tab_xid_set.get(tab_id);
+                                    if (window_xid == buffer_origin_window) {
+                                        var tab_name = win.tabbar.tab_name_set.get(tab_id);
+                                        var app_path = win.tabbar.tab_path_set.get(tab_id);
+                                        window.tabbar.add_tab(tab_name, tab_counter, app_path);
+                                        
+                                        var info = get_app_execute_info(app_path);
+                                        var app_execute_path = info[0];
+                                        var window_child_size = window.get_child_allocate();
+                                        
+                                        string app_command = "%s %i %i %i %i".printf(
+                                            app_execute_path,
+                                            window_child_size[0],
+                                            window_child_size[1],
+                                            tab_counter,
+                                            window_xid);
+            
+                                        try {
+                                            Process.spawn_command_line_async(app_command);
+                                            print("switch_mode create clone tab %i with %i", tab_counter, window_xid);
+                                        } catch (SpawnError e) {
+                                            print("Got error when spawn_command_line_async: %s\n", e.message);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                window.mode_name = mode_name;
+                print("** switch_mode switch window % to mode %s\n", window.window_xid, window.mode_name);
+            }
+        }
+        
+        private void add_in_mode_set(string mode_name, string buffer_id, int window_id) {
             var buffer_list = mode_buffer_set.get(mode_name);
             if (buffer_list != null) {
                 buffer_list.add(buffer_id);
@@ -499,18 +718,26 @@ namespace Widgets {
                 mode_buffer_set.set(mode_name, list);
             }
             
+            mode_window_set.set(buffer_id, window_id);
+            
             print("Add %s %s in mode_buffer_set\n", mode_name, buffer_id);
         }
         
-        private void remove_buffer_from_mode_set(string mode_name, string buffer_id) {
+        private void remove_from_mode_set(string mode_name, string buffer_id) {
             var buffer_list = mode_buffer_set.get(mode_name);
             if (buffer_list != null) {
                 foreach (string buffer in buffer_list) {
                     if (buffer == buffer_id) {
                         print("Remove %s %s from mode_buffer_set\n", mode_name, buffer_id);
                         buffer_list.remove(buffer);
+                        
+                        mode_window_set.unset(buffer_id);
                         break;
                     }
+                }
+                
+                if (buffer_list.size == 0) {
+                    mode_buffer_set.unset(mode_name);
                 }
             }
         }
@@ -538,11 +765,11 @@ namespace Widgets {
                 }
             }
             
-            remove_buffer_from_mode_set(mode_name, buffer_id);
+            remove_from_mode_set(mode_name, buffer_id);
             
             destroy_buffer(buffer_id);
 
-            clean_windows();
+            switch_to_next_mode();
         }
         
         public void rename_tab_with_buffer(string mode_name, string buffer_id, string buffer_name) {
@@ -560,35 +787,11 @@ namespace Widgets {
                 }
             }
             
-            remove_buffer_from_mode_set(mode_name, buffer_id);
+            remove_from_mode_set(mode_name, buffer_id);
             
             destroy_buffer(buffer_id);
 
-            clean_windows();
-        }
-        
-        public void clean_windows() {
-            var window_rect_manager = new Utils.WindowRectangleManager(window_list);
-            window_rect_manager.remove_blank_windows();
-
-            foreach (Utils.WindowRectangle rect in window_rect_manager.window_rectangle_list) {
-                foreach (Window window in window_list) {
-                    if (window.window_xid == rect.id) {
-                        window.set_allocate(this, rect.x, rect.y, rect.width, rect.height);
-                        break;
-                    }
-                }
-            }
-            
-            foreach (Utils.WindowRectangle rect in window_rect_manager.window_remove_list) {
-                foreach (Window window in window_list) {
-                    if (window.window_xid == rect.id) {
-                        window_list.remove(window);
-                        window.destroy();
-                        break;
-                    }
-                }
-            }
+            switch_to_next_mode();
         }
         
         public Window? get_window_with_tab_id(int tab_id) {
@@ -611,7 +814,7 @@ namespace Widgets {
                 }
                 
                 if (window_type == "origin") {
-                    add_buffer_in_mode_set(mode_name, buffer_id);
+                    add_in_mode_set(mode_name, buffer_id, app_win_id);
                 }
                 
                 window.tabbar.set_tab_xid(tab_id, app_win_id);
