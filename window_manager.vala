@@ -700,6 +700,8 @@ namespace Widgets {
                     }
                 }
                 
+                window.resize_tab_windows();
+                
                 window.mode_name = mode_name;
                 print("** switch_mode switch window % to mode %s\n", window.window_xid, window.mode_name);
             }
