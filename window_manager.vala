@@ -764,19 +764,11 @@ namespace Widgets {
                 }
             }
             
-            remove_from_mode_set(mode_name, buffer_id);
-            
             destroy_buffer(buffer_id);
 
             switch_to_next_mode();
-        }
-        
-        public void rename_tab_with_buffer(string mode_name, string buffer_id, string buffer_name) {
-            foreach (Window window in window_list) {
-                if (window.mode_name == mode_name) {
-                    window.tabbar.rename_tab(buffer_id, buffer_name);
-                }
-            }
+            
+            remove_from_mode_set(mode_name, buffer_id);
         }
         
         public void close_tab(Window current_window, string mode_name, int tab_index, string buffer_id) {
@@ -786,11 +778,19 @@ namespace Widgets {
                 }
             }
             
-            remove_from_mode_set(mode_name, buffer_id);
-            
             destroy_buffer(buffer_id);
 
             switch_to_next_mode();
+            
+            remove_from_mode_set(mode_name, buffer_id);
+        }
+        
+        public void rename_tab_with_buffer(string mode_name, string buffer_id, string buffer_name) {
+            foreach (Window window in window_list) {
+                if (window.mode_name == mode_name) {
+                    window.tabbar.rename_tab(buffer_id, buffer_name);
+                }
+            }
         }
         
         public Window? get_window_with_tab_id(int tab_id) {
