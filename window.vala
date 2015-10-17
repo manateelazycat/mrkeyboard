@@ -66,8 +66,6 @@ namespace Widgets {
             window_manager.conn.flush();
             
             window_manager.reparent_window(xid);
-            
-            print("reparent %i to %i\n", xid, window_manager_xid);
         }
         
         public bool on_size_allocate(Gtk.Widget widget, Gdk.Rectangle rect) {
