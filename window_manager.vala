@@ -702,6 +702,12 @@ namespace Widgets {
                 
                 window.resize_tab_windows();
                 
+                // We need reparent first tab at last.
+                if (window.tabbar.tab_list.size > 0) {
+                    var tab_id = window.tabbar.tab_list[0];
+                    window.visible_tab(window.tabbar.tab_xid_set.get(tab_id));
+                }
+                
                 window.mode_name = mode_name;
                 print("** switch_mode switch window % to mode %s\n", window.window_xid, window.mode_name);
             }

@@ -91,6 +91,7 @@ public class DaemonServer : Object {
                     var xid = window_manager.get_focus_tab_xid();
                     if (xid != null) {
                         send_key_event(xid, e.keyval, e.state, e.time, true);
+                        print("Send key event to %i\n", xid);
                     }
                 }
                 
