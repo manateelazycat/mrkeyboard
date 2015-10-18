@@ -12,6 +12,7 @@ namespace WindowMode {
         public HashMap<string, ArrayList<string>> mode_buffer_set;
         public HashMap<string, HideInfo?> hide_info_set;
         public HashMap<string, int> mode_window_set;
+        public HashMap<string, int> mode_focus_tab_set;
         public Xcb.Connection conn;
         
         public WindowMode(Xcb.Connection connection) {
@@ -19,6 +20,7 @@ namespace WindowMode {
             hide_info_set = new HashMap<string, HideInfo?>();
             mode_buffer_set = new HashMap<string, ArrayList<string>>();
             mode_window_set = new HashMap<string, int>();
+            mode_focus_tab_set = new HashMap<string, int>();
         }
         
         public void add_hideinfo_tab(Window window, int tab_id) {
@@ -74,6 +76,43 @@ namespace WindowMode {
                 if (buffer_list.size == 0) {
                     mode_buffer_set.unset(mode_name);
                 }
+            }
+        }
+
+        public void rember_window_focus_tab(ArrayList<Widgets.Window> window_list, Window window) {
+            bool has_same_window = false;
+            if (window_list.size > 1) {
+                foreach (Window win in window_list) {
+                    if (win != window && win.mode_name == window.mode_name) {
+                        has_same_window = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (!has_same_window) {
+                mode_focus_tab_set.set(window.mode_name, window.tabbar.tab_index);
+            }
+        }
+        
+        public void rember_destroy_windows_focus_tab(ArrayList<Window> destroy_window_list, Window focus_window) {
+            foreach (Window destroy_window in destroy_window_list) {
+                if (destroy_window.mode_name != focus_window.mode_name) {
+                    mode_focus_tab_set.set(destroy_window.mode_name, destroy_window.tabbar.tab_index);
+                }
+            }
+        }
+        
+        public void restore_window_focus_tab(ArrayList<Window> window_list, Window window) {
+            if (window.tabbar.tab_list.size > 0) {
+                var tab_index = 0;
+                int? focus_index = mode_focus_tab_set.get(window.mode_name);
+                if (focus_index != null && focus_index > 0 && focus_index < window.tabbar.tab_list.size) {
+                    tab_index = focus_index;
+                }
+                
+                window.tabbar.switch_tab(tab_index);
+                window.visible_tab(window.tabbar.tab_xid_set.get(window.tabbar.tab_list.get(tab_index)));
             }
         }
     }

@@ -270,6 +270,8 @@ namespace Widgets {
                     }
                 }
                 
+                window_mode.rember_destroy_windows_focus_tab(destroy_window_list, focus_window);
+                
                 int[] destroy_window_ids = {};
                 HashMap<int, int> replace_tab_set = new HashMap<int, int>();
                 foreach (Window window in destroy_window_list) {
@@ -329,6 +331,8 @@ namespace Widgets {
                 int[] destroy_window_ids = {};
                 HashMap<int, int> replace_tab_set = new HashMap<int, int>();
                 var hide_windows = new ArrayList<int>();
+                
+                window_mode.rember_window_focus_tab(window_list, focus_window);
                 
                 var counter = 0;
                 foreach (int tab_id in focus_window.tabbar.tab_list) {
@@ -595,6 +599,8 @@ namespace Widgets {
                     counter++;
                 }
                 
+                window_mode.rember_window_focus_tab(window_list, window);
+                
                 destroy_windows(remove_clone_windows);
                 
                 window_mode.hide_windows(hide_windows);
@@ -675,14 +681,8 @@ namespace Widgets {
                 }
                 
                 window.resize_tab_windows();
-                
-                // We need reparent first tab at last.
-                if (window.tabbar.tab_list.size > 0) {
-                    var tab_id = window.tabbar.tab_list[0];
-                    window.visible_tab(window.tabbar.tab_xid_set.get(tab_id));
-                }
-                
                 window.mode_name = mode_name;
+                window_mode.restore_window_focus_tab(window_list, window);
             }
         }
         
