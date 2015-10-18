@@ -634,6 +634,14 @@ namespace Widgets {
                                 win.tabbar.set_tab_xid(replace_tab_id, replace_win_id);
                                 win.tabbar.set_tab_window_type(replace_tab_id, "origin");
                                 
+                                // We need reparent window if replace tab is current visible tab.
+                                var focus_tab_id = win.tabbar.tab_list.get(win.tabbar.tab_index);
+                                if (replace_tab_id == focus_tab_id) {
+                                    var focus_xid = win.tabbar.tab_xid_set.get(focus_tab_id);
+                                    win.visible_tab(focus_xid);
+                                    print("switch_mode focus tab %i\n", focus_xid);
+                                }
+                                
                                 print("switch_mode replace %i with %i\n", replace_tab_id, replace_win_id);
                             }
                         }

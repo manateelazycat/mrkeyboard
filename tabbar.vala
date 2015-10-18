@@ -14,6 +14,7 @@ namespace Widgets {
         public HashMap<int, string> tab_path_set;
         public HashMap<int, string> tab_window_type_set;
         public int height = 28;
+        public int tab_index = 0;
         
         public Gdk.Color background_color = Utils.color_from_hex("#171814");
         public Gdk.Color active_tab_color = Utils.color_from_hex("#272822");
@@ -24,7 +25,6 @@ namespace Widgets {
         public Gdk.Color text_color = Utils.color_from_hex("#aaaaaa");
         public Gdk.Color hover_text_color = Utils.color_from_hex("#ffffff");
         
-        private int tab_index = 0;
         private Cairo.ImageSurface hover_surface;
         private Cairo.ImageSurface normal_surface;
         private Cairo.ImageSurface press_surface;
