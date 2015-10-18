@@ -633,17 +633,23 @@ namespace Widgets {
                     var replace_win_id = entry.value;
                     
                     foreach (Window win in window_list) {
+                        var do_replace = false;
                         foreach (int tab_id in win.tabbar.tab_list) {
                             if (tab_id == replace_tab_id) {
                                 win.tabbar.set_tab_xid(replace_tab_id, replace_win_id);
                                 win.tabbar.set_tab_window_type(replace_tab_id, "origin");
                                 
-                                // We need reparent window if replace tab is current visible tab.
-                                var focus_tab_id = win.tabbar.tab_list.get(win.tabbar.tab_index);
-                                if (replace_tab_id == focus_tab_id) {
-                                    var focus_xid = win.tabbar.tab_xid_set.get(focus_tab_id);
-                                    win.visible_tab(focus_xid);
-                                }
+                                do_replace = true;
+                                
+                            }
+                        }
+                        
+                        if (do_replace) {
+                            // We need reparent window of current tab if have replace tab operation in window.
+                            var focus_tab_id = win.tabbar.tab_list.get(win.tabbar.tab_index);
+                            if (replace_tab_id == focus_tab_id) {
+                                var focus_xid = win.tabbar.tab_xid_set.get(focus_tab_id);
+                                win.visible_tab(focus_xid);
                             }
                         }
                     }
