@@ -268,6 +268,8 @@ namespace Widgets {
         public void close_other_windows() {
             if (window_list.size > 1) {
                 ArrayList<Window> destroy_window_list = new ArrayList<Window>();
+                var hide_windows = new ArrayList<int>();
+                
                 foreach (Window window in window_list) {
                     if (window != focus_window) {
                         destroy_window_list.add(window);
@@ -295,9 +297,21 @@ namespace Widgets {
                             counter++;
                         }
                     } else {
-                        var windows_ids = window.tabbar.get_all_xids();
-                        foreach (int window_id in windows_ids) {
-                            destroy_window_ids += window_id;
+                        foreach (int tab_id in window.tabbar.tab_list) {
+                            var tab_xid = window.tabbar.tab_xid_set.get(tab_id);
+                            var tab_buffer_id = window.tabbar.tab_buffer_set.get(tab_id);
+                            var tab_name = window.tabbar.tab_name_set.get(tab_id);
+                            var app_path = window.tabbar.tab_path_set.get(tab_id);
+                            var tab_window_type = window.tabbar.tab_window_type_set.get(tab_id);
+                            
+                            if (tab_window_type == "clone") {
+                                destroy_window_ids += tab_xid;
+                            } else if (tab_window_type == "origin") {
+                                hide_windows.add(tab_xid);
+                                mode_hide_window_set.set(tab_buffer_id, tab_xid);
+                                mode_hide_path_set.set(tab_buffer_id, app_path);
+                                mode_hide_name_set.set(tab_buffer_id, tab_name);
+                            }
                         }
                     }
                     
@@ -306,7 +320,12 @@ namespace Widgets {
                 }
                 
                 destroy_windows(destroy_window_ids);
-
+                
+                foreach (int hide_window in hide_windows) {
+                    conn.unmap_window(hide_window);
+                    conn.flush();
+                }
+                
                 foreach (var entry in replace_tab_set.entries) {
                     var tab_id = entry.key;
                     var new_win_id = entry.value;
@@ -321,84 +340,92 @@ namespace Widgets {
         
         public void close_current_window() {
             if (window_list.size > 1) {
-                close_window(focus_window);
-            }
-        }
-        
-        private void close_window(Window window) {
-            int[] destroy_window_ids = {};
-            HashMap<int, int> replace_tab_set = new HashMap<int, int>();
-            
-            var counter = 0;
-            foreach (int tab_id in focus_window.tabbar.tab_list) {
-                var tab_xid = focus_window.tabbar.tab_xid_set.get(tab_id);
-                var tab_window_type = focus_window.tabbar.tab_window_type_set.get(tab_id);
+                int[] destroy_window_ids = {};
+                HashMap<int, int> replace_tab_set = new HashMap<int, int>();
+                var hide_windows = new ArrayList<int>();
                 
-                if (tab_window_type == "clone") {
-                    destroy_window_ids += tab_xid;
-                } else if (tab_window_type == "origin") {
-                    ArrayList<Window> same_mode_windows = new ArrayList<Window>();
-                    foreach (Window win in window_list) {
-                        if (win != focus_window && win.mode_name == focus_window.mode_name) {
-                            same_mode_windows.add(win);
+                var counter = 0;
+                foreach (int tab_id in focus_window.tabbar.tab_list) {
+                    var tab_xid = focus_window.tabbar.tab_xid_set.get(tab_id);
+                    var tab_buffer_id = focus_window.tabbar.tab_buffer_set.get(tab_id);
+                    var tab_window_type = focus_window.tabbar.tab_window_type_set.get(tab_id);
+                    var tab_name = focus_window.tabbar.tab_name_set.get(tab_id);
+                    var app_path = focus_window.tabbar.tab_path_set.get(tab_id);
+                    
+                    if (tab_window_type == "clone") {
+                        destroy_window_ids += tab_xid;
+                    } else if (tab_window_type == "origin") {
+                        ArrayList<Window> same_mode_windows = new ArrayList<Window>();
+                        foreach (Window win in window_list) {
+                            if (win != focus_window && win.mode_name == focus_window.mode_name) {
+                                same_mode_windows.add(win);
+                            }
+                        }
+                        
+                        if (same_mode_windows.size == 0) {
+                            hide_windows.add(tab_xid);
+                            mode_hide_window_set.set(tab_buffer_id, tab_xid);
+                            mode_hide_path_set.set(tab_buffer_id, app_path);
+                            mode_hide_name_set.set(tab_buffer_id, tab_name);
+                        } else {
+                            var replace_window = same_mode_windows.get(0);
+                            var replace_window_tab_id = replace_window.tabbar.tab_list.get(counter)        ;
+                            var replace_window_tab_xid = replace_window.tabbar.tab_xid_set.get(replace_window_tab_id);
+                            
+                            destroy_window_ids += replace_window_tab_xid;
+                            
+                            replace_tab_set.set(replace_window_tab_id, tab_xid);
                         }
                     }
                     
-                    if (same_mode_windows.size == 0) {
-                        destroy_window_ids += tab_xid;
-                    } else {
-                        var replace_window = same_mode_windows.get(0);
-                        var replace_window_tab_id = replace_window.tabbar.tab_list.get(counter)        ;
-                        var replace_window_tab_xid = replace_window.tabbar.tab_xid_set.get(replace_window_tab_id);
-                        
-                        destroy_window_ids += replace_window_tab_xid;
-                        
-                        replace_tab_set.set(replace_window_tab_id, tab_xid);
-                    }
+                    counter++;
                 }
                 
-                counter++;
-            }
-            
-            var brother_window = find_brother_window(window);
-            if (brother_window != null) {
-                set_focus_window(brother_window);
-            }
-            
-            var window_rect_manager = new Utils.WindowRectangleManager(window_list);
-            
-            window_rect_manager.remove_window(window.window_xid);
-            window_list.remove(window);
-            window.destroy();
-            
-            destroy_windows(destroy_window_ids);
-            
-            foreach (var entry in replace_tab_set.entries) {
-                var replace_tab_id = entry.key;
-                var replace_win_id = entry.value;
+                var brother_window = find_brother_window(focus_window);
+                var window_rect_manager = new Utils.WindowRectangleManager(window_list);
                 
-                foreach (Window win in window_list) {
-                    foreach (int tab_id in win.tabbar.tab_list) {
-                        if (tab_id == replace_tab_id) {
-                            win.tabbar.set_tab_xid(replace_tab_id, replace_win_id);
-                            win.tabbar.set_tab_window_type(replace_tab_id, "origin");
+                window_rect_manager.remove_window(focus_window.window_xid);
+                window_list.remove(focus_window);
+                focus_window.destroy();
+                
+                if (brother_window != null) {
+                    set_focus_window(brother_window);
+                }
+                
+                destroy_windows(destroy_window_ids);
+                
+                foreach (int hide_window in hide_windows) {
+                    conn.unmap_window(hide_window);
+                    conn.flush();
+                }
+                
+                foreach (var entry in replace_tab_set.entries) {
+                    var replace_tab_id = entry.key;
+                    var replace_win_id = entry.value;
+                    
+                    foreach (Window win in window_list) {
+                        foreach (int tab_id in win.tabbar.tab_list) {
+                            if (tab_id == replace_tab_id) {
+                                win.tabbar.set_tab_xid(replace_tab_id, replace_win_id);
+                                win.tabbar.set_tab_window_type(replace_tab_id, "origin");
+                            }
                         }
                     }
                 }
-            }
-            
-            foreach (Utils.WindowRectangle rect in window_rect_manager.window_rectangle_list) {
-                foreach (Window win in window_list) {
-                    if (win.window_xid == rect.id) {
-                        Gtk.Allocation alloc = win.get_allocate();
-                        
-                        if (rect.x == alloc.x && rect.y == alloc.y && rect.width == alloc.width && rect.height == alloc.height) {
-                            var current_tab_xid = win.tabbar.get_current_tab_xid();
-                            if (current_tab_xid != null) {
-                                win.visible_tab(current_tab_xid);
+                
+                foreach (Utils.WindowRectangle rect in window_rect_manager.window_rectangle_list) {
+                    foreach (Window win in window_list) {
+                        if (win.window_xid == rect.id) {
+                            Gtk.Allocation alloc = win.get_allocate();
+                            
+                            if (rect.x == alloc.x && rect.y == alloc.y && rect.width == alloc.width && rect.height == alloc.height) {
+                                var current_tab_xid = win.tabbar.get_current_tab_xid();
+                                if (current_tab_xid != null) {
+                                    win.visible_tab(current_tab_xid);
+                                }
+                            } else {
+                                win.set_allocate(this, rect.x, rect.y, rect.width, rect.height, true);
                             }
-                        } else {
-                            win.set_allocate(this, rect.x, rect.y, rect.width, rect.height, true);
                         }
                     }
                 }
