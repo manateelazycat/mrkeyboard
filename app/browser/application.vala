@@ -36,7 +36,11 @@ namespace Application {
                     return true;
                 });
             
-            webview.create_web_view.connect(on_create_web_view);
+            webview.new_window_policy_decision_requested.connect((view, frame, request, action, decision) => {
+                    print("new window open url: %s\n", request.get_uri());
+                    
+                    return false;
+                });
             
             scrolled_window = new ScrolledWindow(null, null);
             scrolled_window.add(webview);
@@ -58,10 +62,6 @@ namespace Application {
             }
         }
 
-        public WebView on_create_web_view(WebView web_view, WebFrame web_frame) {
-            return webview;
-        }
-        
         public override string get_mode_name() {
             return app_name;
         }
