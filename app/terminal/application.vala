@@ -72,19 +72,9 @@ namespace Application {
             var page_size = vadj.get_page_size();
             
             if (scroll_up) {
-                var new_value = value + page_size;
-                if (new_value > upper - page_size) {
-                    new_value = upper - page_size;
-                }
-                
-                vadj.set_value(new_value);
+                vadj.set_value(double.min(value + page_size, upper - page_size));
             } else {
-                var new_value = value - page_size;
-                if (new_value < lower) {
-                    new_value = lower;
-                }
-                
-                vadj.set_value(new_value);
+                vadj.set_value(double.max(value - page_size, lower));
             }
         }
 
