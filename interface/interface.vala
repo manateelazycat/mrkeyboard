@@ -16,6 +16,8 @@ namespace Interface {
         public signal void destroy_windows(int[] window_ids);
         public signal void reparent_window(int window_id);
         public signal void resize_window(int window_id, int width, int height);
+        public signal void scroll_vertical_up(int window_id);
+        public signal void scroll_vertical_down(int window_id);
         public signal void quit_app();
     }
     
@@ -49,6 +51,12 @@ namespace Interface {
                     });
                 daemon.resize_window.connect((window_id, width, height) => {
                         handle_resize(window_id, width, height);
+                    });
+                daemon.scroll_vertical_up.connect((window_id) => {
+                        handle_scroll_vertical_up(window_id);
+                    });
+                daemon.scroll_vertical_down.connect((window_id) => {
+                        handle_scroll_vertical_down(window_id);
                     });
                 daemon.quit_app.connect(() => {
                         print("Receive quit signal from daemon, quit app process...\n");
@@ -183,6 +191,26 @@ namespace Interface {
                 var window = get_match_window_with_id(wid);
                 if (window != null) {
                     window.handle_key_event(key_val, key_state, key_time, press);
+                }
+            }
+        }
+        
+        public void handle_scroll_vertical_up(int window_id) {
+            var wid = get_parent_window_id(window_id);
+            if (wid != null) {
+                var window = get_match_window_with_id(wid);
+                if (window != null) {
+                    window.scroll_vertical(true);
+                }
+            }
+        }
+        
+        public void handle_scroll_vertical_down(int window_id) {
+            var wid = get_parent_window_id(window_id);
+            if (wid != null) {
+                var window = get_match_window_with_id(wid);
+                if (window != null) {
+                    window.scroll_vertical(false);
                 }
             }
         }

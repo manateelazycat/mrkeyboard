@@ -53,6 +53,10 @@ namespace Interface {
             ((Gdk.Event*) event)->put();
         }
         
+        public virtual void scroll_vertical(bool scroll_up) {
+            print("You need implement 'scroll_vertical' in your application code.\n");
+        }
+        
         public virtual void init() {
             print("You need implement 'init' in your application code.\n");
         }

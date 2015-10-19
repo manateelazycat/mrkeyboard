@@ -60,9 +60,34 @@ namespace Application {
             } catch (GLib.Error e) {
                 print("Got error when fork_command_full: %s\n", e.message);
             }
+            
             box.pack_start(term, true, true, 0);
         }        
         
+        public override void scroll_vertical(bool scroll_up) {
+            var vadj = term.get_vadjustment();
+            var value = vadj.get_value();
+            var lower = vadj.get_lower();
+            var upper = vadj.get_upper();
+            var page_size = vadj.get_page_size();
+            
+            if (scroll_up) {
+                var new_value = value + page_size;
+                if (new_value > upper - page_size) {
+                    new_value = upper - page_size;
+                }
+                
+                vadj.set_value(new_value);
+            } else {
+                var new_value = value - page_size;
+                if (new_value < lower) {
+                    new_value = lower;
+                }
+                
+                vadj.set_value(new_value);
+            }
+        }
+
         public override string get_mode_name() {
             return app_name;
         }

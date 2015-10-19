@@ -22,6 +22,7 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 * Make browser support open in new tab.
 * Design new protocol to make app create new tab to daemon, such as browser.
+* Make files under interface directory to interface/vala, and simpler interface implement.
 * Add editor application to test multi-view protocol.
 * Add tab max width protocol, we need think limit by daemon or application?
 * Make browser support cookie and flash.

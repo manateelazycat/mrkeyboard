@@ -19,6 +19,7 @@ namespace Application {
 
     public class Window : Interface.Window {
         public WebView webview;
+        public ScrolledWindow scrolled_window;
         
         public Window(int width, int height, string bid) {
             base(width, height, bid);
@@ -37,13 +38,36 @@ namespace Application {
             
             webview.create_web_view.connect(on_create_web_view);
             
-            var scrolled_window = new ScrolledWindow(null, null);
-            scrolled_window.set_policy(PolicyType.NEVER, PolicyType.AUTOMATIC);
+            scrolled_window = new ScrolledWindow(null, null);
             scrolled_window.add(webview);
             
             box.pack_start(scrolled_window, true, true, 0);
         }        
         
+        public override void scroll_vertical(bool scroll_up) {
+            var vadj = scrolled_window.get_vadjustment();
+            var value = vadj.get_value();
+            var lower = vadj.get_lower();
+            var upper = vadj.get_upper();
+            var page_size = vadj.get_page_size();
+            
+            if (scroll_up) {
+                var new_value = value + page_size;
+                if (new_value > upper - page_size) {
+                    new_value = upper - page_size;
+                }
+                
+                vadj.set_value(new_value);
+            } else {
+                var new_value = value - page_size;
+                if (new_value < lower) {
+                    new_value = lower;
+                }
+                
+                vadj.set_value(new_value);
+            }
+        }
+
         public WebView on_create_web_view(WebView web_view, WebFrame web_frame) {
             return webview;
         }
