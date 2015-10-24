@@ -91,6 +91,8 @@ public class DaemonServer : Object {
                     window_manager.focus_right_window();
                 } else if (keyevent_name == "Alt + j") {
                     window_manager.focus_down_window();
+                } else if (keyevent_name == "Alt + k") {
+                    window_manager.focus_up_window();
                 } else if (keyevent_name == "Alt + J") {
                     var xid = window_manager.get_focus_tab_xid();
                     if (xid != null) {
@@ -101,8 +103,6 @@ public class DaemonServer : Object {
                     if (xid != null) {
                         scroll_vertical_down(xid);
                     }
-                } else if (keyevent_name == "Alt + H") {
-                    window_manager.focus_up_window();
                 } else {
                     var xid = window_manager.get_focus_tab_xid();
                     if (xid != null) {
