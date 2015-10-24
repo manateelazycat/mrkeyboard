@@ -11,6 +11,7 @@ namespace Interface {
         public abstract void show_app_tab(int app_win_id, string mode_name, int tab_id, string buffer_id, string window_type) throws IOError;
         public abstract void close_app_tab(string mode_name, string buffer_id) throws IOError;
         public abstract void rename_app_tab(string mode_name, string buffer_id, string tab_name, string tab_path) throws IOError;
+        public abstract void new_app_tab(string app, string tab_path) throws IOError;
         public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
         public signal void destroy_buffer(string buffer_id);
         public signal void destroy_windows(int[] window_ids);
@@ -115,6 +116,13 @@ namespace Interface {
                 window.rename_app_tab.connect((mode_name, buffer_id, tab_name, tab_path) => {
                         try {
                             daemon.rename_app_tab(mode_name, buffer_id, tab_name, tab_path);
+                        } catch (IOError e) {
+                            stderr.printf("%s\n", e.message);
+                        }
+                    });
+                window.new_app_tab.connect((app, tab_path) => {
+                        try {
+                            daemon.new_app_tab(app, tab_path);
                         } catch (IOError e) {
                             stderr.printf("%s\n", e.message);
                         }

@@ -41,7 +41,7 @@ namespace Application {
                 });
             
             webview.new_window_policy_decision_requested.connect((view, frame, request, action, decision) => {
-                    print("new window open url: %s\n", request.get_uri());
+                    new_app_tab(app_name, request.get_uri());
                     
                     return false;
                 });
