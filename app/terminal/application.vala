@@ -27,6 +27,7 @@ namespace Application {
         
         public override void init() {
             term = new Terminal();
+            term.set_scrollback_lines(-1);
             term.child_exited.connect((t) => {
                     close_app_tab(mode_name, buffer_id);
                 });
@@ -74,11 +75,12 @@ namespace Application {
             var lower = vadj.get_lower();
             var upper = vadj.get_upper();
             var page_size = vadj.get_page_size();
+            var scroll_offset = 2;  // avoid we can't read page continue when scroll page
             
             if (scroll_up) {
-                vadj.set_value(double.min(value + page_size, upper - page_size));
+                vadj.set_value(double.min(value + (page_size - scroll_offset), upper - page_size));
             } else {
-                vadj.set_value(double.max(value - page_size, lower));
+                vadj.set_value(double.max(value - (page_size - scroll_offset), lower));
             }
         }
 
