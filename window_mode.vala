@@ -6,7 +6,8 @@ namespace WindowMode {
         public struct HideInfo {
             public int tab_xid;
             public string tab_name;
-            public string tab_app_path;
+            public string tab_path;
+            public string tab_app;
         }
         
         public HashMap<string, ArrayList<string>> mode_buffer_set;
@@ -28,7 +29,8 @@ namespace WindowMode {
                 window.tabbar.tab_buffer_set.get(tab_id),
                 HideInfo () {tab_xid = window.tabbar.tab_xid_set.get(tab_id),
                              tab_name = window.tabbar.tab_name_set.get(tab_id),
-                             tab_app_path = window.tabbar.tab_path_set.get(tab_id)
+                             tab_path = window.tabbar.tab_path_set.get(tab_id),
+                             tab_app = window.tabbar.tab_app_set.get(tab_id)
                 });
         }
         

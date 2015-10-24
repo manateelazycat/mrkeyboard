@@ -117,17 +117,20 @@ namespace Widgets {
             
             // Clone tabs.
             var windows_ids = window.tabbar.get_all_xids();
-            var paths = window.tabbar.get_all_paths();
+            var apps = window.tabbar.get_all_apps();
             var names = window.tabbar.get_all_names();
+            var paths = window.tabbar.get_all_paths();
             var counter = 0;
             foreach (int xid in windows_ids) {
-                var app_path = paths.get(counter);
+                var app = apps.get(counter);
                 var tab_name = names.get(counter);
+                var tab_path = paths.get(counter);
                 
                 tab_counter += 1;
-                clone_window.tabbar.add_tab(tab_name, tab_counter, app_path);
+                clone_window.tabbar.add_tab(tab_name, tab_path, tab_counter, app);
                 start_app_process(
-                    app_path,
+                    app,
+                    tab_path,
                     clone_window.get_child_width(clone_window_width),
                     clone_window.get_child_height(clone_window_height),
                     xid.to_string());
@@ -138,9 +141,10 @@ namespace Widgets {
             return clone_window;
         }
         
-        private void start_app_process(string app_path, int window_width, int window_height, string other_arg = "") {
-            string app_command = "%s %i %i %i %s".printf(
-                get_app_execute_info(app_path)[0],
+        private void start_app_process(string app, string path, int window_width, int window_height, string other_arg = "") {
+            string app_command = "%s '%s' %i %i %i %s".printf(
+                get_app_execute_info(app)[0],
+                path,
                 window_width,
                 window_height,
                 tab_counter,
@@ -471,8 +475,8 @@ namespace Widgets {
             }
         }
         
-        public void new_tab(string app_path) {
-            var info = get_app_execute_info(app_path);
+        public void new_tab(string app, string path) {
+            var info = get_app_execute_info(app);
             var mode_name = info[1];
             
             var window = get_focus_window();
@@ -482,9 +486,10 @@ namespace Widgets {
                 var window_child_size = window.get_child_allocate();
                 
                 tab_counter += 1;
-                window.tabbar.add_tab("", tab_counter, app_path);
+                window.tabbar.add_tab("", path, tab_counter, app);
                 start_app_process(
-                    app_path,
+                    app,
+                    path,
                     window_child_size[0],
                     window_child_size[1]);
             }
@@ -645,7 +650,7 @@ namespace Widgets {
                         if (hide_info != null) {
                             if (buffer_origin_window == hide_info.tab_xid) {
                                 
-                                window.tabbar.add_tab(hide_info.tab_name, tab_counter, hide_info.tab_app_path);
+                                window.tabbar.add_tab(hide_info.tab_name, hide_info.tab_path, tab_counter, hide_info.tab_app);
                                 
                                 window.tabbar.set_tab_xid(tab_counter, hide_info.tab_xid);
                                 window.tabbar.set_tab_buffer(tab_counter, buffer_id);
@@ -663,12 +668,14 @@ namespace Widgets {
                                         var window_xid = win.tabbar.tab_xid_set.get(tab_id);
                                         if (window_xid == buffer_origin_window) {
                                             var tab_name = win.tabbar.tab_name_set.get(tab_id);
-                                            var app_path = win.tabbar.tab_path_set.get(tab_id);
+                                            var tab_path = win.tabbar.tab_path_set.get(tab_id);
+                                            var app = win.tabbar.tab_app_set.get(tab_id);
                                             var window_child_size = window.get_child_allocate();
                                             
-                                            window.tabbar.add_tab(tab_name, tab_counter, app_path);
+                                            window.tabbar.add_tab(tab_name, tab_path, tab_counter, app);
                                             start_app_process(
-                                                app_path,
+                                                app,
+                                                tab_path,
                                                 window_child_size[0],
                                                 window_child_size[1],
                                                 window_xid.to_string());
@@ -686,17 +693,17 @@ namespace Widgets {
             }
         }
         
-        private string[] get_app_execute_info(string app_path) {
+        private string[] get_app_execute_info(string app) {
             string[] info = {};
             
             var parser = new Json.Parser();
             try {
-                parser.load_from_file("%s/app.json".printf(app_path));
+                parser.load_from_file("./app/%s/app.json".printf(app));
             } catch (GLib.Error e) {
-                print("Got error when load %s/app.json: %s\n", app_path, e.message);
+                print("Got error when load %s/app.json: %s\n", app, e.message);
             }
             var root_object = parser.get_root ().get_object();
-            info += "%s/%s".printf(app_path, root_object.get_string_member("execute"));
+            info += "./app/%s/%s".printf(app, root_object.get_string_member("execute"));
             info += root_object.get_string_member("mode-name");
 
             return info;
@@ -738,10 +745,10 @@ namespace Widgets {
             window_mode.remove_mode_tab(mode_name, buffer_id);
         }
         
-        public void rename_tab_with_buffer(string mode_name, string buffer_id, string buffer_name) {
+        public void rename_tab_with_buffer(string mode_name, string buffer_id, string tab_name, string tab_path) {
             foreach (Window window in window_list) {
                 if (window.mode_name == mode_name) {
-                    window.tabbar.rename_tab(buffer_id, buffer_name);
+                    window.tabbar.rename_tab(buffer_id, tab_name, tab_path);
                 }
             }
         }
@@ -784,24 +791,27 @@ namespace Widgets {
         
         private void sync_windows(Widgets.Window current_window) {
             var current_buffers = current_window.tabbar.get_all_buffers();
-            var current_paths = current_window.tabbar.get_all_paths();
+            var current_apps = current_window.tabbar.get_all_apps();
             foreach (Widgets.Window window in window_list) {
                 if (window != current_window && window.mode_name == current_window.mode_name) {
                     var buffers = window.tabbar.get_all_buffers();
                     var names = window.tabbar.get_all_names();
+                    var paths = window.tabbar.get_all_paths();
                     var clone_buffers = current_buffers[buffers.size:current_buffers.size];
-                    var clone_paths = current_paths[buffers.size:current_buffers.size];
+                    var clone_apps = current_apps[buffers.size:current_buffers.size];
 
                     int counter = 0; 
                     foreach (string clone_buffer in clone_buffers) {
-                        var app_path = clone_paths.get(counter);
+                        var app = clone_apps.get(counter);
                         var window_child_size = window.get_child_allocate();
                         var tab_name = names.get(counter);
+                        var tab_path = paths.get(counter);
                         
                         tab_counter += 1;
-                        window.tabbar.add_tab(tab_name, tab_counter, app_path);
+                        window.tabbar.add_tab(tab_name, tab_path, tab_counter, app);
                         start_app_process(
-                            app_path,
+                            app,
+                            tab_path,
                             window_child_size[0],
                             window_child_size[1],
                             clone_buffer);

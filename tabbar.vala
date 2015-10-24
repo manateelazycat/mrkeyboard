@@ -12,6 +12,7 @@ namespace Widgets {
         public HashMap<int, string> tab_buffer_set;
         public HashMap<int, string> tab_name_set;
         public HashMap<int, string> tab_path_set;
+        public HashMap<int, string> tab_app_set;
         public HashMap<int, string> tab_window_type_set;
         public int height = 28;
         public int tab_index = 0;
@@ -53,10 +54,11 @@ namespace Widgets {
 
             tab_list = new ArrayList<int>();
             tab_name_set = new HashMap<int, string>();
+            tab_path_set = new HashMap<int, string>();
             tab_xid_set = new HashMap<int, int>();
             tab_buffer_set = new HashMap<int, string>();
             tab_window_type_set = new HashMap<int, string>();
-            tab_path_set = new HashMap<int, string>();
+            tab_app_set = new HashMap<int, string>();
             
             set_size_request(-1, height);
             
@@ -75,27 +77,30 @@ namespace Widgets {
         public void reset() {
             tab_list = new ArrayList<int>();
             tab_name_set = new HashMap<int, string>();
+            tab_path_set = new HashMap<int, string>();
             tab_xid_set = new HashMap<int, int>();
             tab_buffer_set = new HashMap<int, string>();
             tab_window_type_set = new HashMap<int, string>();
-            tab_path_set = new HashMap<int, string>();
+            tab_app_set = new HashMap<int, string>();
             tab_index = 0;
         }
         
-        public void add_tab(string tab_name, int tab_id, string app_path) {
+        public void add_tab(string tab_name, string tab_path, int tab_id, string app) {
             tab_list.add(tab_id);
             tab_name_set.set(tab_id, tab_name);
-            tab_path_set.set(tab_id, app_path);
+            tab_path_set.set(tab_id, tab_path);
+            tab_app_set.set(tab_id, app);
             
             out_of_area();
             
             queue_draw();
         }
         
-        public void rename_tab(string buffer_id, string buffer_name) {
+        public void rename_tab(string buffer_id, string tab_name, string tab_path) {
             foreach (var name_entry in tab_buffer_set.entries) {
                 if (name_entry.value == buffer_id) {
-                    tab_name_set.set(name_entry.key, buffer_name);
+                    tab_name_set.set(name_entry.key, tab_name);
+                    tab_path_set.set(name_entry.key, tab_path);
                     queue_draw();
                     
                     break;
@@ -192,6 +197,7 @@ namespace Widgets {
                 tab_list.remove_at(index);
                 tab_name_set.unset(tab_id);
                 tab_path_set.unset(tab_id);
+                tab_app_set.unset(tab_id);
                 tab_xid_set.unset(tab_id);
 
                 if (emit_close_signal) {
@@ -544,13 +550,13 @@ namespace Widgets {
             return xids;
         }
 
-        public ArrayList<string> get_all_paths() {
-            ArrayList<string> paths = new ArrayList<string>();
+        public ArrayList<string> get_all_apps() {
+            ArrayList<string> apps = new ArrayList<string>();
             foreach (int index in tab_list) {
-                paths.add(tab_path_set.get(index));
+                apps.add(tab_app_set.get(index));
             }
             
-            return paths;
+            return apps;
         }
         
         public ArrayList<string> get_all_buffers() {
@@ -571,6 +577,15 @@ namespace Widgets {
             return names;
         }
 
+        public ArrayList<string> get_all_paths() {
+            ArrayList<string> paths = new ArrayList<string>();
+            foreach (int index in tab_list) {
+                paths.add(tab_path_set.get(index));
+            }
+            
+            return paths;
+        }
+        
         public void switch_tab(int new_index) {
             if (tab_index != new_index) {
                 var new_xid = tab_xid_set.get(tab_list.get(new_index));

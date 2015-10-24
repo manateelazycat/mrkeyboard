@@ -21,8 +21,8 @@ namespace Application {
         public Vte.Terminal term;
         public GLib.Pid process_id;
         
-        public Window(int width, int height, string bid) {
-            base(width, height, bid);
+        public Window(int width, int height, string bid, string path) {
+            base(width, height, bid, path);
         }
         
         public override void init() {
@@ -41,10 +41,10 @@ namespace Application {
                     
                     if (working_directory.length > 0) {
                         working_directory = working_directory[0:working_directory.length - 1];
-                        if (buffer_name != working_directory) {
+                        if (buffer_path != working_directory) {
                             var paths = working_directory.split("/");
-                            rename_app_tab(mode_name, buffer_id, paths[paths.length - 1]);
-                            buffer_name = working_directory;
+                            rename_app_tab(mode_name, buffer_id, paths[paths.length - 1], working_directory);
+                            buffer_path = working_directory;
                         }
                     }
                 });
@@ -56,7 +56,11 @@ namespace Application {
                 print("Got error when get_shell: %s\n", e.message);
             }
             try {
-                term.fork_command_full(PtyFlags.DEFAULT, null, arguments, null, SpawnFlags.SEARCH_PATH, null, out process_id);
+                string? working_directory = null;
+                if (buffer_path.length > 0) {
+                    working_directory = buffer_path;
+                }
+                term.fork_command_full(PtyFlags.DEFAULT, working_directory, arguments, null, SpawnFlags.SEARCH_PATH, null, out process_id);
             } catch (GLib.Error e) {
                 print("Got error when fork_command_full: %s\n", e.message);
             }
@@ -98,8 +102,8 @@ namespace Application {
     }
 
     public class CloneWindow : Interface.CloneWindow {
-        public CloneWindow(int width, int height, int pwid, string mode_name, string bid) {
-            base(width, height, pwid, mode_name, bid);
+        public CloneWindow(int width, int height, int pwid, string mode_name, string bid, string path) {
+            base(width, height, pwid, mode_name, bid, path);
         }
         
         public override string get_background_color() {

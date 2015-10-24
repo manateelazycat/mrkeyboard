@@ -10,12 +10,14 @@ namespace Interface {
         public int parent_window_id;
         public int window_id;
         public string buffer_id;
+        public string buffer_path;
         
         public signal void create_app_tab(int app_win_id, string mode_name);
         
-        public CloneWindow(int width, int height, int pwid, string mode_name, string bid) {
+        public CloneWindow(int width, int height, int pwid, string mode_name, string bid, string path) {
             parent_window_id = pwid;
             buffer_id = bid;
+            buffer_path = path;
             
             set_decorated(false);
             set_default_size(width, height);

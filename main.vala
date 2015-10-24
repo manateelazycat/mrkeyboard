@@ -17,8 +17,8 @@ public class DaemonServer : Object {
         window_manager.close_tab_with_buffer(mode_name, buffer_id);
     }
     
-    public void rename_app_tab(string mode_name, string buffer_id, string buffer_name) {
-        window_manager.rename_tab_with_buffer(mode_name, buffer_id, buffer_name);
+    public void rename_app_tab(string mode_name, string buffer_id, string tab_name, string tab_path) {
+        window_manager.rename_tab_with_buffer(mode_name, buffer_id, tab_name, tab_path);
     }
     
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
@@ -57,9 +57,9 @@ public class DaemonServer : Object {
                 if (keyevent_name == "Alt + x") {
                     titlebar.entry.grab_focus();
                 } else if (keyevent_name == "Super + n") {
-                    window_manager.new_tab("./app/terminal");
+                    window_manager.new_tab("terminal", "");
                 } else if (keyevent_name == "Super + m") {
-                    window_manager.new_tab("./app/browser");
+                    window_manager.new_tab("browser", "");
                 } else if (keyevent_name == "Alt + ,") {
                     var window = window_manager.get_focus_window();
                     window.tabbar.select_prev_tab();

@@ -10,7 +10,7 @@ namespace Interface {
     interface Daemon : Object {
         public abstract void show_app_tab(int app_win_id, string mode_name, int tab_id, string buffer_id, string window_type) throws IOError;
         public abstract void close_app_tab(string mode_name, string buffer_id) throws IOError;
-        public abstract void rename_app_tab(string mode_name, string buffer_id, string buffer_name) throws IOError;
+        public abstract void rename_app_tab(string mode_name, string buffer_id, string tab_name, string tab_path) throws IOError;
         public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
         public signal void destroy_buffer(string buffer_id);
         public signal void destroy_windows(int[] window_ids);
@@ -89,13 +89,14 @@ namespace Interface {
         }
         
         public override void create_window(string[] args, bool from_dbus=false) {
-            if (args.length == 4) {
-                var width = int.parse(args[1]);
-                var height = int.parse(args[2]);
-                var tab_id = int.parse(args[3]);
-    
+            if (args.length == 5) {
+                var path = args[1];
+                var width = int.parse(args[2]);
+                var height = int.parse(args[3]);
+                var tab_id = int.parse(args[4]);
+                
                 var buffer_id = get_buffer_id();
-                var window = new Application.Window(width, height, buffer_id);
+                var window = new Application.Window(width, height, buffer_id, path);
                 
                 window.create_app_tab.connect((app_win_id, mode_name) => {
                         try {
@@ -111,9 +112,9 @@ namespace Interface {
                             stderr.printf("%s\n", e.message);
                         }
                     });
-                window.rename_app_tab.connect((mode_name, buffer_id, buffer_name) => {
+                window.rename_app_tab.connect((mode_name, buffer_id, tab_name, tab_path) => {
                         try {
-                            daemon.rename_app_tab(mode_name, buffer_id, buffer_name);
+                            daemon.rename_app_tab(mode_name, buffer_id, tab_name, tab_path);
                         } catch (IOError e) {
                             stderr.printf("%s\n", e.message);
                         }
@@ -122,27 +123,28 @@ namespace Interface {
                 
                 window_list.add(window);
                 buffer_window_set.set(buffer_id, window);
-            } else if (args.length == 5) {
-                var width = int.parse(args[1]);
-                var height = int.parse(args[2]);
-                var tab_id = int.parse(args[3]);
+            } else if (args.length == 6) {
+                var path = args[1];
+                var width = int.parse(args[2]);
+                var height = int.parse(args[3]);
+                var tab_id = int.parse(args[4]);
                 int? parent_window_id = 0;
                 
                 // If four argment has '-' char, we consider it is buffer_id (uuid format).
-                if ("-" in args[4]) {
-                    var buffer_id = args[4];
+                if ("-" in args[5]) {
+                    var buffer_id = args[5];
                     
                     var parent_window = buffer_window_set.get(buffer_id);
                     parent_window_id = parent_window.window_id;
                 } else {
-                    parent_window_id = get_parent_window_id(int.parse(args[4]));
+                    parent_window_id = get_parent_window_id(int.parse(args[5]));
                 }
                 
                 if (parent_window_id != null) {
                     var window = get_match_window_with_id(parent_window_id);
                     if (window != null) {
                         
-                        var clone_window = new Application.CloneWindow(width, height, parent_window_id, window.mode_name, window.buffer_id);
+                        var clone_window = new Application.CloneWindow(width, height, parent_window_id, window.mode_name, window.buffer_id, path);
                         
                         clone_window.create_app_tab.connect((app_win_id, mode_name) => {
                                 try {

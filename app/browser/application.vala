@@ -21,16 +21,20 @@ namespace Application {
         public WebView webview;
         public ScrolledWindow scrolled_window;
         
-        public Window(int width, int height, string bid) {
-            base(width, height, bid);
+        public Window(int width, int height, string bid, string path) {
+            base(width, height, bid, path);
         }
         
         public override void init() {
             webview = new WebView();
-            webview.load_uri("http://www.baidu.com");
+            if (buffer_path.length == 0) {
+                webview.load_uri("http://www.baidu.com");
+            } else {
+                webview.load_uri(buffer_path);
+            }
             
             webview.title_changed.connect((source, frame, title) => {
-                    rename_app_tab(mode_name, buffer_id, title);
+                    rename_app_tab(mode_name, buffer_id, title, webview.get_uri());
                 });
             webview.console_message.connect((message, line_number, source_id) => {
                     return true;
@@ -72,8 +76,8 @@ namespace Application {
     }
 
     public class CloneWindow : Interface.CloneWindow {
-        public CloneWindow(int width, int height, int pwid, string mode_name, string bid) {
-            base(width, height, pwid, mode_name, bid);
+        public CloneWindow(int width, int height, int pwid, string mode_name, string bid, string path) {
+            base(width, height, pwid, mode_name, bid, path);
         }
         
         public override string get_background_color() {

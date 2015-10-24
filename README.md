@@ -20,10 +20,9 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
-* Add tab path protocol: app process need path to start, and report path to daemon process.
 * Make browser support open in new tab.
 * Design new protocol to make app create new tab to daemon, such as browser.
-* Make files under interface directory to interface/vala, and simpler interface implement.
+* Make clone window handle mouse event.
 * Add editor application to test multi-view protocol.
 * Add tab max width protocol, we need think limit by daemon or application?
 * Add tab spinner protocol.
