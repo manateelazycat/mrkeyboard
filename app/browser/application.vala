@@ -52,6 +52,10 @@ namespace Application {
                         webview.go_back();
                     } else if (keyevent_name == "Alt + m") {
                         webview.go_forward();
+                    } else if (keyevent_name == "Alt + r") {
+                        webview.reload();
+                    } else if (keyevent_name == "Alt + R") {
+                        webview.reload_bypass_cache();
                     }
                     
                     return false;
