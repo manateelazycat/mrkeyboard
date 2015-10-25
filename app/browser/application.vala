@@ -34,7 +34,7 @@ namespace Application {
             }
             
             webview.title_changed.connect((source, frame, title) => {
-                    rename_app_tab(mode_name, buffer_id, title, webview.get_uri());
+                    rename_app_tab(mode_name, buffer_id, slice_string(title, 30), webview.get_uri());
                 });
             webview.console_message.connect((message, line_number, source_id) => {
                     return true;
@@ -50,7 +50,22 @@ namespace Application {
             scrolled_window.add(webview);
             
             box.pack_start(scrolled_window, true, true, 0);
-        }        
+        }
+
+        public string slice_string(string str, int unichar_num) {
+            string slice_str = "";
+            
+            unichar c;
+            for (int i = 0; str.get_next_char(ref i, out c);) {
+                if (i > unichar_num) {
+                    return slice_str.concat("... ");
+                } else {
+                    slice_str = slice_str.concat(c.to_string());
+                }
+            }
+            
+            return slice_str;
+        }
         
         public override void scroll_vertical(bool scroll_up) {
             var vadj = scrolled_window.get_vadjustment();
