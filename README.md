@@ -20,7 +20,6 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
-* Make new tab support open in background.
 * Make clone window handle mouse event.
 * Fixed bug: open browser, split window vertical, switch tab, xwindow's width is wrong.
 * Add editor application to test multi-view protocol.

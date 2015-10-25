@@ -4,6 +4,7 @@ using Gee;
 using Gtk;
 using Utils;
 using Widgets;
+using GLib;
 
 namespace Widgets {
     public class Tabbar : Gtk.DrawingArea {
@@ -171,7 +172,7 @@ namespace Widgets {
         public void select_tab_with_id(int tab_id) {
             switch_tab(tab_list.index_of(tab_id));
         }
-        
+
         public void close_current_tab() {
             close_nth_tab(tab_index);
         }
@@ -541,6 +542,24 @@ namespace Widgets {
             }
         }
         
+        public delegate void AnyAction();
+        
+        public void protect_current_tab(AnyAction action) {
+            var tab_id_backup = tab_list.get(tab_index);
+            action();
+
+            // FIXEDME: This is hacking way.
+            // 
+            // We need add timeout here to avoid xcb.reparent_window request to fast
+            // that current tab can't reparent correctly.
+            //
+            // Please found a better way that we don't need depend time delay to reparent window.
+            GLib.Timeout.add(10, () => {
+                    select_tab_with_id(tab_id_backup);
+                    return false;
+                });
+        }
+        
         public ArrayList<int> get_all_xids() {
             ArrayList<int> xids = new ArrayList<int>();
             foreach (int index in tab_list) {
@@ -587,16 +606,14 @@ namespace Widgets {
         }
         
         public void switch_tab(int new_index) {
-            if (tab_index != new_index) {
-                var new_xid = tab_xid_map.get(tab_list.get(new_index));
+            var new_xid = tab_xid_map.get(tab_list.get(new_index));
                 
-                focus_window(new_xid);
+            focus_window(new_xid);
                 
-                tab_index = new_index;
+            tab_index = new_index;
                 
-                make_current_visible(true);
-                queue_draw();
-            }
+            make_current_visible(true);
+            queue_draw();
         }
         
         public void focus_tab(int index) {

@@ -28,7 +28,7 @@ namespace Application {
         public override void init() {
             webview = new WebView();
             if (buffer_path.length == 0) {
-                webview.load_uri("http://www.google.com");
+                webview.load_uri("http://www.baidu.com");
             } else {
                 webview.load_uri(buffer_path);
             }

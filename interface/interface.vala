@@ -282,7 +282,7 @@ namespace Interface {
                     var clone_windows = buffer_clone_map.get(window.buffer_id);
                     if (clone_windows != null) {
                         foreach (Interface.CloneWindow clone_window in clone_windows) {
-                            /* This is HACKING WAY!!!
+                            /* FIXEDME: This is HACKING WAY!!!
                             /* TexturePixmap will freeze once parent window reparent by daemon proces.
                             /* So i use function 'replace_texture' to re-bulid new texture when parent window do x11 reparent operation.
                             /* To avoid clone texture freeze.

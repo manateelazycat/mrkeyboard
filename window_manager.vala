@@ -15,6 +15,7 @@ namespace Widgets {
         public Widgets.Window focus_window;
         public Xcb.Connection conn;
         public int tab_id_counter;
+        public HashSet<int> tab_visible_set;
         
         public signal void destroy_buffer(string buffer_id);
         public signal void destroy_window(int xid);
@@ -33,6 +34,7 @@ namespace Widgets {
             tab_id_counter = 0;
             window_list = new ArrayList<Widgets.Window>();
             window_mode = new WindowMode.WindowMode(conn);
+            tab_visible_set = new HashSet<int>();
             
             realize.connect((w) => {
                     create_first_window();
@@ -475,7 +477,7 @@ namespace Widgets {
             }
         }
         
-        public void new_tab(string app, string path) {
+        public void new_tab(string app, string path, bool visible_tab=false) {
             var info = get_app_execute_info(app);
             var mode_name = info[1];
             
@@ -486,6 +488,10 @@ namespace Widgets {
                 var window_child_size = window.get_child_allocate();
                 
                 tab_id_counter += 1;
+                if (visible_tab) {
+                    tab_visible_set.add(tab_id_counter);
+                }
+                
                 window.tabbar.add_tab("", path, tab_id_counter, app);
                 start_app_process(
                     app,
@@ -779,9 +785,15 @@ namespace Widgets {
                 window.tabbar.set_tab_xid(tab_id, app_win_id);
                 window.tabbar.set_tab_buffer(tab_id, buffer_id);
                 window.tabbar.set_tab_window_type(tab_id, window_type);
-                window.tabbar.select_tab_with_id(tab_id);
                 
-                window.visible_tab(app_win_id);
+                if (tab_visible_set.contains(tab_id)) {
+                    window.tabbar.select_tab_with_id(tab_id);
+                    tab_visible_set.remove(tab_id);
+                } else {
+                    window.tabbar.protect_current_tab(() => {
+                            window.visible_tab(app_win_id);
+                        });
+                }
                 
                 sync_windows(window);
             } else {
