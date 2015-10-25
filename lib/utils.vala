@@ -81,4 +81,19 @@ namespace Utils {
             }
         }
     }
+
+    public string slice_string(string str, int unichar_num) {
+        string slice_str = "";
+            
+        unichar c;
+        for (int i = 0; str.get_next_char(ref i, out c);) {
+            if (i > unichar_num) {
+                return slice_str.concat("... ");
+            } else {
+                slice_str = slice_str.concat(c.to_string());
+            }
+        }
+            
+        return slice_str;
+    }
 }

@@ -1,5 +1,7 @@
 using WebKit;
 using Gtk;
+using Utils;
+using Keymap;
 
 namespace Application {
     const string app_name = "browser";
@@ -39,9 +41,18 @@ namespace Application {
             webview.console_message.connect((message, line_number, source_id) => {
                     return true;
                 });
-            
             webview.new_window_policy_decision_requested.connect((view, frame, request, action, decision) => {
                     new_app_tab(app_name, request.get_uri());
+                    
+                    return false;
+                });
+            webview.key_press_event.connect((w, e) => {
+                    string keyevent_name = Keymap.get_keyevent_name(e);
+                    if (keyevent_name == "Alt + n") {
+                        webview.go_back();
+                    } else if (keyevent_name == "Alt + m") {
+                        webview.go_forward();
+                    }
                     
                     return false;
                 });
@@ -52,21 +63,6 @@ namespace Application {
             box.pack_start(scrolled_window, true, true, 0);
         }
 
-        public string slice_string(string str, int unichar_num) {
-            string slice_str = "";
-            
-            unichar c;
-            for (int i = 0; str.get_next_char(ref i, out c);) {
-                if (i > unichar_num) {
-                    return slice_str.concat("... ");
-                } else {
-                    slice_str = slice_str.concat(c.to_string());
-                }
-            }
-            
-            return slice_str;
-        }
-        
         public override void scroll_vertical(bool scroll_up) {
             var vadj = scrolled_window.get_vadjustment();
             var value = vadj.get_value();
