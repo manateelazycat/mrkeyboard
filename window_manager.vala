@@ -14,7 +14,7 @@ namespace Widgets {
         public WindowMode.WindowMode window_mode;
         public Widgets.Window focus_window;
         public Xcb.Connection conn;
-        public int tab_counter;
+        public int tab_id_counter;
         
         public signal void destroy_buffer(string buffer_id);
         public signal void destroy_window(int xid);
@@ -30,7 +30,7 @@ namespace Widgets {
             draw.connect(on_draw);
             conn = new Xcb.Connection();
 
-            tab_counter = 0;
+            tab_id_counter = 0;
             window_list = new ArrayList<Widgets.Window>();
             window_mode = new WindowMode.WindowMode(conn);
             
@@ -126,8 +126,8 @@ namespace Widgets {
                 var tab_name = names.get(counter);
                 var tab_path = paths.get(counter);
                 
-                tab_counter += 1;
-                clone_window.tabbar.add_tab(tab_name, tab_path, tab_counter, app);
+                tab_id_counter += 1;
+                clone_window.tabbar.add_tab(tab_name, tab_path, tab_id_counter, app);
                 start_app_process(
                     app,
                     tab_path,
@@ -147,7 +147,7 @@ namespace Widgets {
                 path,
                 window_width,
                 window_height,
-                tab_counter,
+                tab_id_counter,
                 other_arg);
             
             try {
@@ -277,29 +277,29 @@ namespace Widgets {
                 window_mode.rember_destroy_windows_focus_tab(destroy_window_list, focus_window);
                 
                 int[] destroy_window_ids = {};
-                HashMap<int, int> replace_tab_set = new HashMap<int, int>();
+                HashMap<int, int> replace_tab_map = new HashMap<int, int>();
                 foreach (Window window in destroy_window_list) {
                     if (window.mode_name == focus_window.mode_name) {
                         var counter = 0;
                         foreach (int tab_id in window.tabbar.tab_list) {
-                            var window_type = window.tabbar.tab_window_type_set.get(tab_id);
+                            var window_type = window.tabbar.tab_window_type_map.get(tab_id);
                             if (window_type == "clone") {
-                                destroy_window_ids += window.tabbar.tab_xid_set.get(tab_id);
+                                destroy_window_ids += window.tabbar.tab_xid_map.get(tab_id);
                             } else if (window_type == "origin") {
                                 var focus_window_tab_id = focus_window.tabbar.tab_list.get(counter);
-                                var focus_xid = focus_window.tabbar.tab_xid_set.get(focus_window_tab_id);
+                                var focus_xid = focus_window.tabbar.tab_xid_map.get(focus_window_tab_id);
                                 destroy_window_ids += focus_xid;
                                 
-                                var tab_xid = window.tabbar.tab_xid_set.get(tab_id);
-                                replace_tab_set.set(focus_window_tab_id, tab_xid);
+                                var tab_xid = window.tabbar.tab_xid_map.get(tab_id);
+                                replace_tab_map.set(focus_window_tab_id, tab_xid);
                             }
                             
                             counter++;
                         }
                     } else {
                         foreach (int tab_id in window.tabbar.tab_list) {
-                            var tab_xid = window.tabbar.tab_xid_set.get(tab_id);
-                            var tab_window_type = window.tabbar.tab_window_type_set.get(tab_id);
+                            var tab_xid = window.tabbar.tab_xid_map.get(tab_id);
+                            var tab_window_type = window.tabbar.tab_window_type_map.get(tab_id);
                             
                             if (tab_window_type == "clone") {
                                 destroy_window_ids += tab_xid;
@@ -318,7 +318,7 @@ namespace Widgets {
                 
                 window_mode.hide_windows(hide_windows);
                 
-                foreach (var entry in replace_tab_set.entries) {
+                foreach (var entry in replace_tab_map.entries) {
                     var tab_id = entry.key;
                     var new_win_id = entry.value;
                     
@@ -333,15 +333,15 @@ namespace Widgets {
         public void close_current_window() {
             if (window_list.size > 1) {
                 int[] destroy_window_ids = {};
-                HashMap<int, int> replace_tab_set = new HashMap<int, int>();
+                HashMap<int, int> replace_tab_map = new HashMap<int, int>();
                 var hide_windows = new ArrayList<int>();
                 
                 window_mode.rember_window_focus_tab(window_list, focus_window);
                 
                 var counter = 0;
                 foreach (int tab_id in focus_window.tabbar.tab_list) {
-                    var tab_xid = focus_window.tabbar.tab_xid_set.get(tab_id);
-                    var tab_window_type = focus_window.tabbar.tab_window_type_set.get(tab_id);
+                    var tab_xid = focus_window.tabbar.tab_xid_map.get(tab_id);
+                    var tab_window_type = focus_window.tabbar.tab_window_type_map.get(tab_id);
                     
                     if (tab_window_type == "clone") {
                         destroy_window_ids += tab_xid;
@@ -359,11 +359,11 @@ namespace Widgets {
                         } else {
                             var replace_window = same_mode_windows.get(0);
                             var replace_window_tab_id = replace_window.tabbar.tab_list.get(counter)        ;
-                            var replace_window_tab_xid = replace_window.tabbar.tab_xid_set.get(replace_window_tab_id);
+                            var replace_window_tab_xid = replace_window.tabbar.tab_xid_map.get(replace_window_tab_id);
                             
                             destroy_window_ids += replace_window_tab_xid;
                             
-                            replace_tab_set.set(replace_window_tab_id, tab_xid);
+                            replace_tab_map.set(replace_window_tab_id, tab_xid);
                         }
                     }
                     
@@ -385,7 +385,7 @@ namespace Widgets {
                 
                 window_mode.hide_windows(hide_windows);
                 
-                foreach (var entry in replace_tab_set.entries) {
+                foreach (var entry in replace_tab_map.entries) {
                     var replace_tab_id = entry.key;
                     var replace_win_id = entry.value;
                     
@@ -485,8 +485,8 @@ namespace Widgets {
                 
                 var window_child_size = window.get_child_allocate();
                 
-                tab_counter += 1;
-                window.tabbar.add_tab("", path, tab_counter, app);
+                tab_id_counter += 1;
+                window.tabbar.add_tab("", path, tab_id_counter, app);
                 start_app_process(
                     app,
                     path,
@@ -496,12 +496,12 @@ namespace Widgets {
         }
         
         public void switch_to_next_mode() {
-            if (window_mode.mode_buffer_set.size > 1) {
+            if (window_mode.mode_buffer_map.size > 1) {
                 bool found_current_mode = false;
                 string? first_mode_name = null;
                 string? next_mode_name = null;
                 var counter = 0;
-                foreach (var entry in window_mode.mode_buffer_set.entries) {
+                foreach (var entry in window_mode.mode_buffer_map.entries) {
                     string mode_name = entry.key;
                     
                     if (counter == 0) {
@@ -511,7 +511,7 @@ namespace Widgets {
                     if (found_current_mode) {
                         next_mode_name = mode_name;
                         break;
-                    } else if (focus_window.mode_name == mode_name && counter != window_mode.mode_buffer_set.size - 1) {
+                    } else if (focus_window.mode_name == mode_name && counter != window_mode.mode_buffer_map.size - 1) {
                         found_current_mode = true;
                     }
                     
@@ -531,10 +531,10 @@ namespace Widgets {
         }
         
         public void switch_to_prev_mode() {
-            if (window_mode.mode_buffer_set.size > 1) {
+            if (window_mode.mode_buffer_map.size > 1) {
                 bool found_current_mode = false;
                 string? prev_mode_name = null;
-                foreach (var entry in window_mode.mode_buffer_set.entries) {
+                foreach (var entry in window_mode.mode_buffer_map.entries) {
                     string mode_name = entry.key;
                     
                     if (focus_window.mode_name == mode_name) {
@@ -548,10 +548,10 @@ namespace Widgets {
                 if (found_current_mode) {
                     if (prev_mode_name == null) {
                         var counter = 0;
-                        foreach (var entry in window_mode.mode_buffer_set.entries) {
+                        foreach (var entry in window_mode.mode_buffer_map.entries) {
                             string mode_name = entry.key;
                             
-                            if (counter == window_mode.mode_buffer_set.size - 1) {
+                            if (counter == window_mode.mode_buffer_map.size - 1) {
                                 switch_mode(focus_window, mode_name);
                                 break;
                             }
@@ -571,11 +571,11 @@ namespace Widgets {
                 // Record buffers of current mode.
                 int[] remove_clone_windows = {};
                 var hide_windows = new ArrayList<int>();
-                var replace_tab_set = new HashMap<int, int>();
+                var replace_tab_map = new HashMap<int, int>();
                 int counter = 0;
                 foreach (int tab_id in window.tabbar.tab_list) {
-                    var window_type = window.tabbar.tab_window_type_set.get(tab_id);
-                    var window_xid = window.tabbar.tab_xid_set.get(tab_id);
+                    var window_type = window.tabbar.tab_window_type_map.get(tab_id);
+                    var window_xid = window.tabbar.tab_xid_map.get(tab_id);
                     
                     if (window_type == "clone") {
                         remove_clone_windows += window_xid;
@@ -586,9 +586,9 @@ namespace Widgets {
                                 same_mode = true;
                                 
                                 int replace_tab_id = win.tabbar.tab_list.get(counter);
-                                int replace_window_xid = win.tabbar.tab_xid_set.get(replace_tab_id);
+                                int replace_window_xid = win.tabbar.tab_xid_map.get(replace_tab_id);
                                 
-                                replace_tab_set.set(replace_tab_id, window_xid);
+                                replace_tab_map.set(replace_tab_id, window_xid);
                                 
                                 remove_clone_windows += replace_window_xid;
                                 break;
@@ -610,7 +610,7 @@ namespace Widgets {
                 
                 window_mode.hide_windows(hide_windows);
                 
-                foreach (var entry in replace_tab_set.entries) {
+                foreach (var entry in replace_tab_map.entries) {
                     var replace_tab_id = entry.key;
                     var replace_win_id = entry.value;
                     
@@ -630,7 +630,7 @@ namespace Widgets {
                             // We need reparent window of current tab if have replace tab operation in window.
                             var focus_tab_id = win.tabbar.tab_list.get(win.tabbar.tab_index);
                             if (replace_tab_id == focus_tab_id) {
-                                var focus_xid = win.tabbar.tab_xid_set.get(focus_tab_id);
+                                var focus_xid = win.tabbar.tab_xid_map.get(focus_tab_id);
                                 win.visible_tab(focus_xid);
                             }
                         }
@@ -640,21 +640,21 @@ namespace Widgets {
                 window.tabbar.reset();
                 
                 // Rebuild window's tabs.
-                var buffer_list = window_mode.mode_buffer_set.get(mode_name);
+                var buffer_list = window_mode.mode_buffer_map.get(mode_name);
                 if (buffer_list != null && buffer_list.size > 0) {
                     foreach (string buffer_id in buffer_list) {
-                        tab_counter++;
+                        tab_id_counter++;
                         
-                        var buffer_origin_window = window_mode.mode_window_set.get(buffer_id);
-                        var hide_info = window_mode.hide_info_set.get(buffer_id);
+                        var buffer_origin_window = window_mode.mode_window_map.get(buffer_id);
+                        var hide_info = window_mode.hide_info_map.get(buffer_id);
                         if (hide_info != null) {
                             if (buffer_origin_window == hide_info.tab_xid) {
                                 
-                                window.tabbar.add_tab(hide_info.tab_name, hide_info.tab_path, tab_counter, hide_info.tab_app);
+                                window.tabbar.add_tab(hide_info.tab_name, hide_info.tab_path, tab_id_counter, hide_info.tab_app);
                                 
-                                window.tabbar.set_tab_xid(tab_counter, hide_info.tab_xid);
-                                window.tabbar.set_tab_buffer(tab_counter, buffer_id);
-                                window.tabbar.set_tab_window_type(tab_counter, "origin");
+                                window.tabbar.set_tab_xid(tab_id_counter, hide_info.tab_xid);
+                                window.tabbar.set_tab_buffer(tab_id_counter, buffer_id);
+                                window.tabbar.set_tab_window_type(tab_id_counter, "origin");
                                 
                                 window_mode.show_window(buffer_origin_window);
                                 window_mode.remove_hideinfo_tab(buffer_id);
@@ -665,14 +665,14 @@ namespace Widgets {
                             foreach (Window win in window_list) {
                                 if (win != window) {
                                     foreach (int tab_id in win.tabbar.tab_list) {
-                                        var window_xid = win.tabbar.tab_xid_set.get(tab_id);
+                                        var window_xid = win.tabbar.tab_xid_map.get(tab_id);
                                         if (window_xid == buffer_origin_window) {
-                                            var tab_name = win.tabbar.tab_name_set.get(tab_id);
-                                            var tab_path = win.tabbar.tab_path_set.get(tab_id);
-                                            var app = win.tabbar.tab_app_set.get(tab_id);
+                                            var tab_name = win.tabbar.tab_name_map.get(tab_id);
+                                            var tab_path = win.tabbar.tab_path_map.get(tab_id);
+                                            var app = win.tabbar.tab_app_map.get(tab_id);
                                             var window_child_size = window.get_child_allocate();
                                             
-                                            window.tabbar.add_tab(tab_name, tab_path, tab_counter, app);
+                                            window.tabbar.add_tab(tab_name, tab_path, tab_id_counter, app);
                                             start_app_process(
                                                 app,
                                                 tab_path,
@@ -807,8 +807,8 @@ namespace Widgets {
                         var tab_name = names.get(counter);
                         var tab_path = paths.get(counter);
                         
-                        tab_counter += 1;
-                        window.tabbar.add_tab(tab_name, tab_path, tab_counter, app);
+                        tab_id_counter += 1;
+                        window.tabbar.add_tab(tab_name, tab_path, tab_id_counter, app);
                         start_app_process(
                             app,
                             tab_path,
