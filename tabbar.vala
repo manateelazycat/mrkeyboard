@@ -331,7 +331,7 @@ namespace Widgets {
                 draw_x += text_padding_x;
                 
                 if (release_x > draw_x && release_x < draw_x + get_tab_width(name_width)) {
-                    if (release_x > draw_x + name_width + text_padding_x) {
+                    if (release_x > draw_x + name_width) {
                         close_nth_tab(counter);
                         return false;
                     }
@@ -506,7 +506,7 @@ namespace Widgets {
                 
                 if (draw_hover) {
                     if (hover_x > draw_x && hover_x < draw_x + get_tab_width(name_width)) {
-                        if (hover_x > draw_x + name_width + text_padding_x) {
+                        if (hover_x > draw_x + name_width) {
                             if (is_button_press) {
                                 Draw.draw_surface(cr, press_surface, draw_x + name_width + close_button_padding_x, draw_padding_y + close_button_padding_y);
                             } else {
