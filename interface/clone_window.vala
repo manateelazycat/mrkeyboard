@@ -11,8 +11,13 @@ namespace Interface {
         public int window_id;
         public string buffer_id;
         public string buffer_path;
+        public GtkClutter.Embed embed;
         
         public signal void create_app_tab(int app_win_id, string mode_name);
+        public signal void emit_scroll_event(Gdk.EventScroll event);
+        public signal void emit_button_press_event(Gdk.EventButton event);
+        public signal void emit_button_release_event(Gdk.EventButton event);
+        public signal void emit_motion_event(Gdk.EventMotion event);
         
         public CloneWindow(int width, int height, int pwid, string mode_name, string bid, string path) {
             parent_window_id = pwid;
@@ -22,9 +27,30 @@ namespace Interface {
             set_decorated(false);
             set_default_size(width, height);
 
-            var embed = new GtkClutter.Embed();
+            embed = new GtkClutter.Embed();
             add(embed);
-    
+            
+            embed.button_press_event.connect((w, e) => {
+                    emit_button_press_event(e);
+                    
+                    return false;
+                });
+            embed.button_release_event.connect((w, e) => {
+                    emit_button_release_event(e);
+                    
+                    return false;
+                });
+            embed.scroll_event.connect((w, e) => {
+                    emit_scroll_event(e);
+                    
+                    return false;
+                });
+            embed.motion_notify_event.connect((w, e) => {
+                    emit_motion_event(e);
+                    
+                    return false;
+                });
+            
             stage = embed.get_stage();
             stage.set_background_color(Color.from_string(get_background_color()));
             

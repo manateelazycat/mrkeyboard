@@ -161,6 +161,18 @@ namespace Interface {
                                     stderr.printf("%s\n", e.message);
                                 }
                             });
+                        clone_window.emit_scroll_event.connect((e) => {
+                                handle_emit_scroll_event(clone_window, e);
+                            });
+                        clone_window.emit_button_press_event.connect((e) => {
+                                handle_emit_button_event(clone_window, e);
+                            });
+                        clone_window.emit_button_release_event.connect((e) => {
+                                handle_emit_button_event(clone_window, e);
+                            });
+                        clone_window.emit_motion_event.connect((e) => {
+                                handle_emit_motion_event(clone_window, e);
+                            });
                         clone_window.show_all();
                         clone_window_list.add(clone_window);
                     
@@ -251,6 +263,80 @@ namespace Interface {
             }
             
             try_quit();
+        }
+        
+        private void handle_emit_scroll_event(CloneWindow clone_window, Gdk.EventScroll e) {
+            var wid = get_parent_window_id(clone_window.parent_window_id);
+            if (wid != null) {
+                var win = get_match_window_with_id(wid);
+                if (win != null) {
+                    Gdk.EventScroll* event;
+                    event = (Gdk.EventScroll*) new Gdk.Event(Gdk.EventType.SCROLL);
+                    // Change event gdk window.
+                    var event_window = win.get_event_window();
+                    event->window = event_window;  
+                    
+                    event->time = e.time;
+                    event->x = e.x;
+                    event->y = e.y;
+                    event->state = e.state;
+                    event->direction = e.direction;
+                    event->device = e.device;
+                    event->x_root = e.x_root;
+                    event->y_root = e.y_root;
+                    event->delta_x = e.delta_x;
+                    event->delta_y = e.delta_y;
+                    ((Gdk.Event*) event)->put();
+                }
+            }
+        }
+
+        private void handle_emit_button_event(CloneWindow clone_window, Gdk.EventButton e) {
+            var wid = get_parent_window_id(clone_window.parent_window_id);
+            if (wid != null) {
+                var win = get_match_window_with_id(wid);
+                if (win != null) {
+                    Gdk.EventButton* event;
+                    event = (Gdk.EventButton*) new Gdk.Event(e.type);
+                    // Change event gdk window.
+                    var event_window = win.get_event_window();
+                    event->window = event_window;
+                    
+                    event->time = e.time;
+                    event->x = e.x;
+                    event->y = e.y;
+                    event->state = e.state;
+                    event->button = e.button;
+                    event->device = e.device;
+                    event->x_root = e.x_root;
+                    event->y_root = e.y_root;
+                    ((Gdk.Event*) event)->put();
+                }
+            }
+        }
+        
+        private void handle_emit_motion_event(CloneWindow clone_window, Gdk.EventMotion e) {
+            var wid = get_parent_window_id(clone_window.parent_window_id);
+            if (wid != null) {
+                var win = get_match_window_with_id(wid);
+                if (win != null) {
+                    Gdk.EventMotion* event;
+                    event = (Gdk.EventMotion*) new Gdk.Event(e.type);
+                    // Change event gdk window.
+                    var event_window = win.get_event_window();
+                    event->window = event_window;
+                    
+                    event->time = e.time;
+                    event->x = e.x;
+                    event->y = e.y;
+                    event->state = e.state;
+                    event->is_hint = e.is_hint;
+                    event->device = e.device;
+                    event->x_root = e.x_root;
+                    event->y_root = e.y_root;
+                    ((Gdk.Event*) event)->put();
+                }
+            }
         }
         
         private void destroy_window(Interface.Window window) {
