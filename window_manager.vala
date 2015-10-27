@@ -771,7 +771,7 @@ namespace Widgets {
             return null;
         }
         
-        public void show_tab(int app_win_id, string mode_name, int tab_id, string buffer_id, string window_type) {
+        public void show_tab(int tab_win_id, string mode_name, int tab_id, string buffer_id, string window_type) {
             var window = get_window_with_tab_id(tab_id);
             if (window != null) {
                 if (window.mode_name == "") {
@@ -779,10 +779,10 @@ namespace Widgets {
                 }
                 
                 if (window_type == "origin") {
-                    window_mode.add_mode_tab(mode_name, buffer_id, app_win_id);
+                    window_mode.add_mode_tab(mode_name, buffer_id, tab_win_id);
                 }
                 
-                window.tabbar.set_tab_xid(tab_id, app_win_id);
+                window.tabbar.set_tab_xid(tab_id, tab_win_id);
                 window.tabbar.set_tab_buffer(tab_id, buffer_id);
                 window.tabbar.set_tab_window_type(tab_id, window_type);
                 
@@ -791,7 +791,7 @@ namespace Widgets {
                     tab_visible_set.remove(tab_id);
                 } else {
                     window.tabbar.protect_current_tab(() => {
-                            window.visible_tab(app_win_id);
+                            window.visible_tab(tab_win_id);
                         });
                 }
                 

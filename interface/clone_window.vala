@@ -13,7 +13,7 @@ namespace Interface {
         public string buffer_path;
         public GtkClutter.Embed embed;
         
-        public signal void create_app_tab(int app_win_id, string mode_name);
+        public signal void create_app_tab(int tab_win_id, string mode_name);
         public signal void emit_scroll_event(Gdk.EventScroll event);
         public signal void emit_button_press_event(Gdk.EventButton event);
         public signal void emit_button_release_event(Gdk.EventButton event);

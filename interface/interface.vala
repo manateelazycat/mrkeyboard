@@ -8,7 +8,7 @@ using Interface;
 namespace Interface {
     [DBus (name = "org.mrkeyboard.Daemon")]
     interface Daemon : Object {
-        public abstract void show_app_tab(int app_win_id, string mode_name, int tab_id, string buffer_id, string window_type) throws IOError;
+        public abstract void show_app_tab(int tab_win_id, string mode_name, int tab_id, string buffer_id, string window_type) throws IOError;
         public abstract void close_app_tab(string mode_name, string buffer_id) throws IOError;
         public abstract void rename_app_tab(string mode_name, string buffer_id, string tab_name, string tab_path) throws IOError;
         public abstract void new_app_tab(string app, string tab_path) throws IOError;
@@ -99,9 +99,9 @@ namespace Interface {
                 var buffer_id = get_buffer_id();
                 var window = new Application.Window(width, height, buffer_id, path);
                 
-                window.create_app_tab.connect((app_win_id, mode_name) => {
+                window.create_app_tab.connect((tab_win_id, mode_name) => {
                         try {
-                            daemon.show_app_tab(app_win_id, mode_name, tab_id, window.buffer_id, "origin");
+                            daemon.show_app_tab(tab_win_id, mode_name, tab_id, window.buffer_id, "origin");
                         } catch (IOError e) {
                             stderr.printf("%s\n", e.message);
                         }
@@ -154,9 +154,9 @@ namespace Interface {
                         
                         var clone_window = new Application.CloneWindow(width, height, parent_window_id, window.mode_name, window.buffer_id, path);
                         
-                        clone_window.create_app_tab.connect((app_win_id, mode_name) => {
+                        clone_window.create_app_tab.connect((tab_win_id, mode_name) => {
                                 try {
-                                    daemon.show_app_tab(app_win_id, mode_name, tab_id, clone_window.buffer_id, "clone");
+                                    daemon.show_app_tab(tab_win_id, mode_name, tab_id, clone_window.buffer_id, "clone");
                                 } catch (IOError e) {
                                     stderr.printf("%s\n", e.message);
                                 }

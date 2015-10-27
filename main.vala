@@ -9,8 +9,8 @@ public class DaemonServer : Object {
     private Widgets.Application app;
     private Widgets.WindowManager window_manager;
 
-    public void show_app_tab(int app_win_id, string mode_name, int tab_id, string buffer_id, string window_type) {
-        window_manager.show_tab(app_win_id, mode_name, tab_id, buffer_id, window_type);
+    public void show_app_tab(int tab_win_id, string mode_name, int tab_id, string buffer_id, string window_type) {
+        window_manager.show_tab(tab_win_id, mode_name, tab_id, buffer_id, window_type);
     }
     
     public void close_app_tab(string mode_name, string buffer_id) {
