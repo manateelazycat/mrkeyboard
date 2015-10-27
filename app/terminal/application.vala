@@ -31,6 +31,11 @@ namespace Application {
             term.child_exited.connect((t) => {
                     close_app_tab(mode_name, buffer_id);
                 });
+            term.button_press_event.connect((w, e) => {
+                    emit_button_press_event(e);
+                    
+                    return false;
+                });
             term.window_title_changed.connect((t) => {
                     string working_directory;
                     string[] spawn_args = {"readlink", "/proc/%i/cwd".printf(process_id)};

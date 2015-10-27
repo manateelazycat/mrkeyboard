@@ -46,6 +46,7 @@ namespace Widgets {
         
         public signal void destroy_buffer(int index, string buffer_id);
         public signal void focus_window(int xid);
+        public signal void press_tab(int tab_index);
         
         public Tabbar(string image_path) {
             add_events (Gdk.EventMask.BUTTON_PRESS_MASK
@@ -296,6 +297,8 @@ namespace Widgets {
                 if (press_x > draw_x && press_x < draw_x + get_tab_width(name_width)) {
                     if (press_x < draw_x + name_width + text_padding_x) {
                         select_nth_tab(counter);
+                        
+                        press_tab(counter);
                         return false;
                     }
                 }

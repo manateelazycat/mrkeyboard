@@ -12,6 +12,7 @@ namespace Interface {
         public signal void close_app_tab(string mode_name, string buffer_id);
         public signal void rename_app_tab(string mode_name, string buffer_id, string tab_name, string tab_path);
         public signal void new_app_tab(string app, string tab_path);
+        public signal void emit_button_press_event(Gdk.EventButton event);
         
         public Window(int width, int height, string bid, string path) {
             buffer_id = bid;

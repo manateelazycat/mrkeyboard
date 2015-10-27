@@ -12,6 +12,7 @@ namespace Interface {
         public abstract void close_app_tab(string mode_name, string buffer_id) throws IOError;
         public abstract void rename_app_tab(string mode_name, string buffer_id, string tab_name, string tab_path) throws IOError;
         public abstract void new_app_tab(string app, string tab_path) throws IOError;
+        public abstract void focus_app_tab(int tab_win_id) throws IOError;
         public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
         public signal void destroy_buffer(string buffer_id);
         public signal void destroy_windows(int[] window_ids);
@@ -28,6 +29,7 @@ namespace Interface {
         private HashMap<string, Interface.Window> buffer_window_map;
         private HashMap<string, HashSet<Interface.CloneWindow>> buffer_clone_map;
         private Daemon daemon;
+        private HashSet<int> button_press_simulate_set;
         
         public int init(string[] args) {
             if (GtkClutter.init(ref args) != Clutter.InitError.SUCCESS) {
@@ -71,6 +73,7 @@ namespace Interface {
             clone_window_list = new ArrayList<Interface.CloneWindow>();
             buffer_window_map = new HashMap<string, Interface.Window>();
             buffer_clone_map = new HashMap<string, HashSet<Interface.CloneWindow>>();
+            button_press_simulate_set = new HashSet<int>();
             
             create_window(args);
             
@@ -127,6 +130,18 @@ namespace Interface {
                             stderr.printf("%s\n", e.message);
                         }
                     });
+                window.emit_button_press_event.connect((e) => {
+                        try {
+                            if (button_press_simulate_set.contains(window.window_id)) {
+                                button_press_simulate_set.remove(window.window_id);
+                            } else {
+                                daemon.focus_app_tab(window.window_id);
+                                button_press_simulate_set.clear();
+                            }
+                        } catch (IOError e) {
+                            stderr.printf("%s\n", e.message);
+                        }
+                    });
                 window.show_all();
                 
                 window_list.add(window);
@@ -166,6 +181,12 @@ namespace Interface {
                             });
                         clone_window.emit_button_press_event.connect((e) => {
                                 handle_emit_button_event(clone_window, e);
+                                
+                                try {
+                                    daemon.focus_app_tab(clone_window.window_id);
+                                } catch (IOError e) {
+                                    stderr.printf("%s\n", e.message);
+                                }
                             });
                         clone_window.emit_button_release_event.connect((e) => {
                                 handle_emit_button_event(clone_window, e);
@@ -296,6 +317,10 @@ namespace Interface {
             if (wid != null) {
                 var win = get_match_window_with_id(wid);
                 if (win != null) {
+                    if (e.type == Gdk.EventType.BUTTON_PRESS) {
+                        button_press_simulate_set.add(wid);
+                    }
+                    
                     Gdk.EventButton* event;
                     event = (Gdk.EventButton*) new Gdk.Event(e.type);
                     // Change event gdk window.

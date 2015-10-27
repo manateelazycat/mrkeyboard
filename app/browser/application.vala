@@ -60,6 +60,11 @@ namespace Application {
                     
                     return false;
                 });
+            webview.button_press_event.connect((w, e) => {
+                    emit_button_press_event(e);
+                    
+                    return false;
+                });
             
             scrolled_window = new ScrolledWindow(null, null);
             scrolled_window.add(webview);

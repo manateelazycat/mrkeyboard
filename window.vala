@@ -48,6 +48,12 @@ namespace Widgets {
             tabbar.focus_window.connect((xid) => {
                     visible_tab(xid);
                 });
+            tabbar.press_tab.connect((tab_index) => {
+                    var tab_id = tabbar.tab_list.get(tab_index);
+                    var tab_xid = tabbar.tab_xid_map.get(tab_id);
+                    
+                    window_manager.focus_window_with_tab(tab_xid);
+                });
             
             show_all();
             window_manager.add(this);

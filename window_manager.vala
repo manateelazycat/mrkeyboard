@@ -62,6 +62,19 @@ namespace Widgets {
             }
         }
         
+        public bool focus_window_with_tab(int tab_win_id) {
+            foreach (Window window in window_list) {
+                foreach (var entry in window.tabbar.tab_xid_map.entries) {
+                    if (entry.value == tab_win_id) {
+                        set_focus_window(window);
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
         private void create_first_window() {
             var window = new Widgets.Window(this);
             window.set_allocate(this, 0, 0, this.get_allocated_width(), this.get_allocated_height());

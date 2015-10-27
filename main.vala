@@ -25,6 +25,10 @@ public class DaemonServer : Object {
         window_manager.new_tab(app, tab_path);
     }
     
+    public void focus_app_tab(int tab_win_id) {
+        window_manager.focus_window_with_tab(tab_win_id);
+    }
+    
     public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
     public signal void destroy_buffer(string buffer_id);
     public signal void destroy_windows(int[] window_ids);
