@@ -21,7 +21,6 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 ## TODO
 
 * Make browser support flash.
-* Add tab spinner protocol.
 * Write js vimium plugin.
 * Add editor application to test multi-view protocol.
 * Design search framework.

@@ -75,6 +75,12 @@ namespace Widgets {
             return false;
         }
         
+        public void update_tab_percent(string buffer_id, int percent) {
+            foreach (Window window in window_list) {
+                window.tabbar.percent_tab(buffer_id, percent);
+            }
+        }
+        
         private void create_first_window() {
             var window = new Widgets.Window(this);
             window.set_allocate(this, 0, 0, this.get_allocated_width(), this.get_allocated_height());

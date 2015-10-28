@@ -29,6 +29,10 @@ public class DaemonServer : Object {
         window_manager.focus_window_with_tab(tab_win_id);
     }
     
+    public void percent_app_tab(string buffer_id, int percent) {
+        window_manager.update_tab_percent(buffer_id, percent);
+    }
+    
     public signal void send_key_event(int window_id, uint key_val, uint key_state, int hardware_keycode, uint32 key_time, bool press);
     public signal void destroy_buffer(string buffer_id);
     public signal void destroy_windows(int[] window_ids);

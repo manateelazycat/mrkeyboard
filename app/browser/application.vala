@@ -68,6 +68,9 @@ namespace Application {
                     
                     return false;
                 });
+            webview.load_progress_changed.connect((w, p) => {
+                    percent_app_tab(buffer_id, p);
+                });
             
             scrolled_window = new ScrolledWindow(null, null);
             scrolled_window.add(webview);

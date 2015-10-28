@@ -15,6 +15,7 @@ namespace Widgets {
         public HashMap<int, string> tab_path_map;
         public HashMap<int, string> tab_app_map;
         public HashMap<int, string> tab_window_type_map;
+        public HashMap<int, int> tab_percent_map;
         public int height = 28;
         public int tab_index = 0;
         
@@ -26,6 +27,7 @@ namespace Widgets {
         public Gdk.Color hover_arrow_color = Utils.color_from_hex("#494943");
         public Gdk.Color text_color = Utils.color_from_hex("#aaaaaa");
         public Gdk.Color hover_text_color = Utils.color_from_hex("#ffffff");
+        public Gdk.Color percent_color = Utils.color_from_hex("#3880AB");
         
         private Cairo.ImageSurface hover_surface;
         private Cairo.ImageSurface normal_surface;
@@ -61,6 +63,7 @@ namespace Widgets {
             tab_buffer_map = new HashMap<int, string>();
             tab_window_type_map = new HashMap<int, string>();
             tab_app_map = new HashMap<int, string>();
+            tab_percent_map = new HashMap<int, int>();
             
             set_size_request(-1, height);
             
@@ -104,6 +107,27 @@ namespace Widgets {
                     tab_name_map.set(name_entry.key, tab_name);
                     tab_path_map.set(name_entry.key, tab_path);
                     queue_draw();
+                    
+                    break;
+                }
+            }
+        }
+        
+        public void percent_tab(string buffer_id, int percent) {
+            foreach (var name_entry in tab_buffer_map.entries) {
+                if (name_entry.value == buffer_id) {
+                    tab_percent_map.set(name_entry.key, percent);
+                    queue_draw();
+                    
+                    // We need remove percent later once reach 100% percent.
+                    if (percent == 100) {
+                        GLib.Timeout.add(500, () => {
+                                tab_percent_map.unset(name_entry.key);
+                                queue_draw();
+                                
+                                return false;
+                            });
+                    }
                     
                     break;
                 }
@@ -504,6 +528,12 @@ namespace Widgets {
                         Utils.set_context_color(cr, inactive_tab_color);
                     }
                     Draw.draw_rectangle(cr, draw_x, 0, get_tab_width(name_width), height);
+                }
+                
+                int? percent = tab_percent_map.get(tab_id);
+                if (percent != null) {
+                    Utils.set_context_color(cr, percent_color);
+                    Draw.draw_rectangle(cr, draw_x, height - 2, get_tab_width(name_width) * percent / 100, 2);
                 }
                 
                 draw_x += text_padding_x;
