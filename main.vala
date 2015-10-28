@@ -97,12 +97,12 @@ public class DaemonServer : Object {
                     window_manager.focus_down_window();
                 } else if (keyevent_name == "Alt + k") {
                     window_manager.focus_up_window();
-                } else if (keyevent_name == "Alt + J") {
+                } else if (keyevent_name == "Alt + J" || keyevent_name == "Page_Down") {
                     var xid = window_manager.get_focus_tab_xid();
                     if (xid != null) {
                         scroll_vertical_up(xid);
                     }
-                } else if (keyevent_name == "Alt + K") {
+                } else if (keyevent_name == "Alt + K" || keyevent_name == "Page_Up") {
                     var xid = window_manager.get_focus_tab_xid();
                     if (xid != null) {
                         scroll_vertical_down(xid);
