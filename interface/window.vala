@@ -41,7 +41,7 @@ namespace Interface {
             return "";
         }
         
-        public void handle_key_event(uint key_val, int key_state, uint32 key_time, bool press) {
+        public void handle_key_event(uint key_val, uint key_state, int hardware_keycode, uint32 key_time, bool press) {
             Gdk.EventKey* event;
             if (press) {
                 event = (Gdk.EventKey*) new Gdk.Event(Gdk.EventType.KEY_PRESS);
@@ -53,6 +53,7 @@ namespace Interface {
             event->keyval = key_val;
             event->state = (Gdk.ModifierType) key_state;
             event->time = key_time;
+            event->hardware_keycode = (uint16) hardware_keycode;
             ((Gdk.Event*) event)->put();
         }
         

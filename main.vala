@@ -29,7 +29,7 @@ public class DaemonServer : Object {
         window_manager.focus_window_with_tab(tab_win_id);
     }
     
-    public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
+    public signal void send_key_event(int window_id, uint key_val, uint key_state, int hardware_keycode, uint32 key_time, bool press);
     public signal void destroy_buffer(string buffer_id);
     public signal void destroy_windows(int[] window_ids);
     public signal void reparent_window(int window_id);
@@ -110,7 +110,7 @@ public class DaemonServer : Object {
                 } else {
                     var xid = window_manager.get_focus_tab_xid();
                     if (xid != null) {
-                        send_key_event(xid, e.keyval, e.state, e.time, true);
+                        send_key_event(xid, e.keyval, e.state, e.hardware_keycode, e.time, true);
                     }
                 }
                 
@@ -119,7 +119,7 @@ public class DaemonServer : Object {
         window_manager.key_release_event.connect((w, e) => {
                 var xid = window_manager.get_focus_tab_xid();
                 if (xid != null) {
-                    send_key_event(xid, e.keyval, e.state, e.time, false);
+                    send_key_event(xid, e.keyval, e.state, e.hardware_keycode, e.time, false);
                 }
                 
                 return true;

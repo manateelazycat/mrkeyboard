@@ -13,7 +13,7 @@ namespace Interface {
         public abstract void rename_app_tab(string mode_name, string buffer_id, string tab_name, string tab_path) throws IOError;
         public abstract void new_app_tab(string app, string tab_path) throws IOError;
         public abstract void focus_app_tab(int tab_win_id) throws IOError;
-        public signal void send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press);
+        public signal void send_key_event(int window_id, uint key_val, uint key_state, int hardware_keycode, uint32 key_time, bool press);
         public signal void destroy_buffer(string buffer_id);
         public signal void destroy_windows(int[] window_ids);
         public signal void reparent_window(int window_id);
@@ -40,8 +40,8 @@ namespace Interface {
                 daemon = Bus.get_proxy_sync(BusType.SESSION, "org.mrkeyboard.Daemon",
                                                             "/org/mrkeyboard/daemon");
             
-                daemon.send_key_event.connect((focus_window, key_val, key_state, key_time, press) => {
-                        handle_send_key_event(focus_window, key_val, key_state, key_time, press);
+                daemon.send_key_event.connect((focus_window, key_val, key_state, hardware_keycode, key_time, press) => {
+                        handle_send_key_event(focus_window, key_val, key_state, hardware_keycode, key_time, press);
                     });
                 daemon.destroy_windows.connect((window_id) => {
                         handle_destroy_windows(window_id);
@@ -228,12 +228,12 @@ namespace Interface {
             return null;
         }
         
-        private void handle_send_key_event(int window_id, uint key_val, int key_state, uint32 key_time, bool press) {
+        private void handle_send_key_event(int window_id, uint key_val, uint key_state, int hardware_keycode, uint32 key_time, bool press) {
             var wid = get_parent_window_id(window_id);
             if (wid != null) {
                 var window = get_match_window_with_id(wid);
                 if (window != null) {
-                    window.handle_key_event(key_val, key_state, key_time, press);
+                    window.handle_key_event(key_val, key_state, hardware_keycode, key_time, press);
                 }
             }
         }
