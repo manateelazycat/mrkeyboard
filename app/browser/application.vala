@@ -29,8 +29,11 @@ namespace Application {
         
         public override void init() {
             webview = new WebView();
+
+            setup_cookie();
+            
             if (buffer_path.length == 0) {
-                webview.load_uri("http://www.baidu.com");
+                webview.load_uri("http://www.google.com");
             } else {
                 webview.load_uri(buffer_path);
             }
@@ -70,6 +73,20 @@ namespace Application {
             scrolled_window.add(webview);
             
             box.pack_start(scrolled_window, true, true, 0);
+        }
+
+        private void setup_cookie() {
+            var cookie_dir = GLib.File.new_for_path("%s/.mrkeyboard/".printf(Environment.get_home_dir()));
+            if (!cookie_dir.query_exists ()) {
+                try {
+                    cookie_dir.make_directory_with_parents (null);
+                } catch (GLib.Error err) {
+                    print("Could not create cookie dir: %s\n", err.message);
+                }
+            }            
+            var session = WebKit.get_default_session();
+            var cookiejar = new Soup.CookieJarText(GLib.Path.build_filename(cookie_dir.get_path(), "browser.cookie"), false);
+            session.add_feature(cookiejar);
         }
 
         public override void scroll_vertical(bool scroll_up) {
