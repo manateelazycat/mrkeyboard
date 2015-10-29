@@ -1,4 +1,6 @@
 using Gtk;
+using Gdk;
+using Utils;
 
 namespace Application {
     const string app_name = "editor";
@@ -26,6 +28,8 @@ namespace Application {
         
         public override void init() {
             sourceview = new Gtk.SourceView();
+            sourceview.cursor_visible = true;
+            sourceview.highlight_current_line = true;
             
             scrolled_window = new ScrolledWindow(null, null);
             scrolled_window.add(sourceview);

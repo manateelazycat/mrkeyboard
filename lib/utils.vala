@@ -63,9 +63,9 @@ namespace Utils {
         return (px < rect_start_x || px > rect_end_x || py < rect_start_y || py > rect_end_y);
     }
 
-    public Gdk.Color color_from_hex(string hex_color) {
+    public Gdk.Color color_from_string(string color_string) {
         Gdk.Color color;
-        Gdk.Color.parse(hex_color, out color);
+        Gdk.Color.parse(color_string, out color);
         
         return color;
     }

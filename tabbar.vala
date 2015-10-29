@@ -19,15 +19,15 @@ namespace Widgets {
         public int height = 28;
         public int tab_index = 0;
         
-        public Gdk.Color background_color = Utils.color_from_hex("#171814");
-        public Gdk.Color active_tab_color = Utils.color_from_hex("#272822");
-        public Gdk.Color inactive_tab_color = Utils.color_from_hex("#393937");
-        public Gdk.Color hover_tab_color = Utils.color_from_hex("#494943");
-        public Gdk.Color inactive_arrow_color = Utils.color_from_hex("#393937");
-        public Gdk.Color hover_arrow_color = Utils.color_from_hex("#494943");
-        public Gdk.Color text_color = Utils.color_from_hex("#aaaaaa");
-        public Gdk.Color hover_text_color = Utils.color_from_hex("#ffffff");
-        public Gdk.Color percent_color = Utils.color_from_hex("#3880AB");
+        public Gdk.Color background_color = Utils.color_from_string("#171814");
+        public Gdk.Color active_tab_color = Utils.color_from_string("#272822");
+        public Gdk.Color inactive_tab_color = Utils.color_from_string("#393937");
+        public Gdk.Color hover_tab_color = Utils.color_from_string("#494943");
+        public Gdk.Color inactive_arrow_color = Utils.color_from_string("#393937");
+        public Gdk.Color hover_arrow_color = Utils.color_from_string("#494943");
+        public Gdk.Color text_color = Utils.color_from_string("#aaaaaa");
+        public Gdk.Color hover_text_color = Utils.color_from_string("#ffffff");
+        public Gdk.Color percent_color = Utils.color_from_string("#3880AB");
         
         private Cairo.ImageSurface hover_surface;
         private Cairo.ImageSurface normal_surface;
