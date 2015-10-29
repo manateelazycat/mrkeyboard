@@ -147,7 +147,7 @@ namespace Widgets {
                 var tab_name = names.get(counter);
                 var tab_path = paths.get(counter);
                 
-                tab_id_counter += 1;
+                tab_id_counter++;
                 clone_window.tabbar.add_tab(tab_name, tab_path, tab_id_counter, app);
                 start_app_process(
                     app,
@@ -506,7 +506,7 @@ namespace Widgets {
                 
                 var window_child_size = window.get_child_allocate();
                 
-                tab_id_counter += 1;
+                tab_id_counter++;
                 if (visible_tab) {
                     tab_visible_set.add(tab_id_counter);
                 }
@@ -822,23 +822,22 @@ namespace Widgets {
         
         private void sync_windows(Widgets.Window current_window) {
             var current_buffers = current_window.tabbar.get_all_buffers();
-            var current_apps = current_window.tabbar.get_all_apps();
             foreach (Widgets.Window window in window_list) {
                 if (window != current_window && window.mode_name == current_window.mode_name) {
                     var buffers = window.tabbar.get_all_buffers();
-                    var names = window.tabbar.get_all_names();
-                    var paths = window.tabbar.get_all_paths();
+                    var clone_names = current_window.tabbar.get_all_names()[buffers.size:current_buffers.size];
+                    var clone_paths = current_window.tabbar.get_all_paths()[buffers.size:current_buffers.size];
+                    var clone_apps = current_window.tabbar.get_all_apps()[buffers.size:current_buffers.size];
                     var clone_buffers = current_buffers[buffers.size:current_buffers.size];
-                    var clone_apps = current_apps[buffers.size:current_buffers.size];
 
                     int counter = 0; 
                     foreach (string clone_buffer in clone_buffers) {
                         var app = clone_apps.get(counter);
                         var window_child_size = window.get_child_allocate();
-                        var tab_name = names.get(counter);
-                        var tab_path = paths.get(counter);
+                        var tab_name = clone_names.get(counter);
+                        var tab_path = clone_paths.get(counter);
                         
-                        tab_id_counter += 1;
+                        tab_id_counter++;
                         window.tabbar.add_tab(tab_name, tab_path, tab_id_counter, app);
                         start_app_process(
                             app,

@@ -329,7 +329,7 @@ namespace Widgets {
                 
                 draw_x += name_width + close_button_width + text_padding_x;
                 
-                counter += 1;
+                counter++;
             }
             
             queue_draw();
@@ -367,7 +367,7 @@ namespace Widgets {
                 
                 draw_x += name_width + close_button_width + text_padding_x;
                 
-                counter += 1;
+                counter++;
             }
             
             queue_draw();
@@ -432,7 +432,7 @@ namespace Widgets {
                         }
                     }
                     
-                    counter += 1;
+                    counter++;
                 }
                 
                 return draw_offset;
@@ -557,7 +557,7 @@ namespace Widgets {
                 
                 draw_x += name_width + close_button_width + text_padding_x;
                 
-                counter += 1;
+                counter++;
             }
             
             return true;
