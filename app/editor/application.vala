@@ -18,6 +18,7 @@ namespace Application {
 
     public class Window : Interface.Window {
         public Gtk.SourceView sourceview;
+        public ScrolledWindow scrolled_window;
         
         public Window(int width, int height, string bid, string path) {
             base(width, height, bid, path);
@@ -26,11 +27,14 @@ namespace Application {
         public override void init() {
             sourceview = new Gtk.SourceView();
             
-            box.pack_start(sourceview, true, true, 0);
+            scrolled_window = new ScrolledWindow(null, null);
+            scrolled_window.add(sourceview);
+            
+            box.pack_start(scrolled_window, true, true, 0);
         }        
         
         public override void scroll_vertical(bool scroll_up) {
-            var vadj = sourceview.get_vadjustment();
+            var vadj = scrolled_window.get_vadjustment();
             var value = vadj.get_value();
             var lower = vadj.get_lower();
             var upper = vadj.get_upper();
