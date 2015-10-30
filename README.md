@@ -20,6 +20,7 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
+* Refactory code for clone window.
 * Add editor application to test multi-view protocol.
 * Make browser support flash.
 * Write js vimium plugin.
