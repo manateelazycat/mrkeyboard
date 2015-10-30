@@ -22,14 +22,20 @@ namespace Application {
         public Gtk.SourceView sourceview;
         public ScrolledWindow scrolled_window;
         
-        public Window(int width, int height, string bid, string path) {
-            base(width, height, bid, path);
+        public Window(int width, int height, string bid, string path, Buffer buf) {
+            base(width, height, bid, path, buf);
         }
         
         public override void init() {
-            sourceview = new Gtk.SourceView();
+            sourceview = new Gtk.SourceView.with_buffer(buffer.source_buffer);
             sourceview.cursor_visible = true;
             sourceview.highlight_current_line = true;
+            
+            sourceview.button_press_event.connect((w, e) => {
+                    emit_button_press_event(e);
+                    
+                    return false;
+                });
             
             scrolled_window = new ScrolledWindow(null, null);
             scrolled_window.add(sourceview);
@@ -58,6 +64,16 @@ namespace Application {
         
         public override Gdk.Window get_event_window() {
             return sourceview.get_window(Gtk.TextWindowType.WIDGET);
+        }
+    }
+
+    public class Buffer : Interface.Buffer {
+        public Gtk.SourceBuffer source_buffer;
+        
+        public Buffer() {
+            base();
+            
+            source_buffer = new Gtk.SourceBuffer(null);
         }
     }
 

@@ -637,6 +637,15 @@ namespace Widgets {
             
             return paths;
         }
+
+        public ArrayList<string> get_all_types() {
+            ArrayList<string> types = new ArrayList<string>();
+            foreach (int index in tab_list) {
+                types.add(tab_window_type_map.get(index));
+            }
+            
+            return types;
+        }
         
         public void switch_tab(int new_index) {
             var new_xid = tab_xid_map.get(tab_list.get(new_index));

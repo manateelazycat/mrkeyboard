@@ -141,11 +141,21 @@ namespace Widgets {
             var apps = window.tabbar.get_all_apps();
             var names = window.tabbar.get_all_names();
             var paths = window.tabbar.get_all_paths();
+            var types = window.tabbar.get_all_types();
+            var buffers = window.tabbar.get_all_buffers();
             var counter = 0;
             foreach (int xid in windows_ids) {
                 var app = apps.get(counter);
                 var tab_name = names.get(counter);
                 var tab_path = paths.get(counter);
+                var buffer_id = buffers.get(counter);
+                var window_type = types.get(counter);
+                string last_arg = "";
+                if (window_type == "multiview") {
+                    last_arg = buffer_id;
+                } else {
+                    last_arg = xid.to_string();
+                }
                 
                 tab_id_counter++;
                 clone_window.tabbar.add_tab(tab_name, tab_path, tab_id_counter, app);
@@ -154,7 +164,7 @@ namespace Widgets {
                     tab_path,
                     clone_window.get_child_width(clone_window_width),
                     clone_window.get_child_height(clone_window_height),
-                    xid.to_string());
+                    last_arg);
                 
                 counter++;
             }
@@ -695,7 +705,15 @@ namespace Widgets {
                                             var tab_name = win.tabbar.tab_name_map.get(tab_id);
                                             var tab_path = win.tabbar.tab_path_map.get(tab_id);
                                             var app = win.tabbar.tab_app_map.get(tab_id);
+                                            var window_type = win.tabbar.tab_window_type_map.get(tab_id);
+                                            var tab_buffer_id = win.tabbar.tab_buffer_map.get(tab_id);
                                             var window_child_size = window.get_child_allocate();
+                                            string last_arg = "";
+                                            if (window_type == "multiview") {
+                                                last_arg = tab_buffer_id;
+                                            } else {
+                                                last_arg = window_xid.to_string();
+                                            }
                                             
                                             window.tabbar.add_tab(tab_name, tab_path, tab_id_counter, app);
                                             start_app_process(
@@ -703,7 +721,7 @@ namespace Widgets {
                                                 tab_path,
                                                 window_child_size[0],
                                                 window_child_size[1],
-                                                window_xid.to_string());
+                                                last_arg);
                                         }
                                     }
                                 }
