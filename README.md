@@ -20,6 +20,7 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
+* Fixed bug: split window, open three application, close terminal and browser, one of editor window can't display.
 * Make browser support flash.
 * Write js vimium plugin.
 * Design search framework.
