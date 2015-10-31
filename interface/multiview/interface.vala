@@ -245,21 +245,16 @@ namespace Interface {
         }
         
         private void handle_destroy_buffer(string buffer_id) {
-            var window = buffer_window_map.get(buffer_id);
-            if (window != null) {
-                buffer_window_map.unset(window.buffer_id);
-                window_list.remove(window);
-                window.destroy();
+            var match_windows = new ArrayList<Interface.Window>();
+            foreach (Interface.Window window in window_list) {
+                if (window.buffer_id == buffer_id) {
+                    match_windows.add(window);
+                }
             }
             
-            var clone_windows = buffer_clone_map.get(buffer_id);
-            if (clone_windows != null) {
-                foreach (Interface.CloneWindow clone_window in clone_windows) {
-                    clone_window_list.remove(clone_window);
-                    clone_window.destroy();
-                }
-                
-                buffer_clone_map.unset(buffer_id);
+            foreach (Interface.Window window in match_windows) {
+                window_list.remove(window);
+                window.destroy();
             }
     
             try_quit();

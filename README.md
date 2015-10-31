@@ -21,7 +21,6 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 ## TODO
 
 * Test multiview: window_mode code.
-* Test multiview: close tab.
 * Test multiview: switch mode.
 * Test multiview: close current window.
 * Test multiview: close other window.
