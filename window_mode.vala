@@ -51,6 +51,7 @@ namespace WindowMode {
         }
         
         public void add_mode_tab(string mode_name, string buffer_id, int window_id) {
+            print("Add mode tab: %s %s %i\n", mode_name, buffer_id, window_id);
             var buffer_list = mode_buffer_map.get(mode_name);
             if (buffer_list != null) {
                 if (!buffer_list.contains(buffer_id)) {

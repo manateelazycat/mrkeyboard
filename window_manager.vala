@@ -377,12 +377,7 @@ namespace Widgets {
                     if (tab_window_type == "clone") {
                         destroy_window_ids += tab_xid;
                     } else if (tab_window_type == "origin") {
-                        ArrayList<Window> same_mode_windows = new ArrayList<Window>();
-                        foreach (Window win in window_list) {
-                            if (win != focus_window && win.mode_name == focus_window.mode_name) {
-                                same_mode_windows.add(win);
-                            }
-                        }
+                        ArrayList<Window> same_mode_windows = find_same_windows(focus_window);
                         
                         if (same_mode_windows.size == 0) {
                             hide_windows.add(tab_xid);
@@ -395,6 +390,15 @@ namespace Widgets {
                             destroy_window_ids += replace_window_tab_xid;
                             
                             replace_tab_map.set(replace_window_tab_id, tab_xid);
+                        }
+                    } else if (tab_window_type == "multiview") {
+                        ArrayList<Window> same_mode_windows = find_same_windows(focus_window);
+                        
+                        if (same_mode_windows.size == 0) {
+                            hide_windows.add(tab_xid);
+                            window_mode.add_hideinfo_tab(focus_window, tab_id);
+                        } else {
+                            destroy_window_ids += tab_xid;
                         }
                     }
                     
@@ -447,6 +451,17 @@ namespace Widgets {
                     }
                 }
             }
+        }
+        
+        private ArrayList<Window> find_same_windows(Window window) {
+            ArrayList<Window> same_mode_windows = new ArrayList<Window>();
+            foreach (Window win in window_list) {
+                if (win != window && win.mode_name == window.mode_name) {
+                    same_mode_windows.add(win);
+                }
+            }
+            
+            return same_mode_windows;
         }
         
         private Window? find_brother_window(Window window) {

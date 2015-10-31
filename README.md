@@ -20,9 +20,8 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
-* Test multiview: switch mode.
-* Test multiview: close current window.
 * Test multiview: close other window.
+* Test multiview: switch mode.
 * Refacotry code, pick same code between clone/interface.vala and multiview/interface.vala.
 * Make browser support flash.
 * Write js vimium plugin.
