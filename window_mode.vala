@@ -12,7 +12,7 @@ namespace WindowMode {
 
         public HashMap<string, ArrayList<string>> mode_buffer_map;
         public HashMap<string, HideInfo?> hide_info_map;
-        public HashMap<string, int> mode_window_map;
+        public HashMap<string, ArrayList<int>> mode_window_map;
         public HashMap<string, int> mode_focus_tab_map;
         public Xcb.Connection conn;
         
@@ -20,7 +20,7 @@ namespace WindowMode {
             conn = connection;
             hide_info_map = new HashMap<string, HideInfo?>();
             mode_buffer_map = new HashMap<string, ArrayList<string>>();
-            mode_window_map = new HashMap<string, int>();
+            mode_window_map = new HashMap<string, ArrayList<int>>();
             mode_focus_tab_map = new HashMap<string, int>();
         }
         
@@ -53,14 +53,23 @@ namespace WindowMode {
         public void add_mode_tab(string mode_name, string buffer_id, int window_id) {
             var buffer_list = mode_buffer_map.get(mode_name);
             if (buffer_list != null) {
-                buffer_list.add(buffer_id);
+                if (!buffer_list.contains(buffer_id)) {
+                    buffer_list.add(buffer_id);
+                }
             } else {
                 var list = new ArrayList<string>();
                 list.add(buffer_id);
                 mode_buffer_map.set(mode_name, list);
             }
-            
-            mode_window_map.set(buffer_id, window_id);
+
+            var window_list = mode_window_map.get(buffer_id);
+            if (window_list != null) {
+                window_list.add(window_id);
+            } else {
+                var list = new ArrayList<int>();
+                list.add(window_id);
+                mode_window_map.set(buffer_id, list);
+            }
         }
         
         public void remove_mode_tab(string mode_name, string buffer_id) {

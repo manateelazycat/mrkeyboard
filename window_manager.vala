@@ -680,7 +680,7 @@ namespace Widgets {
                     foreach (string buffer_id in buffer_list) {
                         tab_id_counter++;
                         
-                        var buffer_origin_window = window_mode.mode_window_map.get(buffer_id);
+                        var buffer_origin_window = window_mode.mode_window_map.get(buffer_id)[0];
                         var hide_info = window_mode.hide_info_map.get(buffer_id);
                         if (hide_info != null) {
                             if (buffer_origin_window == hide_info.tab_xid) {
@@ -815,7 +815,7 @@ namespace Widgets {
                     window.mode_name = mode_name;
                 }
                 
-                if (window_type == "origin") {
+                if (window_type == "origin" || window_type == "multiview") {
                     window_mode.add_mode_tab(mode_name, buffer_id, tab_win_id);
                 }
                 
