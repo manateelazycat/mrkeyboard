@@ -314,7 +314,7 @@ namespace Widgets {
                         var counter = 0;
                         foreach (int tab_id in window.tabbar.tab_list) {
                             var window_type = window.tabbar.tab_window_type_map.get(tab_id);
-                            if (window_type == "clone") {
+                            if (window_type == "clone" || window_type == "multiview") {
                                 destroy_window_ids += window.tabbar.tab_xid_map.get(tab_id);
                             } else if (window_type == "origin") {
                                 var focus_window_tab_id = focus_window.tabbar.tab_list.get(counter);
@@ -334,7 +334,7 @@ namespace Widgets {
                             
                             if (tab_window_type == "clone") {
                                 destroy_window_ids += tab_xid;
-                            } else if (tab_window_type == "origin") {
+                            } else if (tab_window_type == "origin" || tab_window_type == "multiview") {
                                 hide_windows.add(tab_xid);
                                 window_mode.add_hideinfo_tab(window, tab_id);
                             }
