@@ -620,6 +620,7 @@ namespace Widgets {
             if (window.mode_name != mode_name) {
                 // Record buffers of current mode.
                 int[] remove_clone_windows = {};
+                int[] remove_multiview_windows = {};
                 var hide_windows = new ArrayList<int>();
                 var replace_tab_map = new HashMap<int, int>();
                 int counter = 0;
@@ -649,6 +650,21 @@ namespace Widgets {
                             hide_windows.add(window_xid);
                             window_mode.add_hideinfo_tab(window, tab_id);
                         }
+                    } else if (window_type == "multiview") {
+                        var same_mode = false;
+                        foreach (Window win in window_list) {
+                            if (win != window && win.mode_name == window.mode_name) {
+                                same_mode = true;
+                                
+                                remove_multiview_windows += window_xid;
+                                break;
+                            }
+                        }
+                        
+                        if (!same_mode) {
+                            hide_windows.add(window_xid);
+                            window_mode.add_hideinfo_tab(window, tab_id);
+                        }
                     }
 
                     counter++;
@@ -657,6 +673,7 @@ namespace Widgets {
                 window_mode.rember_window_focus_tab(window_list, window);
                 
                 destroy_windows(remove_clone_windows);
+                destroy_windows(remove_multiview_windows);
                 
                 window_mode.hide_windows(hide_windows);
                 
@@ -695,18 +712,17 @@ namespace Widgets {
                     foreach (string buffer_id in buffer_list) {
                         tab_id_counter++;
                         
-                        var buffer_origin_window = window_mode.mode_window_map.get(buffer_id)[0];
+                        var buffer_origin_window = window_mode.mode_window_map.get(buffer_id);
                         var hide_info = window_mode.hide_info_map.get(buffer_id);
                         if (hide_info != null) {
-                            if (buffer_origin_window == hide_info.tab_xid) {
-                                
+                            if (buffer_origin_window.contains(hide_info.tab_xid)) {
                                 window.tabbar.add_tab(hide_info.tab_name, hide_info.tab_path, tab_id_counter, hide_info.tab_app);
                                 
                                 window.tabbar.set_tab_xid(tab_id_counter, hide_info.tab_xid);
                                 window.tabbar.set_tab_buffer(tab_id_counter, buffer_id);
-                                window.tabbar.set_tab_window_type(tab_id_counter, "origin");
+                                window.tabbar.set_tab_window_type(tab_id_counter, hide_info.tab_window_type);
                                 
-                                window_mode.show_window(buffer_origin_window);
+                                window_mode.show_window(hide_info.tab_xid);
                                 window_mode.remove_hideinfo_tab(buffer_id);
                                 
                                 window.visible_tab(hide_info.tab_xid);
@@ -716,7 +732,7 @@ namespace Widgets {
                                 if (win != window) {
                                     foreach (int tab_id in win.tabbar.tab_list) {
                                         var window_xid = win.tabbar.tab_xid_map.get(tab_id);
-                                        if (window_xid == buffer_origin_window) {
+                                        if (buffer_origin_window.contains(window_xid)) {
                                             var tab_name = win.tabbar.tab_name_map.get(tab_id);
                                             var tab_path = win.tabbar.tab_path_map.get(tab_id);
                                             var app = win.tabbar.tab_app_map.get(tab_id);

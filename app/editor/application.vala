@@ -76,14 +76,4 @@ namespace Application {
             source_buffer = new Gtk.SourceBuffer(null);
         }
     }
-
-    public class CloneWindow : Interface.CloneWindow {
-        public CloneWindow(int width, int height, int pwid, string mode_name, string bid, string path) {
-            base(width, height, pwid, mode_name, bid, path);
-        }
-        
-        public override string get_background_color() {
-            return "white";
-        }
-    }
 }

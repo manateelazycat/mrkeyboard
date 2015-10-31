@@ -8,6 +8,7 @@ namespace WindowMode {
             public string tab_name;
             public string tab_path;
             public string tab_app;
+            public string tab_window_type;
         }
 
         public HashMap<string, ArrayList<string>> mode_buffer_map;
@@ -27,10 +28,12 @@ namespace WindowMode {
         public void add_hideinfo_tab(Window window, int tab_id) {
             hide_info_map.set(
                 window.tabbar.tab_buffer_map.get(tab_id),
-                HideInfo () {tab_xid = window.tabbar.tab_xid_map.get(tab_id),
-                             tab_name = window.tabbar.tab_name_map.get(tab_id),
-                             tab_path = window.tabbar.tab_path_map.get(tab_id),
-                             tab_app = window.tabbar.tab_app_map.get(tab_id)
+                HideInfo () {
+                    tab_xid = window.tabbar.tab_xid_map.get(tab_id),
+                    tab_name = window.tabbar.tab_name_map.get(tab_id),
+                    tab_path = window.tabbar.tab_path_map.get(tab_id),
+                    tab_app = window.tabbar.tab_app_map.get(tab_id),
+                    tab_window_type = window.tabbar.tab_window_type_map.get(tab_id)
                 });
         }
         

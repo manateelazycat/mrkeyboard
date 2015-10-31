@@ -26,9 +26,6 @@ namespace Interface {
     
     public class ClientServer : Application.ClientServer {
         private ArrayList<Interface.Window> window_list;
-        private ArrayList<Interface.CloneWindow> clone_window_list;
-        private HashMap<string, Interface.Window> buffer_window_map;
-        private HashMap<string, HashSet<Interface.CloneWindow>> buffer_clone_map;
         private Daemon daemon;
         private HashMap<string, Application.Buffer> buffer_map;
         
@@ -68,9 +65,6 @@ namespace Interface {
             }    
             
             window_list = new ArrayList<Interface.Window>();
-            clone_window_list = new ArrayList<Interface.CloneWindow>();
-            buffer_window_map = new HashMap<string, Interface.Window>();
-            buffer_clone_map = new HashMap<string, HashSet<Interface.CloneWindow>>();
             buffer_map = new HashMap<string, Application.Buffer>();
             
             create_window(args);
@@ -169,7 +163,6 @@ namespace Interface {
             window.show_all();
             
             window_list.add(window);
-            buffer_window_map.set(buffer_id, window);
         }
         
         private void handle_send_key_event(int window_id, uint key_val, uint key_state, int hardware_keycode, uint32 key_time, bool press) {
@@ -202,19 +195,8 @@ namespace Interface {
                     }
                 }
     
-                ArrayList<Interface.CloneWindow> destroy_clone_windows = new ArrayList<Interface.CloneWindow>();
-                foreach (Interface.CloneWindow clone_window in clone_window_list) {
-                    if (clone_window.window_id == destroy_window_id) {
-                        destroy_clone_windows.add(clone_window);
-                    }
-                }
-                
                 foreach (Interface.Window window in destroy_windows) {
                     destroy_window(window);
-                }
-    
-                foreach (Interface.CloneWindow clone_window in destroy_clone_windows) {
-                    destroy_clone_window(clone_window);
                 }
             }
             
@@ -222,26 +204,8 @@ namespace Interface {
         }
         
         private void destroy_window(Interface.Window window) {
-            buffer_window_map.unset(window.buffer_id);
             window_list.remove(window);
             window.destroy();
-        }
-        
-        private bool destroy_clone_window(CloneWindow clone_window) {
-            clone_window_list.remove(clone_window);
-            clone_window.destroy();
-                    
-            var clone_window_set = buffer_clone_map.get(clone_window.buffer_id);
-            if (clone_window_set != null) {
-                clone_window_set.remove(clone_window);
-                if (clone_window_set.size == 0) {
-                    buffer_clone_map.unset(clone_window.buffer_id);
-                }
-                        
-                return true;
-            }
-            
-            return true;
         }
         
         private void handle_destroy_buffer(string buffer_id) {
@@ -262,10 +226,6 @@ namespace Interface {
         
         private void try_quit() {
             if (window_list.size == 0) {
-                if (clone_window_list.size != 0 || buffer_window_map.size != 0 || buffer_clone_map.size != 0) {
-                    print("It's something wrong with clone_window_list or buffer_window_map or buffer_clone_map.\n");
-                }
-                
                 print("All app window destroy, exit %s app process.\n", Application.app_name);
                 Gtk.main_quit();
             }
