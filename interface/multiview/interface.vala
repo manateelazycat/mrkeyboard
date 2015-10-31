@@ -85,7 +85,6 @@ namespace Interface {
         }
         
         public override void create_window(string[] args, bool from_dbus=false) {
-            print("create_window: %i\n", args.length);
             if (args.length == 5) {
                 var path = args[1];
                 var width = int.parse(args[2]);
@@ -96,7 +95,6 @@ namespace Interface {
                 var buffer = new Application.Buffer();
                 
                 buffer_map.set(buffer_id, buffer);
-                print("create_window add buffer_id: %s\n", buffer_id);
 
                 new_window(width, height, tab_id, buffer_id, path, buffer);
             } else if (args.length == 6) {
@@ -105,7 +103,6 @@ namespace Interface {
                 var height = int.parse(args[3]);
                 var tab_id = int.parse(args[4]);
                 var buffer_id = args[5];
-                print("create_window buffer_id: %s\n", buffer_id);
                 
                 var buffer = buffer_map.get(buffer_id);
                 if (buffer != null) {
@@ -120,7 +117,6 @@ namespace Interface {
             window.create_app_tab.connect((tab_win_id, mode_name) => {
                     try {
                         daemon.show_app_tab(tab_win_id, mode_name, tab_id, window.buffer_id, "multiview");
-                        print("show_app_tab: %i %s %i %s %s\n", tab_win_id, mode_name, tab_id, window.buffer_id, "multiview");
                     } catch (IOError e) {
                         stderr.printf("%s\n", e.message);
                     }

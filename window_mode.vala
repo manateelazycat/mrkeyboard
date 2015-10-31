@@ -54,7 +54,6 @@ namespace WindowMode {
         }
         
         public void add_mode_tab(string mode_name, string buffer_id, int window_id) {
-            print("Add mode tab: %s %s %i\n", mode_name, buffer_id, window_id);
             var buffer_list = mode_buffer_map.get(mode_name);
             if (buffer_list != null) {
                 if (!buffer_list.contains(buffer_id)) {
@@ -73,6 +72,13 @@ namespace WindowMode {
                 var list = new ArrayList<int>();
                 list.add(window_id);
                 mode_window_map.set(buffer_id, list);
+            }
+        }
+        
+        public void remove_mode_window(string buffer_id, int window_id) {
+            var window_list = mode_window_map.get(buffer_id);
+            if (window_list != null && window_list.contains(window_id)) {
+                window_list.remove(window_id);
             }
         }
         

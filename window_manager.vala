@@ -314,7 +314,10 @@ namespace Widgets {
                         var counter = 0;
                         foreach (int tab_id in window.tabbar.tab_list) {
                             var window_type = window.tabbar.tab_window_type_map.get(tab_id);
-                            if (window_type == "clone" || window_type == "multiview") {
+                            var buffer_id = window.tabbar.tab_buffer_map.get(tab_id);
+                            var window_id = window.tabbar.tab_xid_map.get(tab_id);
+                            
+                            if (window_type == "clone") {
                                 destroy_window_ids += window.tabbar.tab_xid_map.get(tab_id);
                             } else if (window_type == "origin") {
                                 var focus_window_tab_id = focus_window.tabbar.tab_list.get(counter);
@@ -323,6 +326,9 @@ namespace Widgets {
                                 
                                 var tab_xid = window.tabbar.tab_xid_map.get(tab_id);
                                 replace_tab_map.set(focus_window_tab_id, tab_xid);
+                            } else if (window_type == "multiview") {
+                                destroy_window_ids += window_id;
+                                window_mode.remove_mode_window(buffer_id, window_id);
                             }
                             
                             counter++;
@@ -373,6 +379,7 @@ namespace Widgets {
                 foreach (int tab_id in focus_window.tabbar.tab_list) {
                     var tab_xid = focus_window.tabbar.tab_xid_map.get(tab_id);
                     var tab_window_type = focus_window.tabbar.tab_window_type_map.get(tab_id);
+                    var tab_buffer_id = focus_window.tabbar.tab_buffer_map.get(tab_id);
                     
                     if (tab_window_type == "clone") {
                         destroy_window_ids += tab_xid;
@@ -399,6 +406,7 @@ namespace Widgets {
                             window_mode.add_hideinfo_tab(focus_window, tab_id);
                         } else {
                             destroy_window_ids += tab_xid;
+                            window_mode.remove_mode_window(tab_buffer_id, tab_xid);
                         }
                     }
                     
@@ -627,6 +635,7 @@ namespace Widgets {
                 foreach (int tab_id in window.tabbar.tab_list) {
                     var window_type = window.tabbar.tab_window_type_map.get(tab_id);
                     var window_xid = window.tabbar.tab_xid_map.get(tab_id);
+                    var window_buffer_id = window.tabbar.tab_buffer_map.get(tab_id);
                     
                     if (window_type == "clone") {
                         remove_clone_windows += window_xid;
@@ -657,6 +666,7 @@ namespace Widgets {
                                 same_mode = true;
                                 
                                 remove_multiview_windows += window_xid;
+                                window_mode.remove_mode_window(window_buffer_id, window_xid);
                                 break;
                             }
                         }
@@ -712,10 +722,10 @@ namespace Widgets {
                     foreach (string buffer_id in buffer_list) {
                         tab_id_counter++;
                         
-                        var buffer_origin_window = window_mode.mode_window_map.get(buffer_id);
+                        var buffer_windows = window_mode.mode_window_map.get(buffer_id);
                         var hide_info = window_mode.hide_info_map.get(buffer_id);
                         if (hide_info != null) {
-                            if (buffer_origin_window.contains(hide_info.tab_xid)) {
+                            if (buffer_windows.contains(hide_info.tab_xid)) {
                                 window.tabbar.add_tab(hide_info.tab_name, hide_info.tab_path, tab_id_counter, hide_info.tab_app);
                                 
                                 window.tabbar.set_tab_xid(tab_id_counter, hide_info.tab_xid);
@@ -732,7 +742,10 @@ namespace Widgets {
                                 if (win != window) {
                                     foreach (int tab_id in win.tabbar.tab_list) {
                                         var window_xid = win.tabbar.tab_xid_map.get(tab_id);
-                                        if (buffer_origin_window.contains(window_xid)) {
+                                        
+                                        // If window type is origin, clone from origin window.
+                                        // If window type is multiview, just build new window with first window.
+                                        if (window_xid == buffer_windows[0]) {
                                             var tab_name = win.tabbar.tab_name_map.get(tab_id);
                                             var tab_path = win.tabbar.tab_path_map.get(tab_id);
                                             var app = win.tabbar.tab_app_map.get(tab_id);
