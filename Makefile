@@ -1,5 +1,38 @@
 all: main
-main: main.vala ./lib/keymap.vala titlebar.vala image_button.vala draw.vala ./lib/utils.vala window_manager.vala application.vala window.vala tabbar.vala window_rectangle.vala window_mode.vala
-	valac -o main --pkg=clutter-1.0 --pkg=clutter-x11-1.0 --pkg=gtk+-3.0 --pkg=clutter-gtk-1.0 --pkg=gdk-x11-3.0 --pkg=gio-2.0 --pkg=xcb --pkg=gee-1.0 --pkg=json-glib-1.0 --vapidir=./lib ./lib/keymap.vala main.vala titlebar.vala image_button.vala draw.vala ./lib/utils.vala window_manager.vala application.vala window.vala tabbar.vala window_rectangle.vala window_mode.vala
+main: ./lib/keymap.vala \
+      ./lib/utils.vala \
+      application.vala \
+      draw.vala \
+      image_button.vala \
+      tabbar.vala \
+      titlebar.vala  \
+      window.vala \
+      window_manager.vala \
+      window_mode.vala \
+      window_rectangle.vala \
+      main.vala
+	valac -o main \
+    --pkg=clutter-1.0 \
+    --pkg=clutter-gtk-1.0 \
+    --pkg=clutter-x11-1.0 \
+    --pkg=gdk-x11-3.0 \
+    --pkg=gee-1.0 \
+    --pkg=gio-2.0 \
+    --pkg=gtk+-3.0 \
+    --pkg=json-glib-1.0 \
+    --pkg=xcb \
+    --vapidir=./lib \
+    ./lib/keymap.vala \
+    ./lib/utils.vala \
+    application.vala \
+    draw.vala \
+    image_button.vala \
+    tabbar.vala \
+    titlebar.vala \
+    window.vala \
+    window_manager.vala \
+	window_mode.vala \
+    window_rectangle.vala \
+    main.vala
 clean:
 	rm main
