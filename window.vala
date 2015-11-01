@@ -131,7 +131,7 @@ namespace Widgets {
         }
         
         public int get_child_height(int window_height) {
-            return window_height - padding * 4 - tabbar.height;
+            return window_height - padding * 3 - tabbar.height;
         }
         
         public Gtk.Allocation get_allocate() {

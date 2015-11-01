@@ -554,6 +554,10 @@ namespace Widgets {
         }
         
         public void switch_to_next_mode() {
+            switch_to_next_mode_with_window(focus_window);
+        }
+        
+        public void switch_to_next_mode_with_window(Window window) {
             if (window_mode.mode_buffer_map.size > 1) {
                 bool found_current_mode = false;
                 string? first_mode_name = null;
@@ -569,7 +573,7 @@ namespace Widgets {
                     if (found_current_mode) {
                         next_mode_name = mode_name;
                         break;
-                    } else if (focus_window.mode_name == mode_name && counter != window_mode.mode_buffer_map.size - 1) {
+                    } else if (window.mode_name == mode_name && counter != window_mode.mode_buffer_map.size - 1) {
                         found_current_mode = true;
                     }
                     
@@ -581,7 +585,7 @@ namespace Widgets {
                 }
                 
                 if (next_mode_name != null) {
-                    switch_mode(focus_window, next_mode_name);
+                    switch_mode(window, next_mode_name);
                 } else {
                     print("switch_to_next_mode: possible here!\n");
                 }
@@ -589,13 +593,17 @@ namespace Widgets {
         }
         
         public void switch_to_prev_mode() {
+            switch_to_prev_mode_with_window(focus_window);
+        }
+        
+        public void switch_to_prev_mode_with_window(Window window) {
             if (window_mode.mode_buffer_map.size > 1) {
                 bool found_current_mode = false;
                 string? prev_mode_name = null;
                 foreach (var entry in window_mode.mode_buffer_map.entries) {
                     string mode_name = entry.key;
                     
-                    if (focus_window.mode_name == mode_name) {
+                    if (window.mode_name == mode_name) {
                         found_current_mode = true;
                         break;
                     }
@@ -610,14 +618,14 @@ namespace Widgets {
                             string mode_name = entry.key;
                             
                             if (counter == window_mode.mode_buffer_map.size - 1) {
-                                switch_mode(focus_window, mode_name);
+                                switch_mode(window, mode_name);
                                 break;
                             }
                             
                             counter++;
                         }
                     } else {
-                        switch_mode(focus_window, prev_mode_name);
+                        switch_mode(window, prev_mode_name);
                     }
                 }
 
@@ -802,7 +810,7 @@ namespace Widgets {
                     window.tabbar.close_tab_with_buffer(buffer_id);
                     
                     if (window.tabbar.tab_list.size == 0) {
-                        switch_to_next_mode();
+                        switch_to_next_mode_with_window(window);
                     }
                 }
             }
@@ -818,13 +826,13 @@ namespace Widgets {
                     window.tabbar.close_nth_tab(tab_index, false);
                     
                     if (window.tabbar.tab_list.size == 0) {
-                        switch_to_next_mode();
+                        switch_to_next_mode_with_window(window);
                     }
                 }
             }
             
             if (current_window.tabbar.tab_list.size == 0) {
-                switch_to_next_mode();
+                switch_to_next_mode_with_window(current_window);
             }
             
             destroy_buffer(buffer_id);
