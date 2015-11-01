@@ -1,8 +1,8 @@
 all: main
-main: ./lib/keymap.vala \
+main: ./lib/draw.vala \
+      ./lib/keymap.vala \
       ./lib/utils.vala \
       application.vala \
-      draw.vala \
       image_button.vala \
       tabbar.vala \
       titlebar.vala  \
@@ -22,10 +22,10 @@ main: ./lib/keymap.vala \
     --pkg=json-glib-1.0 \
     --pkg=xcb \
     --vapidir=./lib \
+    ./lib/draw.vala \
     ./lib/keymap.vala \
     ./lib/utils.vala \
     application.vala \
-    draw.vala \
     image_button.vala \
     tabbar.vala \
     titlebar.vala \

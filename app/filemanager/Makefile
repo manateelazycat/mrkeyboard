@@ -3,6 +3,7 @@ main: ../../interface/base_interface.vala \
       ../../interface/multiview/interface.vala \
       ../../interface/multiview/buffer.vala \
       ../../interface/multiview/window.vala \
+      ../../lib/draw.vala \
       ../../lib/utils.vala \
       listview.vala \
       application.vala
@@ -17,6 +18,7 @@ main: ../../interface/base_interface.vala \
     ../../interface/multiview/interface.vala \
     ../../interface/multiview/buffer.vala \
     ../../interface/multiview/window.vala \
+    ../../lib/draw.vala \
     ../../lib/utils.vala \
 	listview.vala \
     application.vala
