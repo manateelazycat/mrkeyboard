@@ -5,7 +5,7 @@ using Widgets;
 namespace Widgets {
     public class Window : Gtk.EventBox {
         public Gdk.Color window_frame_active_color = Utils.color_from_string("#3880AB");
-        public Gdk.Color window_frame_color = Utils.color_from_string("#262721");
+        public Gdk.Color window_frame_color = Utils.color_from_string("#666666");
         public Gtk.Box window_content_area;
         public Widgets.Tabbar tabbar;
         public int padding = 1;
@@ -107,11 +107,11 @@ namespace Widgets {
             int height = widget.get_allocated_height();
             
             Utils.set_context_color(cr, window_frame_color);
-            Draw.draw_rectangle(cr, 0, 0, width, height, false);
+            Draw.draw_rectangle(cr, padding * 2, height - 2, width - padding * 4, 2, false);
             
             if (window_manager.focus_window == this) {
                 Utils.set_context_color(cr, window_frame_active_color);
-                Draw.draw_rectangle(cr, padding * 2, height - 1, width - padding * 4, 1, false);
+                Draw.draw_rectangle(cr, padding * 2, height - 2, width - padding * 4, 2, false);
             }
             
             return false;
@@ -131,7 +131,7 @@ namespace Widgets {
         }
         
         public int get_child_height(int window_height) {
-            return window_height - padding * 2 - tabbar.height;
+            return window_height - padding * 4 - tabbar.height;
         }
         
         public Gtk.Allocation get_allocate() {
