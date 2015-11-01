@@ -20,21 +20,18 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
+* Write file-manager that powerful like dired.
 * Make browser support flash.
 * Write js vimium plugin.
 * Design search framework.
 * Design application package standard.
 * Design keystroke standard and build one-key system for feature. ;)
 * Implement package manager and smart notify bar.
-* Write terminal application with vte widget, steal ideas from https://github.com/thestinger/termite ;).
-* Write browser application with webkit widget.
-* Write vimium plugins for browser application.
 * Write IRC application for hacking team communication.
 * Write english completion plugins to make my figure faster. 
 * Write movie player for life.
 * Write music player for life.
 * Write wifi-share for hacking at TV. ;)
-* Write file-manager that powerful like dired.
 * Write pdf viewer for study.
 * Write image viewer to see my girl. ;)
 * Write markdown editor with previewer.
