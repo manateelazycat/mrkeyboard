@@ -21,9 +21,9 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 ## TODO
 
 * Write file-manager that powerful like dired.
+* Design search framework.
 * Make browser support flash.
 * Write js vimium plugin.
-* Design search framework.
 * Design application package standard.
 * Design keystroke standard and build one-key system for feature. ;)
 * Implement package manager and smart notify bar.
