@@ -883,8 +883,16 @@ namespace Widgets {
                             window.visible_tab(tab_win_id);
                         });
                 }
-                
-                sync_windows(window);
+
+                // FIXEME: We need add some delay to avoid sync_windows execute before 'set_tab_buffer'.
+                // Otherwise, we will pass null buffer_id to app process.
+                //
+                // Question is why sync_windows will execute before 'set_tab_buffer' at above?
+                GLib.Timeout.add(200, () => {
+                        sync_windows(window);
+                        
+                        return false;
+                    });
             } else {
                 print("Can't found window that contain tab_id: %i\n", tab_id);
             }
@@ -892,6 +900,7 @@ namespace Widgets {
         
         private void sync_windows(Widgets.Window current_window) {
             var current_buffers = current_window.tabbar.get_all_buffers();
+            
             foreach (Widgets.Window window in window_list) {
                 if (window != current_window && window.mode_name == current_window.mode_name) {
                     var buffers = window.tabbar.get_all_buffers();

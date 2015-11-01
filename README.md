@@ -20,7 +20,6 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
-* Fixed bug: split window, open editor, open terminal, switch terminal, switch window, open terminal, second terminal tab'name is blank.
 * Make browser support flash.
 * Write js vimium plugin.
 * Design search framework.
