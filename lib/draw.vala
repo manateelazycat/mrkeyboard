@@ -31,5 +31,20 @@ namespace Draw {
     public void clip_rectangle(Cairo.Context cr, int x, int y, int w, int h) {
          cr.rectangle(x, y, w, h);
          cr.clip();
-   }
+    }
+
+    public void render_text(Cairo.Context cr, string text, int x, int y, int width, int height,
+                            Pango.FontDescription font_description,
+                            Pango.Alignment text_align=Pango.Alignment.LEFT) {
+		var layout = Pango.cairo_create_layout(cr);
+		layout.set_text(text, (int)text.length);
+		layout.set_width((int)(width * Pango.SCALE));
+		layout.set_height((int)(height * Pango.SCALE));
+        layout.set_font_description(font_description);
+		layout.set_alignment(text_align);
+		
+        cr.move_to(x, y);
+		Pango.cairo_update_layout(cr, layout);
+		Pango.cairo_show_layout(cr, layout);
+	}
 }

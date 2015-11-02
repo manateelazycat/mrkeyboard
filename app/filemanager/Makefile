@@ -4,8 +4,8 @@ main: ../../interface/base_interface.vala \
       ../../interface/multiview/buffer.vala \
       ../../interface/multiview/window.vala \
       ../../lib/draw.vala \
+      ../../lib/listview.vala \
       ../../lib/utils.vala \
-      listview.vala \
       application.vala
 	valac -o main \
     --pkg=clutter-1.0 \
@@ -19,8 +19,8 @@ main: ../../interface/base_interface.vala \
     ../../interface/multiview/buffer.vala \
     ../../interface/multiview/window.vala \
     ../../lib/draw.vala \
+    ../../lib/listview.vala \
     ../../lib/utils.vala \
-	listview.vala \
     application.vala
 clean:
 	rm main
