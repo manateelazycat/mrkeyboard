@@ -34,7 +34,11 @@ namespace Widget {
                     var column_counter = 0;
                     var column_x = 0;
                     foreach (int width in render_widths) {
+                        cr.save();
+                        clip_rectangle(cr, column_x, row_y, width, get_item_height());
                         item.render_column_cell(this, cr, column_counter, column_x, row_y, width, get_item_height());
+                        cr.restore();
+                        
                         column_x += width;
                         column_counter++;
                     }
