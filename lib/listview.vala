@@ -120,6 +120,25 @@ namespace Widget {
             queue_draw();
         }
         
+        public void scroll_vertical(bool scroll_up) {
+            Gtk.Allocation alloc;
+            this.get_allocation(out alloc);
+            
+            int scroll_rows = alloc.height / get_item_height();
+            int scroll_offset = 2;
+            
+            if (scroll_up) {
+                start_row = int.min((list_items.size * get_item_height() - alloc.height) / get_item_height() + 1,
+                                    start_row + scroll_rows - scroll_offset);
+                current_row = int.min(list_items.size - 1, current_row + scroll_rows - scroll_offset);
+            } else {
+                start_row = int.max(0, start_row - scroll_rows + scroll_offset);
+                current_row = int.max(0, current_row - scroll_rows + scroll_offset);
+            }
+            
+            queue_draw();
+        }
+
         public void visible_item(bool scroll_down) {
             Gtk.Allocation alloc;
             this.get_allocation(out alloc);

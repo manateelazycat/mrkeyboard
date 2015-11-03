@@ -42,7 +42,7 @@ namespace Application {
         }        
         
         public override void scroll_vertical(bool scroll_up) {
-            print("We need implement scroll feature\n");
+            fileview.scroll_vertical(scroll_up);
         }
 
         public override string get_mode_name() {
