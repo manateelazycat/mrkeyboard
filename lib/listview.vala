@@ -11,6 +11,8 @@ namespace Widget {
         public int start_row = 0;
         public int current_row = 0;
         
+        public signal void active_item(int item_index);
+        
         public ListView() {
             set_can_focus(true);  // make widget can receive key event 
             add_events (Gdk.EventMask.BUTTON_PRESS_MASK
@@ -83,6 +85,8 @@ namespace Widget {
                 select_last_item();
             } else if (keyname == "K") {
                 select_first_item();
+            } else if (keyname == "Enter") {
+                active_item(current_row);
             }
             
             return true;

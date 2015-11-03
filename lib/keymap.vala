@@ -7,7 +7,11 @@ namespace Keymap {
         if (key_unicode == 0) {
             return Gdk.keyval_name(keyval);
         } else {
-            return key_unicode.to_string();
+            if (key_unicode == 13) {
+                return "Enter";
+            } else {
+                return key_unicode.to_string();
+            }
         }
     }
 

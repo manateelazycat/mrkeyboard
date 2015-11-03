@@ -37,6 +37,10 @@ namespace Application {
                     
                     return false;
                 });
+            fileview.active_item.connect((item_index) => {
+                    var file_item = buffer.file_items.get(item_index);
+                    print(file_item.file_info.get_name());
+                });
             
             box.pack_start(fileview, true, true, 0);
         }        
@@ -117,6 +121,14 @@ namespace Application {
             
             return "%i %i %i".printf(d, m, y);
         }
+        
+        public static int compare_file_item(FileItem a, FileItem b) {
+            if (a.file_info.get_name() > b.file_info.get_name()) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }        
     }
 
     public class Buffer : Interface.Buffer {
@@ -133,7 +145,9 @@ namespace Application {
         
         public void load_files_from_path(string directory) {
             current_directory = directory;
-            file_items.clear();
+            
+            var files = new ArrayList<FileItem>();
+            var dirs = new ArrayList<FileItem>();
             
             try {
         	    FileEnumerator enumerator = File.new_for_path(current_directory).enumerate_children (
@@ -142,8 +156,20 @@ namespace Application {
                 
         	    FileInfo info = null;
         	    while (((info = enumerator.next_file()) != null)) {
-                    file_items.add(new FileItem(info, current_directory));
+                    // file_items.add(new FileItem(info, current_directory));
+                    if (info.get_file_type() == FileType.DIRECTORY) {
+                        dirs.add(new FileItem(info, current_directory));
+                    } else {
+                        files.add(new FileItem(info, current_directory));
+                    }
         	    }
+                
+                dirs.sort((CompareFunc) FileItem.compare_file_item);
+                files.sort((CompareFunc) FileItem.compare_file_item);
+                
+                file_items.clear();
+                file_items.add_all(dirs);
+                file_items.add_all(files);
             } catch (Error err) {
                 stderr.printf ("Error: list_files failed: %s\n", err.message);
             }
