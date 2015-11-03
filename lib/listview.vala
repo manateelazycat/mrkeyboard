@@ -1,21 +1,33 @@
 using Gtk;
 using Draw;
 using Gee;
+using Keymap;
 
 namespace Widget {
     public class ListView : DrawingArea {
         public Gdk.Color background_color = Utils.color_from_string("#000000");
+        public Gdk.Color item_select_color = Utils.color_from_string("#111111");
         public ArrayList<ListItem> list_items;
+        public int start_row = 0;
+        public int current_row = 0;
         
         public ListView() {
+            set_can_focus(true);  // make widget can receive key event 
             add_events (Gdk.EventMask.BUTTON_PRESS_MASK
                         | Gdk.EventMask.BUTTON_RELEASE_MASK
+                        | Gdk.EventMask.KEY_PRESS_MASK
+                        | Gdk.EventMask.KEY_RELEASE_MASK
                         | Gdk.EventMask.POINTER_MOTION_MASK
                         | Gdk.EventMask.LEAVE_NOTIFY_MASK);
             
             list_items = new ArrayList<ListItem>();
             
             draw.connect(on_draw);
+            key_press_event.connect((w, e) => {
+                    on_key_press(w, e);
+                    
+                    return true;
+                });
         }
         
         public bool on_draw(Gtk.Widget widget, Cairo.Context cr) {
@@ -28,11 +40,17 @@ namespace Widget {
             if (get_item_height() > 0 && list_items.size > 0) {
                 var render_widths = get_render_widths(alloc.width);
                 
-                var row_counter = 0;
+                var row_counter = start_row;
                 var row_y = 0;
-                foreach (ListItem item in list_items) {
+                foreach (ListItem item in list_items[start_row:list_items.size]) {
                     var column_counter = 0;
                     var column_x = 0;
+                    
+                    if (row_counter == current_row) {
+                        Utils.set_context_color(cr, item_select_color);
+                        Draw.draw_rectangle(cr, 0, row_y, alloc.width, get_item_height());
+                    }
+                    
                     foreach (int width in render_widths) {
                         cr.save();
                         clip_rectangle(cr, column_x, row_y, width, get_item_height());
@@ -45,22 +63,77 @@ namespace Widget {
                     
                     row_y += get_item_height();
                     row_counter++;
+                    
+                    if (row_y > alloc.height) {
+                        break;
+                    }
                 }
             }
             
             return true;
         }
         
-        public virtual int[] get_column_widths() {
-            print("You should implement 'get_column_widths' in your application code.\n");
+        public bool on_key_press(Gtk.Widget widget, Gdk.EventKey key_event) {
+            string keyname = Keymap.get_keyevent_name(key_event);
+            if (keyname == "j") {
+                select_next_item();
+            } else if (keyname == "k") {
+                select_prev_item();
+            } else if (keyname == "J") {
+                select_last_item();
+            } else if (keyname == "K") {
+                select_first_item();
+            }
             
-            return {};
+            return true;
         }
-
-        public virtual int get_item_height() {
-            print("You should implement 'get_height' in your application code.\n");
-
-            return 0;
+        
+        public void select_next_item() {
+            current_row = int.min(list_items.size - 1, current_row + 1);
+            
+            visible_item(true);
+            
+            queue_draw();
+        }
+        
+        public void select_prev_item() {
+            current_row = int.max(0, current_row - 1);
+            
+            visible_item(false);
+            
+            queue_draw();
+        }
+        
+        public void select_first_item() {
+            current_row = 0;
+            
+            visible_item(false);
+            
+            queue_draw();
+        }
+        
+        public void select_last_item() {
+            current_row = list_items.size - 1;
+            
+            visible_item(true);
+            
+            queue_draw();
+        }
+        
+        public void visible_item(bool scroll_down) {
+            Gtk.Allocation alloc;
+            this.get_allocation(out alloc);
+            
+            if (scroll_down) {
+                if ((current_row - start_row + 1) * get_item_height() > alloc.height) {
+                    start_row = (current_row * get_item_height() - alloc.height) / get_item_height() + 2;
+                }
+            } else {
+                if (current_row < start_row) {
+                    start_row = int.max(0, current_row);
+                }
+            }
+            
         }
         
         public int[] get_render_widths(int alloc_width) {
@@ -97,7 +170,19 @@ namespace Widget {
             
             queue_draw();
         }
-    }
+
+        public virtual int[] get_column_widths() {
+            print("You should implement 'get_column_widths' in your application code.\n");
+            
+            return {};
+        }
+
+        public virtual int get_item_height() {
+            print("You should implement 'get_height' in your application code.\n");
+
+            return 0;
+        }
+   }
 
     public abstract class ListItem : Object {
         public abstract void render_column_cell(Gtk.Widget widget, Cairo.Context cr, int column_index, int x, int y, int w, int h);

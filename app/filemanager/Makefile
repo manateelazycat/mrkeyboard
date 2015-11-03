@@ -4,6 +4,7 @@ main: ../../interface/base_interface.vala \
       ../../interface/multiview/buffer.vala \
       ../../interface/multiview/window.vala \
       ../../lib/draw.vala \
+      ../../lib/keymap.vala \
       ../../lib/listview.vala \
       ../../lib/utils.vala \
       application.vala
@@ -19,6 +20,7 @@ main: ../../interface/base_interface.vala \
     ../../interface/multiview/buffer.vala \
     ../../interface/multiview/window.vala \
     ../../lib/draw.vala \
+    ../../lib/keymap.vala \
     ../../lib/listview.vala \
     ../../lib/utils.vala \
     application.vala

@@ -126,7 +126,6 @@ namespace Application {
         public Buffer() {
             base();
             
-            // Init.
             file_items = new ArrayList<FileItem>();
             
             load_files_from_path(Environment.get_home_dir());
