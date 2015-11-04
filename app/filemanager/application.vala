@@ -21,16 +21,16 @@ namespace Application {
     }
 
     public class Window : Interface.Window {
-        public ListView fileview;
+        public FileView fileview;
         
         public Window(int width, int height, string bid, string path, Buffer buf) {
             base(width, height, bid, path, buf);
         }
         
         public override void init() {
-            fileview = new FileView();
+            fileview = new FileView(buffer);
             
-            fileview.add_items(buffer.file_items);
+            fileview.load_buffer_items();
             
             fileview.button_press_event.connect((w, e) => {
                     emit_button_press_event(e);
@@ -60,6 +60,45 @@ namespace Application {
 
     public class FileView : ListView {
         public int height = 24;
+        public bool hide_dot_files = true;
+        public Buffer buffer;
+        
+        public FileView(Buffer buf) {
+            base();
+            
+            buffer = buf;
+            
+            key_press_event.connect((w, e) => {
+                    handle_key_press(w, e);
+                    
+                    return false;
+                });
+        }
+        
+        public void handle_key_press(Gtk.Widget widget, Gdk.EventKey key_event) {
+            string keyname = Keymap.get_keyevent_name(key_event);
+            if (keyname == "H") {
+                hide_dot_files = !hide_dot_files;
+                
+                list_items.clear();
+                load_buffer_items();
+            }
+        }
+        
+        public void load_buffer_items() {
+            var items = new ArrayList<FileItem>();
+            if (hide_dot_files) {
+                foreach (FileItem item in buffer.file_items) {
+                    if (!item.file_info.get_is_hidden()) {
+                        items.add(item);
+                    }
+                }
+            } else {
+                items.add_all(buffer.file_items);
+            }
+            
+            add_items(items);
+        }
 
         public override int get_item_height() {
             return height;
@@ -67,7 +106,7 @@ namespace Application {
         
         public override int[] get_column_widths() {
             return {-1, 100, 150};
-        }        
+        }
     }
 
     public class FileItem : ListItem {
@@ -156,7 +195,6 @@ namespace Application {
                 
         	    FileInfo info = null;
         	    while (((info = enumerator.next_file()) != null)) {
-                    // file_items.add(new FileItem(info, current_directory));
                     if (info.get_file_type() == FileType.DIRECTORY) {
                         dirs.add(new FileItem(info, current_directory));
                     } else {

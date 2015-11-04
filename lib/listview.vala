@@ -28,7 +28,7 @@ namespace Widget {
             key_press_event.connect((w, e) => {
                     on_key_press(w, e);
                     
-                    return true;
+                    return false;
                 });
         }
         
@@ -75,7 +75,7 @@ namespace Widget {
             return true;
         }
         
-        public bool on_key_press(Gtk.Widget widget, Gdk.EventKey key_event) {
+        public void on_key_press(Gtk.Widget widget, Gdk.EventKey key_event) {
             string keyname = Keymap.get_keyevent_name(key_event);
             if (keyname == "j") {
                 select_next_item();
@@ -88,8 +88,6 @@ namespace Widget {
             } else if (keyname == "Enter") {
                 active_item(current_row);
             }
-            
-            return true;
         }
         
         public void select_next_item() {
@@ -132,9 +130,8 @@ namespace Widget {
             int scroll_offset = 2;
             
             if (scroll_up) {
-                start_row = int.min((list_items.size * get_item_height() - alloc.height) / get_item_height() + 1,
-                                    start_row + scroll_rows - scroll_offset);
-                current_row = int.min(list_items.size - 1, current_row + scroll_rows - scroll_offset);
+                start_row = int.min(get_max_start_row(), start_row + scroll_rows - scroll_offset);
+                current_row = int.min(get_max_current_row(), current_row + scroll_rows - scroll_offset);
             } else {
                 start_row = int.max(0, start_row - scroll_rows + scroll_offset);
                 current_row = int.max(0, current_row - scroll_rows + scroll_offset);
@@ -191,9 +188,28 @@ namespace Widget {
         public void add_items(ArrayList<ListItem> items) {
             list_items.add_all(items);
             
+            if (current_row > list_items.size - 1) {
+                current_row = get_max_current_row();
+            }
+            
+            if (start_row > list_items.size - 1) {
+                start_row = get_max_start_row();
+            }
+            
             queue_draw();
         }
-
+        
+        private int get_max_current_row() {
+            return list_items.size - 1;
+        }
+        
+        private int get_max_start_row() {
+            Gtk.Allocation alloc;
+            this.get_allocation(out alloc);
+            
+            return (list_items.size * get_item_height() - alloc.height) / get_item_height() + 1;
+        }
+        
         public virtual int[] get_column_widths() {
             print("You should implement 'get_column_widths' in your application code.\n");
             
