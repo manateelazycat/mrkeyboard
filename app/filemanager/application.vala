@@ -79,6 +79,8 @@ namespace Application {
         public Buffer buffer;
         public ArrayList<FileItem> items;
         
+        public string visible_item_after_load = "";
+        
         public FileView(Buffer buf) {
             base();
             
@@ -128,17 +130,8 @@ namespace Application {
                     var paths = buffer.buffer_path.split("/");
                     var directory_name = paths[paths.length - 1];
                     
+                    visible_item_after_load = directory_name;
                     buffer.load_directory(parent_path);
-                    
-                    var item_paths = new ArrayList<string>();
-                    foreach (FileItem item in items) {
-                        item_paths.add(item.file_info.get_name());
-                    }
-                    
-                    current_row = item_paths.index_of(directory_name);
-                    visible_item(true);
-                    
-                    queue_draw();
                 }
             }
         }
@@ -157,6 +150,21 @@ namespace Application {
             }
             
             add_items(items);
+
+            if (visible_item_after_load != "") {
+                var item_paths = new ArrayList<string>();
+                foreach (FileItem item in items) {
+                    item_paths.add(item.file_info.get_name());
+                }
+                    
+                start_row = 0;
+                current_row = item_paths.index_of(visible_item_after_load);
+                visible_item(true);
+                
+                visible_item_after_load = "";
+                    
+                queue_draw();
+            }
         }
 
         public override int get_item_height() {
