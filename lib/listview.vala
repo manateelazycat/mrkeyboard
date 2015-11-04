@@ -153,7 +153,6 @@ namespace Widget {
                     start_row = int.max(0, current_row);
                 }
             }
-            
         }
         
         public int[] get_render_widths(int alloc_width) {

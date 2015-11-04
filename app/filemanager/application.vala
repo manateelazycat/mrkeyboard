@@ -23,12 +23,23 @@ namespace Application {
     public class Window : Interface.Window {
         public FileView fileview;
         
-        public Window(int width, int height, string bid, string path, Buffer buf) {
-            base(width, height, bid, path, buf);
+        public Window(int width, int height, string bid, Buffer buf) {
+            base(width, height, bid, buf);
         }
         
         public override void init() {
             fileview = new FileView(buffer);
+            fileview.realize.connect((w) => {
+                    update_tab_name(buffer.buffer_path);
+                });
+            
+            buffer.change_directory.connect((path) => {
+                    update_tab_name(path);
+                    
+                    fileview.list_items.clear();
+                    fileview.current_row = 0;
+                    fileview.load_buffer_items();
+                });
             
             fileview.load_buffer_items();
             
@@ -38,11 +49,16 @@ namespace Application {
                     return false;
                 });
             fileview.active_item.connect((item_index) => {
-                    print(fileview.items.get(item_index).file_info.get_name());
+                    fileview.load_path("%s/%s".printf(buffer.buffer_path, fileview.items.get(item_index).file_info.get_name()));
                 });
             
             box.pack_start(fileview, true, true, 0);
         }        
+        
+        public void update_tab_name(string path) {
+            var paths = path.split("/");
+            rename_app_tab(mode_name, buffer_id, paths[paths.length - 1], path);
+        }
         
         public override void scroll_vertical(bool scroll_up) {
             fileview.scroll_vertical(scroll_up);
@@ -83,6 +99,47 @@ namespace Application {
                 
                 list_items.clear();
                 load_buffer_items();
+            } else if (keyname == "f") {
+                load_path("%s/%s".printf(buffer.buffer_path, items.get(current_row).file_info.get_name()));
+            } else if (keyname == "'") {
+                load_parent_directory();
+            }
+        }
+        
+        public void load_path(string path) {
+            var file = File.new_for_path(path);
+            try {
+                var file_info = file.query_info(FileAttribute.STANDARD_TYPE, FileQueryInfoFlags.NONE, null);
+                if (file_info.get_file_type() == FileType.DIRECTORY) {
+                    buffer.load_directory(path);
+                } else {
+                    print("open file: %s\n", path);
+                }
+            } catch (Error err) {
+                stderr.printf ("Error: FileItem failed: %s\n", err.message);
+            }
+        }
+        
+        public void load_parent_directory() {
+            var parent_file = File.new_for_path(buffer.buffer_path).get_parent();
+            if (parent_file != null) {
+                var parent_path = parent_file.get_path();
+                if (parent_path != null) {
+                    var paths = buffer.buffer_path.split("/");
+                    var directory_name = paths[paths.length - 1];
+                    
+                    buffer.load_directory(parent_path);
+                    
+                    var item_paths = new ArrayList<string>();
+                    foreach (FileItem item in items) {
+                        item_paths.add(item.file_info.get_name());
+                    }
+                    
+                    current_row = item_paths.index_of(directory_name);
+                    visible_item(true);
+                    
+                    queue_draw();
+                }
             }
         }
         
@@ -117,18 +174,18 @@ namespace Application {
         public Gdk.Color attr_type_color = Utils.color_from_string("#333333");
         
         public FileInfo file_info;
-        public string current_directory;
+        public string buffer_path;
         public string modification_time;
         
         public int column_padding_x = 10;
         
         public FileItem(FileInfo info, string directory) {
             file_info = info;
-            current_directory = directory;
+            buffer_path = directory;
             
             try {
-                var file = File.new_for_path("%s/%s".printf(current_directory, file_info.get_name()));
-                var mod_time = file.query_info (FileAttribute.TIME_MODIFIED, FileQueryInfoFlags.NONE, null).get_modification_time();
+                var file = File.new_for_path("%s/%s".printf(buffer_path, file_info.get_name()));
+                var mod_time = file.query_info(FileAttribute.TIME_MODIFIED, FileQueryInfoFlags.NONE, null).get_modification_time();
                 modification_time = Time.local(mod_time.tv_sec).format("%Y-%m-%d  %R");
             } catch (Error err) {
                 stderr.printf ("Error: FileItem failed: %s\n", err.message);
@@ -173,34 +230,44 @@ namespace Application {
     }
 
     public class Buffer : Interface.Buffer {
-        public string current_directory = "";
         public ArrayList<FileItem> file_items;
         
-        public Buffer() {
-            base();
+        public signal void change_directory(string path);
+        
+        public Buffer(string path) {
+            base(path);
+            
+            if (buffer_path == "") {
+                buffer_path = Environment.get_home_dir();
+            }
             
             file_items = new ArrayList<FileItem>();
             
-            load_files_from_path(Environment.get_home_dir());
+            load_directory(buffer_path);
         }
         
-        public void load_files_from_path(string directory) {
-            current_directory = directory;
+        public void load_directory(string path) {
+            buffer_path = path;
+            load_files();
             
+            change_directory(buffer_path);
+        }
+        
+        public void load_files() {
             var files = new ArrayList<FileItem>();
             var dirs = new ArrayList<FileItem>();
             
             try {
-        	    FileEnumerator enumerator = File.new_for_path(current_directory).enumerate_children (
+        	    FileEnumerator enumerator = File.new_for_path(buffer_path).enumerate_children (
         	    	"standard::*",
         	    	FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
                 
         	    FileInfo info = null;
         	    while (((info = enumerator.next_file()) != null)) {
                     if (info.get_file_type() == FileType.DIRECTORY) {
-                        dirs.add(new FileItem(info, current_directory));
+                        dirs.add(new FileItem(info, buffer_path));
                     } else {
-                        files.add(new FileItem(info, current_directory));
+                        files.add(new FileItem(info, buffer_path));
                     }
         	    }
                 

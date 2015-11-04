@@ -63,13 +63,12 @@ namespace Interface {
                 var tab_id = int.parse(args[4]);
                 
                 var buffer_id = get_buffer_id();
-                var buffer = new Application.Buffer();
+                var buffer = new Application.Buffer(path);
                 
                 buffer_map.set(buffer_id, buffer);
 
-                new_window(width, height, tab_id, buffer_id, path, buffer);
+                new_window(width, height, tab_id, buffer_id, buffer);
             } else if (args.length == 6) {
-                var path = args[1];
                 var width = int.parse(args[2]);
                 var height = int.parse(args[3]);
                 var tab_id = int.parse(args[4]);
@@ -77,13 +76,13 @@ namespace Interface {
                 
                 var buffer = buffer_map.get(buffer_id);
                 if (buffer != null) {
-                    new_window(width, height, tab_id, buffer_id, path, buffer);
+                    new_window(width, height, tab_id, buffer_id, buffer);
                 }
             }
         }
 
-        private void new_window(int width, int height, int tab_id, string buffer_id, string path, Application.Buffer buffer) {
-            var window = new Application.Window(width, height, buffer_id, path, buffer);
+        private void new_window(int width, int height, int tab_id, string buffer_id, Application.Buffer buffer) {
+            var window = new Application.Window(width, height, buffer_id, buffer);
                 
             window.create_app_tab.connect((tab_win_id, mode_name) => {
                     try {

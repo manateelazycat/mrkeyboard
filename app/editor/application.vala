@@ -22,8 +22,8 @@ namespace Application {
         public Gtk.SourceView sourceview;
         public ScrolledWindow scrolled_window;
         
-        public Window(int width, int height, string bid, string path, Buffer buf) {
-            base(width, height, bid, path, buf);
+        public Window(int width, int height, string bid, Buffer buf) {
+            base(width, height, bid, buf);
         }
         
         public override void init() {
@@ -70,8 +70,8 @@ namespace Application {
     public class Buffer : Interface.Buffer {
         public Gtk.SourceBuffer source_buffer;
         
-        public Buffer() {
-            base();
+        public Buffer(string path) {
+            base(path);
             
             source_buffer = new Gtk.SourceBuffer(null);
         }

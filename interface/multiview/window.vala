@@ -7,7 +7,6 @@ namespace Interface {
         public Gtk.Box box;
         public int window_id;
         public string buffer_id;
-        public string buffer_path;
         public string mode_name;
         public Application.Buffer buffer;
         
@@ -18,9 +17,8 @@ namespace Interface {
         public signal void emit_button_press_event(Gdk.EventButton event);
         public signal void percent_app_tab(string buffer_id, int percent);
         
-        public Window(int width, int height, string bid, string path, Application.Buffer buf) {
+        public Window(int width, int height, string bid, Application.Buffer buf) {
             buffer_id = bid;
-            buffer_path = path;
             buffer = buf;
             
             set_decorated(false);
