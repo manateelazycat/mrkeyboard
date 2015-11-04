@@ -37,11 +37,12 @@ public class DaemonServer : Object {
         try {
             var file = File.new_for_path(path);
             var file_info = file.query_info(FileAttribute.STANDARD_CONTENT_TYPE, FileQueryInfoFlags.NONE, null);
-            var file_type = file_info.get_content_type().split("/")[0];
-            if (file_type == "text") {
+            var content_type = file_info.get_content_type();
+            var file_type = content_type.split("/")[0];
+            if (file_type == "text" || content_type == "application/x-shellscript") {
                 window_manager.new_tab("editor", path, true);
             } else {
-                print("Open %s: %s\n", file_type, path);
+                print("Open %s: %s %s\n", file_type, file_info.get_content_type(), path);
             }
         } catch (Error err) {
             stderr.printf ("Error: FileItem failed: %s\n", err.message);
