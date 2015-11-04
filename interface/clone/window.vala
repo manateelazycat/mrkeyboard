@@ -14,6 +14,7 @@ namespace Interface {
         public signal void new_app_tab(string app, string tab_path);
         public signal void emit_button_press_event(Gdk.EventButton event);
         public signal void percent_app_tab(string buffer_id, int percent);
+        public signal void open_path(string path);
         
         public Window(int width, int height, string bid, string path) {
             buffer_id = bid;

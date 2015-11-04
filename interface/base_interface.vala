@@ -14,6 +14,7 @@ namespace Interface {
         public abstract void new_app_tab(string app, string tab_path) throws IOError;
         public abstract void focus_app_tab(int tab_win_id) throws IOError;
         public abstract void percent_app_tab(string buffer_id, int percent) throws IOError;
+        public abstract void open_path(string path) throws IOError;
         public signal void send_key_event(int window_id, uint key_val, uint key_state, int hardware_keycode, uint32 key_time, bool press);
         public signal void destroy_buffer(string buffer_id);
         public signal void destroy_windows(int[] window_ids);

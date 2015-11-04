@@ -33,6 +33,19 @@ public class DaemonServer : Object {
         window_manager.update_tab_percent(buffer_id, percent);
     }
     
+    public void open_path(string path) {
+        try {
+            var file = File.new_for_path(path);
+            var file_info = file.query_info(FileAttribute.STANDARD_CONTENT_TYPE, FileQueryInfoFlags.NONE, null);
+            var file_type = file_info.get_content_type().split("/")[0];
+            if (file_type == "text") {
+                window_manager.new_tab("editor", path, true);
+            }
+        } catch (Error err) {
+            stderr.printf ("Error: FileItem failed: %s\n", err.message);
+        }
+    }
+    
     public signal void send_key_event(int window_id, uint key_val, uint key_state, int hardware_keycode, uint32 key_time, bool press);
     public signal void destroy_buffer(string buffer_id);
     public signal void destroy_windows(int[] window_ids);

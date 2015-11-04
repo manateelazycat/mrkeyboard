@@ -36,6 +36,10 @@ namespace Application {
                     
                     return false;
                 });
+            sourceview.realize.connect((w) => {
+                    var paths = buffer.buffer_path.split("/");
+                    rename_app_tab(mode_name, buffer_id, paths[paths.length - 1], buffer.buffer_path);
+                });
             
             scrolled_window = new ScrolledWindow(null, null);
             scrolled_window.add(sourceview);
@@ -74,6 +78,9 @@ namespace Application {
             base(path);
             
             source_buffer = new Gtk.SourceBuffer(null);
+            string content;
+            FileUtils.get_contents(path, out content);
+            source_buffer.set_text(content);
         }
     }
 }

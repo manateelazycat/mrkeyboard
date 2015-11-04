@@ -121,6 +121,13 @@ namespace Interface {
                             stderr.printf("%s\n", e.message);
                         }
                     });
+                window.open_path.connect((path) => {
+                        try {
+                            daemon.open_path(path);
+                        } catch (IOError e) {
+                            stderr.printf("%s\n", e.message);
+                        }
+                    });
                 window.show_all();
                 
                 window_list.add(window);

@@ -29,14 +29,12 @@ namespace Application {
         
         public override void init() {
             fileview = new FileView(buffer);
-            fileview.realize.connect((w) => {
-                    update_tab_name(buffer.buffer_path);
-                });
             
             buffer.change_directory.connect((path) => {
                     update_tab_name(path);
                     
                     fileview.list_items.clear();
+                    fileview.start_row = 0;
                     fileview.current_row = 0;
                     fileview.load_buffer_items();
                 });
@@ -50,6 +48,12 @@ namespace Application {
                 });
             fileview.active_item.connect((item_index) => {
                     fileview.load_path("%s/%s".printf(buffer.buffer_path, fileview.items.get(item_index).file_info.get_name()));
+                });
+            fileview.realize.connect((w) => {
+                    update_tab_name(buffer.buffer_path);
+                });
+            fileview.open_file.connect((path) => {
+                    open_path(path);
                 });
             
             box.pack_start(fileview, true, true, 0);
@@ -80,6 +84,7 @@ namespace Application {
         public ArrayList<FileItem> items;
         
         public string visible_item_after_load = "";
+        public signal void open_file(string path);
         
         public FileView(Buffer buf) {
             base();
@@ -105,6 +110,8 @@ namespace Application {
                 load_path("%s/%s".printf(buffer.buffer_path, items.get(current_row).file_info.get_name()));
             } else if (keyname == "'") {
                 load_parent_directory();
+            } else if (keyname == "Space") {
+                scroll_vertical(true);
             }
         }
         
@@ -115,7 +122,7 @@ namespace Application {
                 if (file_info.get_file_type() == FileType.DIRECTORY) {
                     buffer.load_directory(path);
                 } else {
-                    print("open file: %s\n", path);
+                    open_file(path);
                 }
             } catch (Error err) {
                 stderr.printf ("Error: FileItem failed: %s\n", err.message);
