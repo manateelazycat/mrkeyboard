@@ -38,8 +38,7 @@ namespace Application {
                     return false;
                 });
             fileview.active_item.connect((item_index) => {
-                    var file_item = buffer.file_items.get(item_index);
-                    print(file_item.file_info.get_name());
+                    print(fileview.items.get(item_index).file_info.get_name());
                 });
             
             box.pack_start(fileview, true, true, 0);
@@ -62,11 +61,13 @@ namespace Application {
         public int height = 24;
         public bool hide_dot_files = true;
         public Buffer buffer;
+        public ArrayList<FileItem> items;
         
         public FileView(Buffer buf) {
             base();
             
             buffer = buf;
+            items = new ArrayList<FileItem>();
             
             key_press_event.connect((w, e) => {
                     handle_key_press(w, e);
@@ -86,7 +87,8 @@ namespace Application {
         }
         
         public void load_buffer_items() {
-            var items = new ArrayList<FileItem>();
+            items.clear();
+            
             if (hide_dot_files) {
                 foreach (FileItem item in buffer.file_items) {
                     if (!item.file_info.get_is_hidden()) {
