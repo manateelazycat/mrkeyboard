@@ -30,6 +30,7 @@ namespace Application {
             sourceview = new Gtk.SourceView.with_buffer(buffer.source_buffer);
             sourceview.cursor_visible = true;
             sourceview.highlight_current_line = true;
+            sourceview.show_line_numbers = true;
             
             sourceview.button_press_event.connect((w, e) => {
                     emit_button_press_event(e);
@@ -85,6 +86,16 @@ namespace Application {
             TextIter start_iter;
             source_buffer.get_start_iter(out start_iter);
             source_buffer.place_cursor(start_iter);
+            source_buffer.set_highlight_syntax(true);
+            
+            var manager = new Gtk.SourceLanguageManager();
+            var language = manager.guess_language(path, content);
+            if (language != null) {
+                source_buffer.set_highlight_syntax(true);
+                source_buffer.set_language(language);
+            } else {
+                print("No language found for file %s\n", path);
+            }
         }
     }
 }

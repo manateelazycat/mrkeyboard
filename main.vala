@@ -40,6 +40,8 @@ public class DaemonServer : Object {
             var file_type = file_info.get_content_type().split("/")[0];
             if (file_type == "text") {
                 window_manager.new_tab("editor", path, true);
+            } else {
+                print("Open %s: %s\n", file_type, path);
             }
         } catch (Error err) {
             stderr.printf ("Error: FileItem failed: %s\n", err.message);
