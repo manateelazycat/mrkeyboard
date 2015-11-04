@@ -81,6 +81,10 @@ namespace Application {
             string content;
             FileUtils.get_contents(path, out content);
             source_buffer.set_text(content);
+            
+            TextIter start_iter;
+            source_buffer.get_start_iter(out start_iter);
+            source_buffer.place_cursor(start_iter);
         }
     }
 }

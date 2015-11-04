@@ -20,6 +20,9 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
+* Write pdf viewer for study.
+* Write movie player for life.
+* Write music player for life.
 * Design search framework.
 * Make browser support flash.
 * Write js vimium plugin.
@@ -28,10 +31,7 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 * Implement package manager and smart notify bar.
 * Write IRC application for hacking team communication.
 * Write english completion plugins to make my figure faster. 
-* Write movie player for life.
-* Write music player for life.
 * Write wifi-share for hacking at TV. ;)
-* Write pdf viewer for study.
 * Write image viewer to see my girl. ;)
 * Write markdown editor with previewer.
 * Write process manager to control process.
