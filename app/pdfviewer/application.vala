@@ -73,6 +73,23 @@ namespace Application {
                         | Gdk.EventMask.LEAVE_NOTIFY_MASK);
 
             draw.connect(on_draw);
+            
+            key_press_event.connect((w, e) => {
+                    handle_key_press(w, e);
+
+                    return false;
+                });
+        }
+        
+        public void handle_key_press(Gtk.Widget widget, Gdk.EventKey key_event) {
+            string keyname = Keymap.get_keyevent_name(key_event);
+            print(keyname);
+            if (keyname == "j") {
+                
+            } else if (keyname == "k") {
+            } else if (keyname == "J") {
+            } else if (keyname == "K") {
+            }
         }
         
         public bool on_draw(Gtk.Widget widget, Cairo.Context cr) {
@@ -83,6 +100,10 @@ namespace Application {
             Draw.draw_rectangle(cr, 0, 0, alloc.width, alloc.height);
 
             var page = buffer.document.get_page(page_index);
+            double page_width, page_height;
+            page.get_size(out page_width, out page_height);
+            
+            cr.scale(alloc.width / page_width, alloc.width / page_width);
             page.render(cr);
             
             return true;
