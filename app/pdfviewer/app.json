@@ -1,0 +1,5 @@
+{
+	"name" : "PDF Viewer",
+	"execute" : "main",
+	"mode-name" : "pdfviewer"
+}

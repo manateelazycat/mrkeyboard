@@ -41,6 +41,8 @@ public class DaemonServer : Object {
             var file_type = content_type.split("/")[0];
             if (file_type == "text" || content_type == "application/x-shellscript") {
                 window_manager.new_tab("editor", path, true);
+            } else if (content_type == "application/pdf") {
+                window_manager.new_tab("pdfviewer", path, true);
             } else {
                 print("Open %s: %s %s\n", file_type, file_info.get_content_type(), path);
             }
@@ -88,10 +90,8 @@ public class DaemonServer : Object {
                     window_manager.new_tab("terminal", "", true);
                 } else if (keyevent_name == "Super + m") {
                     window_manager.new_tab("browser", "", true);
-                } else if (keyevent_name == "Super + j") {
-                    window_manager.new_tab("editor", "", true);
                 } else if (keyevent_name == "Super + k") {
-                    window_manager.new_tab("filemanager", "", true);
+                    window_manager.new_tab("filemanager", "/space/data/Book", true);
                 } else if (keyevent_name == "Alt + ,") {
                     var window = window_manager.get_focus_window();
                     window.tabbar.select_prev_tab();
