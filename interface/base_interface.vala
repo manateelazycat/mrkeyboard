@@ -25,7 +25,7 @@ namespace Interface {
         public signal void quit_app();
     }
     
-    void on_bus_aquired(DBusConnection conn, Application.ClientServer client_server) {
+    void on_bus_acquired(DBusConnection conn, Application.ClientServer client_server) {
         try {
             conn.register_object(Application.dbus_path, client_server);
         } catch (IOError e) {
@@ -54,7 +54,7 @@ namespace Interface {
             Bus.own_name(BusType.SESSION,
                          Application.dbus_name,
                          BusNameOwnerFlags.NONE,
-                         ((con) => {on_bus_aquired(con, this);}),
+                         ((con) => {on_bus_acquired(con, this);}),
                          () => {
                              init(args);
                          },

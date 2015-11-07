@@ -178,7 +178,7 @@ public class DaemonServer : Object {
     }
 }
 
-void on_bus_aquired(DBusConnection conn, DaemonServer daemon_server) {
+void on_bus_acquired(DBusConnection conn, DaemonServer daemon_server) {
     try {
         conn.register_object("/org/mrkeyboard/daemon", daemon_server);
     } catch (IOError e) {
@@ -192,9 +192,9 @@ void main(string[] args) {
     Bus.own_name(BusType.SESSION,
                  "org.mrkeyboard.Daemon",
                  BusNameOwnerFlags.NONE,
-                 ((con) => {on_bus_aquired(con, daemon_server);}),
+                 ((con) => {on_bus_acquired(con, daemon_server);}),
                  () => {},
-                 () => stderr.printf ("Could not aquire name\n"));
+                 () => stderr.printf ("Could not acquire name\n"));
     
     daemon_server.init(args);
 }
