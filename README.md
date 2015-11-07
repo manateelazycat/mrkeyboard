@@ -20,8 +20,10 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
-* Write movie player for life.
+* Write image viewer to see my girl. ;)
+* Write process manager to control process.
 * Write music player for life.
+* Write movie player for life.
 * Design search framework.
 * Make browser support flash.
 * Write js vimium plugin.
@@ -31,10 +33,7 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 * Write IRC application for hacking team communication.
 * Write english completion plugins to make my figure faster. 
 * Write wifi-share for hacking at TV. ;)
-* Write image viewer to see my girl. ;)
 * Write markdown editor with previewer.
-* Write process manager to control process.
-* Write basic editor, such as language highlight, code completion.
 * Write hackable editor that powerful as emacs, then we can reach editor-strap. 
 * Add welcome page.
 * Research Atom editor, steal nice feature. ;)
