@@ -14,6 +14,8 @@ main: ../../interface/base_interface.vala \
     --pkg=gdk-x11-3.0 \
     --pkg=gee-1.0 \
     --pkg=gtk+-3.0 \
+    --pkg=sqlite3 \
+    --vapidir=./lib \
     ../../interface/base_interface.vala \
     ../../interface/clone/interface.vala \
     ../../interface/clone/window.vala \

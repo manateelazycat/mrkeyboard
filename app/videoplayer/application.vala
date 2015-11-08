@@ -1,7 +1,8 @@
-using Gtk;
-using Gee;
-using Utils;
 using Draw;
+using Gee;
+using Gtk;
+using Sqlite;
+using Utils;
 
 namespace Application {
     const string app_name = "videoplayer";
@@ -54,22 +55,31 @@ namespace Application {
     }
 
     public class PlayerView : DrawingArea {
-        public string video_path;
-        public Gdk.Color background_color = Utils.color_from_string("#000000");
         public GLib.Pid process_id;
-        public int volume_offset;
+        public Gdk.Color background_color = Utils.color_from_string("#000000");
         public int time_offset;
+        public int volume_offset;
+        public string video_path;
+        public string position_db_dir = "/tmp/mrkeyboard";
+        public string position_db_file = "video_position_db";
+        public Sqlite.Database position_db;
         
+        private IOChannel io_write;
+        private IOChannel io_read;
+        private int stderror;
         private int stdinput;
         private int stdoutput;
-        private int stderror;
-        private IOChannel io_write;
         private size_t bw;
+        private string last_output;
+        private string time_pos;
         
         public PlayerView(string path) {
             video_path = path;
             volume_offset = 5;
             time_offset = 5;
+            time_pos = "0";
+            
+            init_pos_db();
             
             set_can_focus(true);  // make widget can receive key event 
             add_events (Gdk.EventMask.BUTTON_PRESS_MASK
@@ -104,6 +114,26 @@ namespace Application {
                             out stderror);
                         
                         io_write = new IOChannel.unix_new(stdinput);
+                        io_read = new IOChannel.unix_new(stdoutput);
+                        
+                        restore_position();
+                        
+                        try {
+                            io_read.set_encoding(null);
+                        } catch (IOChannelError e) {
+                            stderr.printf("%s\n", e.message);
+                        }
+                        if(!(io_read.add_watch(IOCondition.IN | IOCondition.HUP, gio_in) != 0)) {
+                            print("Cannot add watch on IOChannel!\n");
+                            return;
+                        }
+                        
+                        // Rember video position all the time.
+                        Timeout.add(1000, () => {
+                                rember_position();
+                                
+                                return true;
+                            });
                     } catch (SpawnError e) {
                         stderr.printf("%s\n", e.message);
                     }
@@ -122,6 +152,81 @@ namespace Application {
                 });
             
             draw.connect(on_draw);
+        }
+
+        private bool gio_in(IOChannel gio, IOCondition condition) {
+            IOStatus ret;
+            size_t len;
+
+            try {
+                ret = gio.read_line(out last_output, out len, null);
+            } catch(IOChannelError e) {
+                print("Error reading: %s\n", e.message);
+            } catch(ConvertError e) {
+                print("Error reading: %s\n", e.message);
+            }
+
+            return true;
+        }
+
+        private void init_pos_db() {
+            Utils.touch_dir(position_db_dir);
+            int result = Sqlite.Database.open("%s/%s".printf(position_db_dir, position_db_file), out position_db);
+            if (result != Sqlite.OK) {
+                stderr.printf ("Can't open database: %d: %s\n", position_db.errcode(), position_db.errmsg());
+            }
+            
+            string query = """
+                CREATE TABLE IF NOT EXISTS Position (
+                    name		TEXT		PRIMARY KEY		NOT NULL,
+                    position	TEXT                        NOT NULL
+                    );
+                """;
+            
+            string errmsg;
+            result = position_db.exec(query, null, out errmsg);
+            if (result != Sqlite.OK) {
+                stderr.printf ("Error: %s\n", errmsg);
+            }
+        }
+        
+        private void rember_position() {
+            flush_command("get_time_pos");
+            
+            Timeout.add(100, () => {
+                    var outputs = last_output.split("=");
+                    if (outputs.length >= 2 && outputs[0] == "ANS_TIME_POSITION") {
+                        string query = """
+                            INSERT OR REPLACE INTO Position (name, position) VALUES ('%s', '%s');
+                            """.printf(video_path, outputs[1].split(".")[0]);
+                        
+                        string errmsg;
+                        int result = position_db.exec(query, null, out errmsg);
+                        if (result != Sqlite.OK) {
+                            stderr.printf ("Error: %s\n", errmsg);
+                        }                        
+                    }
+                    
+                    return false;
+                });
+        }
+        
+        private int restore_position_callback (int n_columns, string[] values, string[] column_names) {
+            for (int i = 0; i < n_columns; i++) {
+                time_pos = values[i];
+                Timeout.add(100, () => {
+                        flush_command("seek %s 2".printf(time_pos));
+                                
+                        return false;
+                    });
+            }
+            
+            return 0;
+        }
+        
+        private void restore_position() {
+             string query = "SELECT * FROM Position WHERE name LIKE '%" + video_path + "%'";
+             position_db.exec(query, restore_position_callback, null);
         }
         
         public bool on_draw(Gtk.Widget widget, Cairo.Context cr) {
