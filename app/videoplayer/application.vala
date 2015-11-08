@@ -146,6 +146,8 @@ namespace Application {
                 play_forward();
             } else if (keyname == "Space") {
                 play_or_pause();
+            } else if (keyname == "o") {
+                toggle_osd();
             }
         }        
         
@@ -167,6 +169,10 @@ namespace Application {
         
         private void play_or_pause() {
             flush_command("pause\n");
+        }
+        
+        private void toggle_osd() {
+            flush_command("osd\n");
         }
         
         private void flush_command(string command) {
