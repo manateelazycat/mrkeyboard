@@ -1,4 +1,5 @@
 using Gtk;
+using Gee;
 using Utils;
 using Draw;
 
@@ -54,19 +55,21 @@ namespace Application {
 
     public class PlayerView : DrawingArea {
         public string video_path;
-        public string mplayer_channel_file;
-        private IOChannel mplayer_channel;
         public Gdk.Color background_color = Utils.color_from_string("#000000");
         public GLib.Pid process_id;
-        public int volume;
         public int volume_offset;
+        public int time_offset;
         
+        private int stdinput;
+        private int stdoutput;
+        private int stderror;
+        private IOChannel io_write;
         private size_t bw;
         
         public PlayerView(string path) {
             video_path = path;
-            volume = 100;
             volume_offset = 5;
+            time_offset = 5;
             
             set_can_focus(true);  // make widget can receive key event 
             add_events (Gdk.EventMask.BUTTON_PRESS_MASK
@@ -78,21 +81,9 @@ namespace Application {
             
             realize.connect((w) => {
                     var xid = (int)((Gdk.X11.Window) get_window()).get_xid();
-                    Utils.touch_dir("/tmp/mrkeyboard/");
-                    mplayer_channel_file = "/tmp/mrkeyboard/mplayer_channel-%i".printf(xid);
                     
                     try {
-                        Process.spawn_command_line_async("rm -f %s".printf(mplayer_channel_file));
-                        Process.spawn_command_line_async("mkfifo %s".printf(mplayer_channel_file));
-                        
-                        try {
-                            mplayer_channel = new IOChannel.file("%s".printf(mplayer_channel_file), "r+");
-                        } catch (FileError e) {
-                            stderr.printf ("%s\n", e.message);
-                        }
-                    
-                        string spawn_command_line = "mplayer -slave -quiet -input file=%s %s -wid %i -volume %i".printf(
-                            mplayer_channel_file, video_path, xid, volume);
+                        string spawn_command_line = "mplayer -slave -quiet %s -wid %i".printf(video_path, xid);
                         string[] spawn_args;
                         try {
                             Shell.parse_argv(spawn_command_line, out spawn_args);
@@ -100,20 +91,19 @@ namespace Application {
                             stderr.printf("%s\n", e.message);
                         }
                         
-                        Process.spawn_async(
+                        Process.spawn_async_with_pipes(
                             null,
                             spawn_args,
                             null,
                             SpawnFlags.SEARCH_PATH,
                             null,
-                            out process_id);
+                            out process_id,
+                            out stdinput,
+                            out stdoutput,
+                            out stderror);
+                        
+                        io_write = new IOChannel.unix_new(stdinput);
                     } catch (SpawnError e) {
-                        stderr.printf("%s\n", e.message);
-                    }
-
-                    try {
-                        mplayer_channel = new IOChannel.file("%s".printf(mplayer_channel_file), "r+");
-                    } catch (FileError e) {
                         stderr.printf("%s\n", e.message);
                     }
                 });
@@ -126,7 +116,6 @@ namespace Application {
             destroy.connect((w) => {
                     try {
                         Process.spawn_command_line_async("kill %i".printf(process_id));
-                        Process.spawn_command_line_async("rm -f %s".printf(mplayer_channel_file));
                     } catch (SpawnError e) {
                         stderr.printf("%s\n", e.message);
                     }
@@ -153,35 +142,41 @@ namespace Application {
         public void handle_key_press(Gtk.Widget widget, Gdk.EventKey key_event) {
             string keyname = Keymap.get_keyevent_name(key_event);
             if (keyname == "j") {
-                decrease_volume();
+                audio_minus();
             } else if (keyname == "k") {
-                increase_volume();
+                audio_plus();
             } else if (keyname == "h") {
-
+                play_backward();
             } else if (keyname == "l") {
-
+                play_forward();
             }
         }        
         
-        private void increase_volume() {
-            volume = int.min(100, volume + volume_offset);
-            flush_command("volume %i\n".printf(volume));
+        private void audio_plus() {
+            flush_command("volume %i\n".printf(volume_offset));
         }
         
-        private void decrease_volume() {
-            volume = int.max(0, volume - volume_offset);
-            flush_command("volume %i\n".printf(volume));
+        private void audio_minus() {
+            flush_command("volume -%i\n".printf(volume_offset));
+        }
+        
+        private void play_forward() {
+            flush_command("seek +%d 0\n".printf(time_offset));
+        }
+        
+        private void play_backward() {
+            flush_command("seek -%d 0\n".printf(time_offset));
         }
         
         private void flush_command(string command) {
             try {
                 try {
-                    mplayer_channel.write_chars(command.to_utf8(), out bw);
+                    io_write.write_chars(command.to_utf8(), out bw);
                 } catch (ConvertError e) {
                     stderr.printf("%s\n", e.message);
                 }
                 
-                mplayer_channel.flush();
+                io_write.flush();
             } catch (IOChannelError e) {
                 stderr.printf("%s\n", e.message);
             }
