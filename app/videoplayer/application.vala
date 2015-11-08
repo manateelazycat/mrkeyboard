@@ -215,7 +215,9 @@ namespace Application {
             for (int i = 0; i < n_columns; i++) {
                 time_pos = values[i];
                 Timeout.add(100, () => {
+                        flush_command("osd 0");
                         flush_command("seek %s 2".printf(time_pos));
+                        flush_command("osd 1");
                                 
                         return false;
                     });
