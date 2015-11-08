@@ -149,6 +149,8 @@ namespace Application {
                 play_backward();
             } else if (keyname == "l") {
                 play_forward();
+            } else if (keyname == "Space") {
+                play_or_pause();
             }
         }        
         
@@ -166,6 +168,10 @@ namespace Application {
         
         private void play_backward() {
             flush_command("seek -%d 0\n".printf(time_offset));
+        }
+        
+        private void play_or_pause() {
+            flush_command("pause\n");
         }
         
         private void flush_command(string command) {
