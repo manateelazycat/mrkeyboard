@@ -20,9 +20,14 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
+* Music player: use artist/time instead size/modification_time
+* Music player: add play_next/play_prev
+* Music player: add pause
+* Music player: jump to playing
+* Music player: drawing process.
+* Music player: drawing artist image.
 * Write image viewer to see my girl. ;)
 * Write process manager to control process.
-* Write music player for life.
 * Design search framework.
 * Make browser support flash.
 * Write js vimium plugin.

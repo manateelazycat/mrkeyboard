@@ -3,6 +3,7 @@ using Gdk;
 using Utils;
 using Widget;
 using Gee;
+using ID3;
 
 extern char* current_dir();
 
@@ -125,6 +126,7 @@ namespace Application {
         public string file_dir;
         public string modification_time;
         public Buffer buffer;
+        // public Tag tag;
         
         public int play_icon_padding_x = 5;
         public int play_icon_padding_y = 4;
@@ -135,11 +137,15 @@ namespace Application {
             buffer = buf;
             file_info = info;
             file_dir = directory;
+            // tag = new Tag();
             
             try {
-                var file = File.new_for_path(GLib.Path.build_filename(file_dir, file_info.get_name()));
+                var file_path = GLib.Path.build_filename(file_dir, file_info.get_name());
+                var file = File.new_for_path(file_path);
                 var mod_time = file.query_info(FileAttribute.TIME_MODIFIED, FileQueryInfoFlags.NONE, null).get_modification_time();
                 modification_time = Time.local(mod_time.tv_sec).format("%Y-%m-%d  %R");
+                
+                // tag.Link(file_path);
             } catch (Error err) {
                 stderr.printf ("Error: FileItem failed: %s\n", err.message);
             }
@@ -235,16 +241,20 @@ namespace Application {
                 stderr.printf("%s\n", e.message);
             }
                         
-            Process.spawn_async_with_pipes(
-                null,
-                spawn_args,
-                null,
-                SpawnFlags.SEARCH_PATH,
-                null,
-                out process_id,
-                out stdinput,
-                out stdoutput,
-                out stderror);
+            try {
+                Process.spawn_async_with_pipes(
+                    null,
+                    spawn_args,
+                    null,
+                    SpawnFlags.SEARCH_PATH,
+                    null,
+                    out process_id,
+                    out stdinput,
+                    out stdoutput,
+                    out stderror);
+            } catch (SpawnError e) {
+                stderr.printf("%s\n", e.message);
+            }
             
             io_write = new IOChannel.unix_new(stdinput);
         }

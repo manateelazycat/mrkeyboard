@@ -16,6 +16,8 @@ main: ../../interface/base_interface.vala \
     --pkg=gdk-x11-3.0 \
     --pkg=gee-1.0 \
     --pkg=gtk+-3.0 \
+    --pkg=id3 \
+    --vapidir=./lib \
     ../../interface/base_interface.vala \
     ../../interface/multiview/interface.vala \
     ../../interface/multiview/buffer.vala \
