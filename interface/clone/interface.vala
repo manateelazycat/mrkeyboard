@@ -47,6 +47,8 @@ namespace Interface {
                     });
                 daemon.quit_app.connect(() => {
                         print("Receive quit signal from daemon, quit app process...\n");
+                        
+                        destroy_windows();
                         Gtk.main_quit();
                     });
             } catch (IOError e) {
@@ -428,6 +430,12 @@ namespace Interface {
                 
                 print("All app window destroy, exit %s app process.\n", Application.app_name);
                 Gtk.main_quit();
+            }
+        }
+        
+        private void destroy_windows() {
+            foreach (Window window in window_list) {
+                window.destroy();
             }
         }
         

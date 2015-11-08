@@ -21,10 +21,10 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 ## TODO
 
 * VidePlayer: draw background to avoid dirty area.
-* VidePlayer: kill mplayer process when window destroy.
 * VidePlayer: pause/re-player video when switch window.
 * VidePlayer: make key binding process adjust.
 * VidePlayer: make key binding volumn adjust.
+* VidePlayer: add fullscreen feature.
 * Write image viewer to see my girl. ;)
 * Write process manager to control process.
 * Write music player for life.

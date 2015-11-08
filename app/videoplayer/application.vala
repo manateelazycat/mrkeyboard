@@ -57,10 +57,10 @@ namespace Application {
         public string mplayer_channel_file;
         private IOChannel mplayer_channel;
         public Gdk.Color background_color = Utils.color_from_string("#000000");
+        public GLib.Pid process_id;
         
         public PlayerView(string path) {
             video_path = path;
-            mplayer_channel_file = "/tmp/mrkeyboard/mplayer_channel";
             
             set_can_focus(true);  // make widget can receive key event 
             add_events (Gdk.EventMask.BUTTON_PRESS_MASK
@@ -72,26 +72,50 @@ namespace Application {
             
             realize.connect((w) => {
                     var xid = (int)((Gdk.X11.Window) get_window()).get_xid();
+                    mplayer_channel_file = "/tmp/mrkeyboard/mplayer_channel-%i".printf(xid);
+                    
                     try {
                         Process.spawn_command_line_async("rm -f %s".printf(mplayer_channel_file));
                         Process.spawn_command_line_async("mkfifo %s".printf(mplayer_channel_file));
-                        Process.spawn_command_line_async("mplayer -slave -quiet -input file=%s %s -wid %i".printf(mplayer_channel_file, video_path, xid));
+                        
+                        string spawn_command_line = "mplayer -slave -quiet -input file=%s %s -wid %i".printf(mplayer_channel_file, video_path, xid);
+                        string[] spawn_args;
+                        try {
+                            Shell.parse_argv(spawn_command_line, out spawn_args);
+                        } catch (ShellError e) {
+                            stderr.printf("%s\n", e.message);
+                        }
+                        
+                        Process.spawn_async(
+                            null,
+                            spawn_args,
+                            null,
+                            SpawnFlags.SEARCH_PATH,
+                            null,
+                            out process_id);
                     } catch (SpawnError e) {
-                        stderr.printf ("%s\n", e.message);
+                        stderr.printf("%s\n", e.message);
                     }
 
                     try {
                         mplayer_channel = new IOChannel.file("%s".printf(mplayer_channel_file), "r+");
                     } catch (FileError e) {
-                        stderr.printf ("%s\n", e.message);
+                        stderr.printf("%s\n", e.message);
                     }
-                    print("Video player: %i\n", xid);
                 });
             configure_event.connect((w, e) => {
                     print("*********************\n");
                     queue_draw();
                     
                     return false;
+                });
+            destroy.connect((w) => {
+                    try {
+                        Process.spawn_command_line_async("kill %i".printf(process_id));
+                        Process.spawn_command_line_async("rm -f %s".printf(mplayer_channel_file));
+                    } catch (SpawnError e) {
+                        stderr.printf("%s\n", e.message);
+                    }
                 });
             
             draw.connect(on_draw);
