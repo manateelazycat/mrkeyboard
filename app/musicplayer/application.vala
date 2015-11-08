@@ -4,6 +4,8 @@ using Utils;
 using Widget;
 using Gee;
 
+extern char* current_dir();
+
 namespace Application {
     const string app_name = "musicplayer";
     const string dbus_name = "org.mrkeyboard.app.musicplayer";
@@ -21,30 +23,32 @@ namespace Application {
     }
 
     public class Window : Interface.Window {
-        public FileView fileview;
+        public Musicview musicview;
         
         public Window(int width, int height, string bid, Buffer buf) {
             base(width, height, bid, buf);
         }
         
         public override void init() {
-            fileview = new FileView(buffer);
+            musicview = new Musicview(buffer);
             
-            fileview.load_buffer_items();
+            musicview.load_buffer_items();
             
-            fileview.button_press_event.connect((w, e) => {
+            musicview.button_press_event.connect((w, e) => {
                     emit_button_press_event(e);
                     
                     return false;
                 });
-            fileview.active_item.connect((item_index) => {
-                    fileview.buffer.play_music(fileview.items.get(item_index).get_path());
+            musicview.active_item.connect((item_index) => {
+                    musicview.buffer.play_music(musicview.items.get(item_index).get_path());
+                    
+                    musicview.queue_draw();
                 });
-            fileview.realize.connect((w) => {
+            musicview.realize.connect((w) => {
                     update_tab_name(buffer.buffer_path);
                 });
             
-            box.pack_start(fileview, true, true, 0);
+            box.pack_start(musicview, true, true, 0);
         }        
         
         public void update_tab_name(string path) {
@@ -53,7 +57,7 @@ namespace Application {
         }
         
         public override void scroll_vertical(bool scroll_up) {
-            fileview.scroll_vertical(scroll_up);
+            musicview.scroll_vertical(scroll_up);
         }
 
         public override string get_mode_name() {
@@ -61,17 +65,19 @@ namespace Application {
         }
         
         public override Gdk.Window get_event_window() {
-            return fileview.get_window();
+            return musicview.get_window();
         }
     }
 
-    public class FileView : ListView {
+    public class Musicview : ListView {
         public int height = 24;
         public Buffer buffer;
         public ArrayList<FileItem> items;
         
-        public FileView(Buffer buf) {
+        public Musicview(Buffer buf) {
             base();
+            background_color = Utils.color_from_string("#201F1E");
+            item_select_color = Utils.color_from_string("#121212");
             
             buffer = buf;
             items = new ArrayList<FileItem>();
@@ -87,6 +93,8 @@ namespace Application {
             string keyname = Keymap.get_keyevent_name(key_event);
             if (keyname == "f") {
                 buffer.play_music(items.get(current_row).get_path());
+                
+                queue_draw();
             } else if (keyname == "Space") {
                 scroll_vertical(true);
             }
@@ -105,22 +113,27 @@ namespace Application {
         }
         
         public override int[] get_column_widths() {
-            return {-1, 100, 150};
+            return {20, -1, 100, 150};
         }
     }
 
     public class FileItem : ListItem {
-        public Gdk.Color directory_type_color = Utils.color_from_string("#1E90FF");
-        public Gdk.Color file_type_color = Utils.color_from_string("#00CD00");
-        public Gdk.Color attr_type_color = Utils.color_from_string("#333333");
+        public Gdk.Color music_color = Utils.color_from_string("#B3B4B4");
+        public Gdk.Color artist_color = Utils.color_from_string("#717171");
+        public Gdk.Color time_color = Utils.color_from_string("#5A5A5A");
         
         public FileInfo file_info;
         public string file_dir;
         public string modification_time;
+        public Buffer buffer;
         
+        public int play_icon_padding_x = 5;
+        public int play_icon_padding_y = 4;
+        public int music_padding_x = 3;
         public int column_padding_x = 10;
         
-        public FileItem(FileInfo info, string directory) {
+        public FileItem(Buffer buf, FileInfo info, string directory) {
+            buffer = buf;
             file_info = info;
             file_dir = directory;
             
@@ -135,18 +148,18 @@ namespace Application {
         
         public override void render_column_cell(Gtk.Widget widget, Cairo.Context cr, int column_index, int x, int y, int w, int h) {
             if (column_index == 0) {
-                if (file_info.get_file_type() == FileType.DIRECTORY) {
-                    Utils.set_context_color(cr, directory_type_color);
-                } else {
-                    Utils.set_context_color(cr, file_type_color);
+                if (get_path() == buffer.play_path) {
+                    Draw.draw_surface(cr, buffer.play_surface, x + play_icon_padding_x, y + play_icon_padding_y);
                 }
-                Draw.draw_text(widget, cr, file_info.get_display_name(), x + column_padding_x, y);
             } else if (column_index == 1) {
-                var font_description = widget.get_style_context().get_font(Gtk.StateFlags.NORMAL);
-                Utils.set_context_color(cr, attr_type_color);
-                Draw.render_text(cr, GLib.format_size(file_info.get_size()), x, y, w, h, font_description, Pango.Alignment.RIGHT);
+                Utils.set_context_color(cr, music_color);
+                Draw.draw_text(widget, cr, file_info.get_display_name(), x + music_padding_x, y);
             } else if (column_index == 2) {
-                Utils.set_context_color(cr, attr_type_color);
+                var font_description = widget.get_style_context().get_font(Gtk.StateFlags.NORMAL);
+                Utils.set_context_color(cr, time_color);
+                Draw.render_text(cr, GLib.format_size(file_info.get_size()), x, y, w, h, font_description, Pango.Alignment.RIGHT);
+            } else if (column_index == 3) {
+                Utils.set_context_color(cr, time_color);
                 Draw.draw_text(widget, cr, modification_time, x + column_padding_x, y);
             }
         }
@@ -177,6 +190,8 @@ namespace Application {
     public class Buffer : Interface.Buffer {
         public ArrayList<FileItem> file_items;
         public GLib.Pid process_id;
+        public string play_path;
+        public Cairo.ImageSurface play_surface;
         
         private int stderror;
         private int stdinput;
@@ -188,6 +203,9 @@ namespace Application {
             base(path);
             
             file_items = new ArrayList<FileItem>();
+            string current_dir_path;
+            current_dir_path = (string)current_dir();
+            play_surface = new Cairo.ImageSurface.from_png(GLib.Path.build_filename(GLib.Path.get_dirname(current_dir_path), "image", "play.png"));
             
             load_directory(buffer_path);
         }
@@ -207,6 +225,8 @@ namespace Application {
             if (io_write != null) {
                 flush_command("quit 0");
             }
+            
+            play_path = music_path;
             
             string spawn_command_line = "mplayer \"%s\"".printf(music_path);
             string[] spawn_args;
@@ -255,7 +275,7 @@ namespace Application {
                     if (info.get_file_type() == FileType.DIRECTORY) {
                         load_files("%s/%s".printf(path, info.get_name()));
                     } else if (info.get_content_type().split("/")[0] == "audio") {
-                        file_items.add(new FileItem(info, path));
+                        file_items.add(new FileItem(this, info, path));
                     }
         	    }
                 
