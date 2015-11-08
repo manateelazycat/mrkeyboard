@@ -110,7 +110,7 @@ namespace Application {
                 });
             destroy.connect((w) => {
                     try {
-                        flush_command("quit 0\n");
+                        flush_command("quit 0");
                     } catch (SpawnError e) {
                         stderr.printf("%s\n", e.message);
                     }
@@ -152,33 +152,33 @@ namespace Application {
         }        
         
         private void audio_plus() {
-            flush_command("volume %i\n".printf(volume_offset));
+            flush_command("volume %i".printf(volume_offset));
         }
         
         private void audio_minus() {
-            flush_command("volume -%i\n".printf(volume_offset));
+            flush_command("volume -%i".printf(volume_offset));
         }
         
         private void play_forward() {
-            flush_command("seek +%d 0\n".printf(time_offset));
+            flush_command("seek +%d 0".printf(time_offset));
         }
         
         private void play_backward() {
-            flush_command("seek -%d 0\n".printf(time_offset));
+            flush_command("seek -%d 0".printf(time_offset));
         }
         
         private void play_or_pause() {
-            flush_command("pause\n");
+            flush_command("pause");
         }
         
         private void toggle_osd() {
-            flush_command("osd\n");
+            flush_command("osd");
         }
         
         private void flush_command(string command) {
             try {
                 try {
-                    io_write.write_chars(command.to_utf8(), out bw);
+                    io_write.write_chars("%s\n".printf(command).to_utf8(), out bw);
                 } catch (ConvertError e) {
                     stderr.printf("%s\n", e.message);
                 }
