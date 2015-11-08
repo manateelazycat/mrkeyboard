@@ -83,7 +83,8 @@ namespace Application {
                     var xid = (int)((Gdk.X11.Window) get_window()).get_xid();
                     
                     try {
-                        string spawn_command_line = "mplayer -slave -quiet %s -wid %i".printf(video_path, xid);
+                        // options: '-vo gl' use to avoiding visual artifacts when embedding mplayer.
+                        string spawn_command_line = "mplayer -slave -vo gl -quiet %s -wid %i".printf(video_path, xid);
                         string[] spawn_args;
                         try {
                             Shell.parse_argv(spawn_command_line, out spawn_args);
@@ -106,12 +107,6 @@ namespace Application {
                     } catch (SpawnError e) {
                         stderr.printf("%s\n", e.message);
                     }
-                });
-            configure_event.connect((w, e) => {
-                    print("*********************\n");
-                    queue_draw();
-                    
-                    return false;
                 });
             destroy.connect((w) => {
                     try {
