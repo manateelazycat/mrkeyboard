@@ -137,7 +137,7 @@ namespace Application {
             file_dir = directory;
             
             try {
-                var file = File.new_for_path("%s/%s".printf(file_dir, file_info.get_name()));
+                var file = File.new_for_path(GLib.Path.build_filename(file_dir, file_info.get_name()));
                 var mod_time = file.query_info(FileAttribute.TIME_MODIFIED, FileQueryInfoFlags.NONE, null).get_modification_time();
                 modification_time = Time.local(mod_time.tv_sec).format("%Y-%m-%d  %R");
             } catch (Error err) {
@@ -174,7 +174,7 @@ namespace Application {
         }
         
         public string get_path() {
-            return "%s/%s".printf(file_dir, file_info.get_name());
+            return GLib.Path.build_filename(file_dir, file_info.get_name());
         }
         
         public static int compare_file_item(FileItem a, FileItem b) {
@@ -272,7 +272,7 @@ namespace Application {
         	    FileInfo info = null;
         	    while (((info = enumerator.next_file()) != null)) {
                     if (info.get_file_type() == FileType.DIRECTORY) {
-                        load_files("%s/%s".printf(path, info.get_name()));
+                        load_files(GLib.Path.build_filename(path, info.get_name()));
                     } else if (info.get_content_type().split("/")[0] == "audio") {
                         file_items.add(new FileItem(this, info, path));
                     }

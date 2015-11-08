@@ -47,7 +47,7 @@ namespace Application {
                     return false;
                 });
             fileview.active_item.connect((item_index) => {
-                    fileview.load_path("%s/%s".printf(buffer.buffer_path, fileview.items.get(item_index).file_info.get_name()));
+                    fileview.load_path(GLib.Path.build_filename(buffer.buffer_path, fileview.items.get(item_index).file_info.get_name()));
                 });
             fileview.realize.connect((w) => {
                     update_tab_name(buffer.buffer_path);
@@ -106,7 +106,7 @@ namespace Application {
                 list_items.clear();
                 load_buffer_items();
             } else if (keyname == "f") {
-                load_path("%s/%s".printf(buffer.buffer_path, items.get(current_row).file_info.get_name()));
+                load_path(GLib.Path.build_filename(buffer.buffer_path, items.get(current_row).file_info.get_name()));
             } else if (keyname == "'") {
                 load_parent_directory();
             } else if (keyname == "Space") {
@@ -197,7 +197,7 @@ namespace Application {
             buffer_path = directory;
             
             try {
-                var file = File.new_for_path("%s/%s".printf(buffer_path, file_info.get_name()));
+                var file = File.new_for_path(GLib.Path.build_filename(buffer_path, file_info.get_name()));
                 var mod_time = file.query_info(FileAttribute.TIME_MODIFIED, FileQueryInfoFlags.NONE, null).get_modification_time();
                 modification_time = Time.local(mod_time.tv_sec).format("%Y-%m-%d  %R");
             } catch (Error err) {

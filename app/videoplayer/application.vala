@@ -170,7 +170,7 @@ namespace Application {
 
         private void init_pos_db() {
             Utils.touch_dir(position_db_dir);
-            int result = Sqlite.Database.open("%s/%s".printf(position_db_dir, position_db_file), out position_db);
+            int result = Sqlite.Database.open(GLib.Path.build_filename(position_db_dir, position_db_file), out position_db);
             if (result != Sqlite.OK) {
                 stderr.printf ("Can't open database: %d: %s\n", position_db.errcode(), position_db.errmsg());
             }
