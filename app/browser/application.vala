@@ -79,14 +79,10 @@ namespace Application {
         }
 
         private void setup_cookie() {
-            var cookie_dir = GLib.File.new_for_path("%s/.mrkeyboard/".printf(Environment.get_home_dir()));
-            if (!cookie_dir.query_exists ()) {
-                try {
-                    cookie_dir.make_directory_with_parents (null);
-                } catch (GLib.Error err) {
-                    print("Could not create cookie dir: %s\n", err.message);
-                }
-            }            
+            var cookie_dir_path = "%s/.mrkeyboard/".printf(Environment.get_home_dir());
+            var cookie_dir = GLib.File.new_for_path(cookie_dir_path);
+            Utils.touch_dir(cookie_dir_path);
+            
             var session = WebKit.get_default_session();
             var cookiejar = new Soup.CookieJarText(GLib.Path.build_filename(cookie_dir.get_path(), "browser.cookie"), false);
             session.add_feature(cookiejar);

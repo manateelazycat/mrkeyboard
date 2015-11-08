@@ -96,4 +96,15 @@ namespace Utils {
             
         return slice_str;
     }
+
+    public void touch_dir(string dir) {
+        var dir_file = GLib.File.new_for_path(dir);
+        if (!dir_file.query_exists()) {
+            try {
+                dir_file.make_directory_with_parents(null);
+            } catch (GLib.Error err) {
+                print("Could not create dir: %s\n", err.message);
+            }
+        }
+    }
 }

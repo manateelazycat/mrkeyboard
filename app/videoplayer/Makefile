@@ -4,6 +4,7 @@ main: ../../interface/base_interface.vala \
       ../../interface/clone/window.vala \
       ../../interface/clone/clone_window.vala \
       ../../lib/draw.vala \
+      ../../lib/keymap.vala \
       ../../lib/utils.vala \
       application.vala
 	valac -o main \
@@ -18,6 +19,7 @@ main: ../../interface/base_interface.vala \
     ../../interface/clone/window.vala \
     ../../interface/clone/clone_window.vala \
 	../../lib/draw.vala \
+	../../lib/keymap.vala \
     ../../lib/utils.vala \
     application.vala
 clean:
