@@ -115,7 +115,7 @@ namespace Application {
                 });
             destroy.connect((w) => {
                     try {
-                        Process.spawn_command_line_async("kill %i".printf(process_id));
+                        flush_command("quit 0\n");
                     } catch (SpawnError e) {
                         stderr.printf("%s\n", e.message);
                     }
