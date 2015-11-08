@@ -38,8 +38,7 @@ namespace Application {
         }        
         
         public void update_tab_name(string path) {
-            var paths = path.split("/");
-            rename_app_tab(mode_name, buffer_id, paths[paths.length - 1], path);
+            rename_app_tab(mode_name, buffer_id, GLib.Path.get_basename(path), path);
         }
         
         public override void scroll_vertical(bool scroll_up) {

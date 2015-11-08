@@ -38,8 +38,7 @@ namespace Application {
                     return false;
                 });
             sourceview.realize.connect((w) => {
-                    var paths = buffer.buffer_path.split("/");
-                    rename_app_tab(mode_name, buffer_id, paths[paths.length - 1], buffer.buffer_path);
+                    rename_app_tab(mode_name, buffer_id, GLib.Path.get_basename(buffer.buffer_path), buffer.buffer_path);
                 });
             
             scrolled_window = new ScrolledWindow(null, null);

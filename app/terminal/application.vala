@@ -48,8 +48,7 @@ namespace Application {
                     if (working_directory.length > 0) {
                         working_directory = working_directory[0:working_directory.length - 1];
                         if (buffer_path != working_directory) {
-                            var paths = working_directory.split("/");
-                            rename_app_tab(mode_name, buffer_id, paths[paths.length - 1], working_directory);
+                            rename_app_tab(mode_name, buffer_id, GLib.Path.get_basename(working_directory), working_directory);
                             buffer_path = working_directory;
                         }
                     }

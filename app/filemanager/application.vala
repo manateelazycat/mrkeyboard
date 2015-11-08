@@ -60,8 +60,7 @@ namespace Application {
         }        
         
         public void update_tab_name(string path) {
-            var paths = path.split("/");
-            rename_app_tab(mode_name, buffer_id, paths[paths.length - 1], path);
+            rename_app_tab(mode_name, buffer_id, GLib.Path.get_basename(path), path);
         }
         
         public override void scroll_vertical(bool scroll_up) {
@@ -134,8 +133,7 @@ namespace Application {
             if (parent_file != null) {
                 var parent_path = parent_file.get_path();
                 if (parent_path != null) {
-                    var paths = buffer.buffer_path.split("/");
-                    var directory_name = paths[paths.length - 1];
+                    var directory_name = GLib.Path.get_basename(buffer.buffer_path);
                     
                     visible_item_after_load = directory_name;
                     buffer.load_directory(parent_path);
