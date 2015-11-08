@@ -21,6 +21,7 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 ## TODO
 
 * VidePlayer: pause/re-player video when switch window.
+* VidePlayer: remember play position.
 * VidePlayer: add fullscreen feature.
 * Write image viewer to see my girl. ;)
 * Write process manager to control process.
