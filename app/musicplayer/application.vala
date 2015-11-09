@@ -48,6 +48,9 @@ namespace Application {
             musicview.realize.connect((w) => {
                     update_tab_name(buffer.buffer_path);
                 });
+            musicview.destroy.connect((w) => {
+                    musicview.buffer.quit();
+                });
             
             box.pack_start(musicview, true, true, 0);
         }        
@@ -101,6 +104,16 @@ namespace Application {
                 play_prev();
             } else if (keyname == "Space") {
                 scroll_vertical(true);
+            } else if (keyname == ";") {
+                buffer.play_or_pause();
+            } else if (keyname == "h") {
+                buffer.play_backward();
+            } else if (keyname == "l") {
+                buffer.play_forward();
+            } else if (keyname == ",") {
+                buffer.audio_minus();
+            } else if (keyname == ".") {
+                buffer.audio_plus();
             }
         }
         
@@ -221,6 +234,8 @@ namespace Application {
         public GLib.Pid process_id;
         public Cairo.ImageSurface play_surface;
         public FileItem play_item;
+        public int time_offset;
+        public int volume_offset;
         
         private int stderror;
         private int stdinput;
@@ -235,8 +250,16 @@ namespace Application {
             string current_dir_path;
             current_dir_path = (string)current_dir();
             play_surface = new Cairo.ImageSurface.from_png(GLib.Path.build_filename(GLib.Path.get_dirname(current_dir_path), "image", "play.png"));
+            time_offset = 5;
+            volume_offset = 5;
             
             load_directory(buffer_path);
+        }
+        
+        public void quit() {
+            if (io_write != null) {
+                flush_command("quit 0");
+            }
         }
         
         public void load_directory(string path) {
@@ -252,12 +275,10 @@ namespace Application {
         
         public void play_music(FileItem item) {
             play_item = item;
+
+            quit();
             
-            if (io_write != null) {
-                flush_command("quit 0");
-            }
-            
-            string spawn_command_line = "mplayer \"%s\"".printf(play_item.get_path());
+            string spawn_command_line = "mplayer -slave -quiet \"%s\"".printf(play_item.get_path());
             string[] spawn_args;
             try {
                 Shell.parse_argv(spawn_command_line, out spawn_args);
@@ -281,6 +302,26 @@ namespace Application {
             }
             
             io_write = new IOChannel.unix_new(stdinput);
+        }
+        
+        public void play_or_pause() {
+            flush_command("pause");
+        }
+         
+        public void play_forward() {
+            flush_command("seek +%d 0".printf(time_offset));
+        }
+        
+        public void play_backward() {
+            flush_command("seek -%d 0".printf(time_offset));
+        }
+        
+        public void audio_plus() {
+            flush_command("volume %i".printf(volume_offset));
+        }
+        
+        public void audio_minus() {
+            flush_command("volume -%i".printf(volume_offset));
         }
         
         private void flush_command(string command) {

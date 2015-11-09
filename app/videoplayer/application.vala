@@ -242,9 +242,9 @@ namespace Application {
         
         public void handle_key_press(Gtk.Widget widget, Gdk.EventKey key_event) {
             string keyname = Keymap.get_keyevent_name(key_event);
-            if (keyname == "j") {
+            if (keyname == ",") {
                 audio_minus();
-            } else if (keyname == "k") {
+            } else if (keyname == ".") {
                 audio_plus();
             } else if (keyname == "h") {
                 play_backward();
