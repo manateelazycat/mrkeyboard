@@ -114,7 +114,24 @@ namespace Application {
                 buffer.audio_minus();
             } else if (keyname == ".") {
                 buffer.audio_plus();
+            } else if (keyname == "g") {
+                jump_to_playing();
             }
+        }
+        
+        public void jump_to_playing() {
+            var play_row = items.index_of(buffer.play_item);
+            
+            if (play_row > current_row) {
+                current_row = play_row;
+                visible_item(true);
+            } else {
+                current_row = play_row;
+                visible_item(false);
+            }
+            
+            
+            queue_draw();
         }
         
         public void play_next() {

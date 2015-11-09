@@ -21,7 +21,6 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 ## TODO
 
 * Music player: use artist/time instead size/modification_time
-* Music player: jump to playing
 * Music player: drawing process.
 * Music player: drawing artist image.
 * Write image viewer to see my girl. ;)
