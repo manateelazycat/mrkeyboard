@@ -3,7 +3,7 @@ using Gdk;
 using Utils;
 using Widget;
 using Gee;
-using ID3;
+using Tagle;
 
 extern char* current_dir();
 
@@ -167,20 +167,20 @@ namespace Application {
         }
         
         public override int[] get_column_widths() {
-            return {20, -1, 100, 150};
+            return {20, -1, 150, 300};
         }
     }
 
     public class FileItem : ListItem {
         public Gdk.Color music_color = Utils.color_from_string("#B3B4B4");
         public Gdk.Color artist_color = Utils.color_from_string("#717171");
-        public Gdk.Color time_color = Utils.color_from_string("#5A5A5A");
+        public Gdk.Color album_color = Utils.color_from_string("#5A5A5A");
         
         public FileInfo file_info;
         public string file_dir;
         public string modification_time;
         public Buffer buffer;
-        // public Tag tag;
+        public Tagle.Id3 tag;
         
         public int play_icon_padding_x = 5;
         public int play_icon_padding_y = 4;
@@ -191,7 +191,6 @@ namespace Application {
             buffer = buf;
             file_info = info;
             file_dir = directory;
-            // tag = new Tag();
             
             try {
                 var file_path = GLib.Path.build_filename(file_dir, file_info.get_name());
@@ -199,7 +198,7 @@ namespace Application {
                 var mod_time = file.query_info(FileAttribute.TIME_MODIFIED, FileQueryInfoFlags.NONE, null).get_modification_time();
                 modification_time = Time.local(mod_time.tv_sec).format("%Y-%m-%d  %R");
                 
-                // tag.Link(file_path);
+                tag = new Tagle.Id3(file_path);
             } catch (Error err) {
                 stderr.printf ("Error: FileItem failed: %s\n", err.message);
             }
@@ -212,14 +211,14 @@ namespace Application {
                 }
             } else if (column_index == 1) {
                 Utils.set_context_color(cr, music_color);
-                Draw.draw_text(widget, cr, file_info.get_display_name(), x + music_padding_x, y);
+                Draw.draw_text(widget, cr, tag.title, x + music_padding_x, y);
             } else if (column_index == 2) {
                 var font_description = widget.get_style_context().get_font(Gtk.StateFlags.NORMAL);
-                Utils.set_context_color(cr, time_color);
-                Draw.render_text(cr, GLib.format_size(file_info.get_size()), x, y, w, h, font_description, Pango.Alignment.RIGHT);
+                Utils.set_context_color(cr, artist_color);
+                Draw.render_text(cr, tag.artist, x, y, w, h, font_description, Pango.Alignment.RIGHT);
             } else if (column_index == 3) {
-                Utils.set_context_color(cr, time_color);
-                Draw.draw_text(widget, cr, modification_time, x + column_padding_x, y);
+                Utils.set_context_color(cr, album_color);
+                Draw.draw_text(widget, cr, tag.album, x + column_padding_x, y);
             }
         }
         
