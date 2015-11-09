@@ -41,7 +41,7 @@ namespace Application {
                     return false;
                 });
             musicview.active_item.connect((item_index) => {
-                    musicview.buffer.play_music(musicview.items.get(item_index).get_path());
+                    musicview.buffer.play_music(musicview.items.get(item_index));
                     
                     musicview.queue_draw();
                 });
@@ -92,11 +92,35 @@ namespace Application {
         public void handle_key_press(Gtk.Widget widget, Gdk.EventKey key_event) {
             string keyname = Keymap.get_keyevent_name(key_event);
             if (keyname == "f") {
-                buffer.play_music(items.get(current_row).get_path());
+                buffer.play_music(items.get(current_row));
                 
                 queue_draw();
+            } else if (keyname == "n") {
+                play_next();
+            } else if (keyname == "p") {
+                play_prev();
             } else if (keyname == "Space") {
                 scroll_vertical(true);
+            }
+        }
+        
+        public void play_next() {
+            var play_row = items.index_of(buffer.play_item);
+            if (play_row < items.size - 1) {
+                play_row++;
+                buffer.play_music(items.get(play_row));
+                
+                queue_draw();
+            }
+        }
+        
+        public void play_prev() {
+            var play_row = items.index_of(buffer.play_item);
+            if (play_row > 0) {
+                play_row--;
+                buffer.play_music(items.get(play_row));
+                
+                queue_draw();
             }
         }
         
@@ -153,7 +177,7 @@ namespace Application {
         
         public override void render_column_cell(Gtk.Widget widget, Cairo.Context cr, int column_index, int x, int y, int w, int h) {
             if (column_index == 0) {
-                if (get_path() == buffer.play_path) {
+                if (this == buffer.play_item) {
                     Draw.draw_surface(cr, buffer.play_surface, x + play_icon_padding_x, y + play_icon_padding_y);
                 }
             } else if (column_index == 1) {
@@ -195,8 +219,8 @@ namespace Application {
     public class Buffer : Interface.Buffer {
         public ArrayList<FileItem> file_items;
         public GLib.Pid process_id;
-        public string play_path;
         public Cairo.ImageSurface play_surface;
+        public FileItem play_item;
         
         private int stderror;
         private int stdinput;
@@ -222,18 +246,18 @@ namespace Application {
             load_files(buffer_path);
             
             if (file_items.size > 0) {
-                play_music(file_items[0].get_path());
+                play_music(file_items[0]);
             }
         }
         
-        public void play_music(string music_path) {
+        public void play_music(FileItem item) {
+            play_item = item;
+            
             if (io_write != null) {
                 flush_command("quit 0");
             }
             
-            play_path = music_path;
-            
-            string spawn_command_line = "mplayer \"%s\"".printf(music_path);
+            string spawn_command_line = "mplayer \"%s\"".printf(play_item.get_path());
             string[] spawn_args;
             try {
                 Shell.parse_argv(spawn_command_line, out spawn_args);
