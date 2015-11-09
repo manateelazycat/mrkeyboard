@@ -23,9 +23,6 @@ namespace Tagle {
         public string album { get; set; }
         public int year { get; set; }
         public Genre genre { get; set; }
-        public uint8 track { get; set; }
-        public TagVersion version { get; set; }
-        public int speed { get; set; }
   	  	
       	public Id3 (string path) throws Error {
       	    uint8[] buffer = new uint8[128];
@@ -39,14 +36,7 @@ namespace Tagle {
             artist = get_utf8_string(buffer, 33, 63);
             album = get_utf8_string(buffer, 63, 93);
             year = ((string) buffer[93:97]).to_int ();
-            
             genre = (Genre) buffer[127];
-            if (buffer[125] == 0 && buffer[126] != 0) {
-                version = TagVersion.ID3_V1_1;
-                track = buffer[126];
-            } else {
-                version = TagVersion.ID3_V1;
-            }
         }
         
         private string get_utf8_string(uint8[] buffer, int start, int end) {
