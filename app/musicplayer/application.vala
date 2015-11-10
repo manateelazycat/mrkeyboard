@@ -167,25 +167,25 @@ namespace Application {
         }
         
         public override int[] get_column_widths() {
-            return {20, -1, 150, 300};
+            return {20, -1, 150, 80};
         }
     }
 
     public class FileItem : ListItem {
         public Gdk.Color music_color = Utils.color_from_string("#B3B4B4");
         public Gdk.Color artist_color = Utils.color_from_string("#717171");
-        public Gdk.Color album_color = Utils.color_from_string("#5A5A5A");
+        public Gdk.Color duration_color = Utils.color_from_string("#5A5A5A");
         
         public FileInfo file_info;
         public string file_dir;
-        public string modification_time;
+        public string duration;
         public Buffer buffer;
         public Tagle.Id3 tag;
         
         public int play_icon_padding_x = 5;
         public int play_icon_padding_y = 4;
         public int music_padding_x = 3;
-        public int column_padding_x = 10;
+        public int duration_padding_x = 20;
         
         public FileItem(Buffer buf, FileInfo info, string directory) {
             buffer = buf;
@@ -194,14 +194,32 @@ namespace Application {
             
             try {
                 var file_path = GLib.Path.build_filename(file_dir, file_info.get_name());
-                var file = File.new_for_path(file_path);
-                var mod_time = file.query_info(FileAttribute.TIME_MODIFIED, FileQueryInfoFlags.NONE, null).get_modification_time();
-                modification_time = Time.local(mod_time.tv_sec).format("%Y-%m-%d  %R");
-                
                 tag = new Tagle.Id3(file_path);
+                duration = format_duration(tag.duration);
             } catch (Error err) {
                 stderr.printf ("Error: FileItem failed: %s\n", err.message);
             }
+        }
+        
+        public string format_duration(int duration) {
+            int duration_secs = duration / 1000;
+            int duration_mins = duration / 60000;
+            int duration_remaining_secs = duration_secs - duration_mins * 60;
+            
+            string min_string;
+            string sec_string;
+            if (duration_mins < 10) {
+                min_string = "0%i".printf(duration_mins);
+            } else {
+                min_string = "%i".printf(duration_mins);
+            }
+            if (duration_remaining_secs < 10) {
+                sec_string = "0%i".printf(duration_remaining_secs);
+            } else {
+                sec_string = "%i".printf(duration_remaining_secs);
+            }
+            
+            return "%s:%s".printf(min_string, sec_string);
         }
         
         public override void render_column_cell(Gtk.Widget widget, Cairo.Context cr, int column_index, int x, int y, int w, int h) {
@@ -217,8 +235,8 @@ namespace Application {
                 Utils.set_context_color(cr, artist_color);
                 Draw.render_text(cr, tag.artist, x, y, w, h, font_description, Pango.Alignment.RIGHT);
             } else if (column_index == 3) {
-                Utils.set_context_color(cr, album_color);
-                Draw.draw_text(widget, cr, tag.album, x + column_padding_x, y);
+                Utils.set_context_color(cr, duration_color);
+                Draw.draw_text(widget, cr, duration, x + duration_padding_x, y);
             }
         }
         

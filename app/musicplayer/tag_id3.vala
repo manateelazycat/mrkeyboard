@@ -21,6 +21,7 @@ namespace Tagle {
         public string title { get; set; }
         public string artist { get; set; }
         public string album { get; set; }
+        public int duration { get; set; }
         public int year { get; set; }
         public Genre genre { get; set; }
   	  	
@@ -38,6 +39,22 @@ namespace Tagle {
             
             year = int.parse((string) buffer[93:97]);
             genre = (Genre) buffer[127];
+            
+            // FIXME: we need faster way than spawn process to get duration.
+            string stdout;
+            string stderr;
+            int status;
+            string[] spawn_args;
+            Shell.parse_argv("mediainfo --Inform=\"Audio;%Duration%\" \"%s\"".printf(path), out spawn_args);
+            Process.spawn_sync(null,
+                               spawn_args,
+                               null,
+                               SpawnFlags.SEARCH_PATH,
+                               null,
+                               out stdout,
+                               out stderr,
+                               out status);
+            duration = int.parse(stdout);
         }
             
         private string get_utf8_string(uint8[] buffer, int start, int end) {
