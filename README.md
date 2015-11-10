@@ -26,14 +26,13 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 * Image viewer: add slideview.
 * Design search framework.
 * Make browser support flash.
+* Write IRC application for hacking team communication.
 * Write js vimium plugin.
 * Design application package standard.
 * Design keystroke standard and build one-key system for feature. ;)
 * Implement package manager and smart notify bar.
-* Write IRC application for hacking team communication.
 * Write english completion plugins to make my figure faster. 
 * Write wifi-share for hacking at TV. ;)
-* Write markdown editor with previewer.
 * Write hackable editor that powerful as emacs, then we can reach editor-strap. 
 * Add welcome page.
 * Research Atom editor, steal nice feature. ;)
