@@ -45,6 +45,8 @@ public class DaemonServer : Object {
                 window_manager.new_tab("pdfviewer", path, true);
             } else if (file_type == "video" || content_type == "application/vnd.rn-realmedia") {
                 window_manager.new_tab("videoplayer", path, true);
+            } else if (file_type == "image") {
+                window_manager.new_tab("imageviewer", path, true);
             } else {
                 print("Open %s: %s %s\n", file_type, file_info.get_content_type(), path);
             }
@@ -95,7 +97,7 @@ public class DaemonServer : Object {
                 } else if (keyevent_name == "Super + j") {
                     window_manager.new_tab("musicplayer", "/home/andy/Daniel Powter", true);
                 } else if (keyevent_name == "Super + k") {
-                    window_manager.new_tab("filemanager", "", true);
+                    window_manager.new_tab("filemanager", "/space/data/Picture", true);
                 } else if (keyevent_name == "Alt + ,") {
                     var window = window_manager.get_focus_window();
                     window.tabbar.select_prev_tab();
