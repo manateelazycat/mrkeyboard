@@ -48,9 +48,6 @@ namespace Application {
             musicview.realize.connect((w) => {
                     update_tab_name(buffer.buffer_path);
                 });
-            musicview.destroy.connect((w) => {
-                    musicview.buffer.quit();
-                });
             
             box.pack_start(musicview, true, true, 0);
         }        
@@ -294,12 +291,12 @@ namespace Application {
             volume_offset = 5;
             
             load_directory(buffer_path);
-        }
-        
-        public void quit() {
-            if (io_write != null) {
-                flush_command("quit 0");
-            }
+            
+            quit.connect(() => {
+                    if (io_write != null) {
+                        flush_command("quit 0");
+                    }
+                });
         }
         
         public void load_directory(string path) {
