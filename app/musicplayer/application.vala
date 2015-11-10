@@ -237,8 +237,14 @@ namespace Application {
         }
         
         public static int compare_file_item(FileItem a, FileItem b) {
-            if (a.file_info.get_name() > b.file_info.get_name()) {
+            if (a.tag.artist > b.tag.artist) {
                 return 1;
+            } else if (a.tag.artist == b.tag.artist) {
+                if (a.file_info.get_name() > b.file_info.get_name()) {
+                    return 1;
+                } else {
+                    return -1;
+                }
             } else {
                 return -1;
             }
