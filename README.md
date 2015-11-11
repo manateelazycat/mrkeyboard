@@ -28,7 +28,7 @@ Start build mrkeyboard
 ## TODO
 
 * Write IRC application for hacking team communication.
-* Write wifi-share for hacking at TV. ;)
+* Write wifi-share for hacking at TV. ;) (https://github.com/albfan/miraclecast)
 * Design search framework.
 * Design application package standard.
 * Design keystroke standard and build one-key system for feature. ;)
@@ -45,6 +45,7 @@ Start build mrkeyboard
 * Music player: use faster way to get duration.
 * Browser: write js vimium plugin.
 * Make browser support flash.
+* Switch mode with osd style.
 
 ## BUG
 
