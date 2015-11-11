@@ -25,4 +25,4 @@ main: ../../interface/base_interface.vala \
     ../../lib/utils.vala \
     application.vala
 clean:
-	rm main
+	rm -f main

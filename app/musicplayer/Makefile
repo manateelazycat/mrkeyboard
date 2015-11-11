@@ -29,4 +29,4 @@ main: ../../interface/base_interface.vala \
     tag_id3.vala \
     application.vala
 clean:
-	rm main
+	rm -f main

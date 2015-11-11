@@ -18,4 +18,4 @@ main: ../../interface/base_interface.vala \
     ../../interface/clone/clone_window.vala \
     application.vala
 clean:
-	rm main
+	rm -f main
