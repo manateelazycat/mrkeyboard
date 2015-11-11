@@ -32,7 +32,7 @@ namespace Application {
         public override void init() {
             image_view = new ImageView(buffer);
             
-            buffer.load_image.connect((path) => {
+            buffer.change_image.connect((path) => {
                     image_view.queue_draw();
                     update_tab_name(image_view.buffer.buffer_path);
                 });
@@ -87,9 +87,9 @@ namespace Application {
         public void handle_key_press(Gtk.Widget widget, Gdk.EventKey key_event) {
             string keyname = Keymap.get_keyevent_name(key_event);
             if (keyname == "p") {
-                buffer.load_prev_file();
+                buffer.show_prev_image();
             } else if (keyname == "n") {
-                buffer.load_next_file();
+                buffer.show_next_image();
             }
         }
         
@@ -125,41 +125,41 @@ namespace Application {
         public int pixbuf_height;
         public string orientation;
         public string current_dir;
-        public ArrayList<string> files;
+        public ArrayList<string> images;
         
-        public signal void load_image(string path);
+        public signal void change_image(string path);
         
         public Buffer(string path) {
             base(path);
 
             current_dir = GLib.Path.get_dirname(path);
-            files = new ArrayList<string>();
+            images = new ArrayList<string>();
             
-            load_same_dir_files();
-            load_file(path);
+            load_samedir_images();
+            load_image(path);
         }
         
-        public void load_next_file() {
-            if (files.size > 1) {
-                int current_index = files.index_of(buffer_path);
-                if (current_index < files.size - 1) {
+        public void show_next_image() {
+            if (images.size > 1) {
+                int current_index = images.index_of(buffer_path);
+                if (current_index < images.size - 1) {
                     current_index++;
-                    load_file(files.get(current_index));
+                    load_image(images.get(current_index));
                 }
             }
         }
         
-        public void load_prev_file() {
-            if (files.size > 1) {
-                int current_index = files.index_of(buffer_path);
+        public void show_prev_image() {
+            if (images.size > 1) {
+                int current_index = images.index_of(buffer_path);
                 if (current_index > 0) {
                     current_index--;
-                    load_file(files.get(current_index));
+                    load_image(images.get(current_index));
                 }
             }
         }
 
-        public void load_file(string path) {
+        public void load_image(string path) {
             try {
                 GExiv2.Metadata metadata = new GExiv2.Metadata();
                 metadata.open_path(path);
@@ -173,14 +173,14 @@ namespace Application {
                 pixbuf_height = pixbuf.get_height();
 
                 buffer_path = path;
-                load_image(path);
+                change_image(path);
             } catch (Error e) {
                 stderr.printf("%s\n", e.message);
             }
         }
         
-        public void load_same_dir_files() {
-            files.clear();
+        public void load_samedir_images() {
+            images.clear();
             
             try {
                 FileEnumerator enumerator = File.new_for_path(current_dir).enumerate_children(
@@ -192,7 +192,7 @@ namespace Application {
                     if (info.get_file_type() != FileType.DIRECTORY) {
                         var file_type = info.get_content_type().split("/")[0];
                         if (file_type == "image") {
-                            files.add(GLib.Path.build_filename(current_dir, info.get_name()));
+                            images.add(GLib.Path.build_filename(current_dir, info.get_name()));
                         }
                     }
                 }
