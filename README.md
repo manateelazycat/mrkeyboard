@@ -20,13 +20,9 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 
 ## TODO
 
-* Image viewer: add rotate features.
-* Image viewer: add zoom out/zoom in features.
-* Image viewer: add nagivater.
 * Design search framework.
 * Make browser support flash.
 * Write IRC application for hacking team communication.
-* Write js vimium plugin.
 * Design application package standard.
 * Design keystroke standard and build one-key system for feature. ;)
 * Implement package manager and smart notify bar.
@@ -35,6 +31,13 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 * Write hackable editor that powerful as emacs, then we can reach editor-strap. 
 * Add welcome page.
 * Research Atom editor, steal nice feature. ;)
+
+## Hacking mission
+* Image viewer: add rotate features.
+* Image viewer: add zoom-out/zoom-in features.
+* Image viewer: add nagivater.
+* Music player: use faster way to get duration.
+* Browser: write js vimium plugin.
 
 ## BUG
 
