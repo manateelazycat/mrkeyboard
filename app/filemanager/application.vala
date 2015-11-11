@@ -271,7 +271,7 @@ namespace Application {
             var dirs = new ArrayList<FileItem>();
             
             try {
-        	    FileEnumerator enumerator = File.new_for_path(buffer_path).enumerate_children (
+        	    FileEnumerator enumerator = File.new_for_path(buffer_path).enumerate_children(
         	    	"standard::*",
         	    	FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
                 

@@ -23,7 +23,6 @@ vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0,
 * Image viewer: add rotate features.
 * Image viewer: add zoom out/zoom in features.
 * Image viewer: add nagivater.
-* Image viewer: add slideview.
 * Design search framework.
 * Make browser support flash.
 * Write IRC application for hacking team communication.
