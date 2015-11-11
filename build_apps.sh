@@ -2,7 +2,7 @@
 
 set -e
 
-USAGE="Usage: `basename $0` (make|clean) [pkg] .."
+USAGE="Usage: `basename $0` (make|count|clean) [pkg] .."
 
 [ $# -lt 1 ] && echo $USAGE && exit 1
 
@@ -18,6 +18,8 @@ build_action () {
     case $CMD in
 	clean) make clean
 	    ;;
+    count) cloc .
+        ;;
 	make) make
 	    ;;
 	*) echo "Unknown command: $CMD"; echo $USAGE; exit 1
