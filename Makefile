@@ -35,4 +35,4 @@ main: ./lib/draw.vala \
     window_rectangle.vala \
     main.vala
 clean:
-	rm main
+	rm -f main
