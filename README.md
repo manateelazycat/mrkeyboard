@@ -27,14 +27,13 @@ Start build mrkeyboard
 
 ## TODO
 
-* Design search framework.
-* Make browser support flash.
 * Write IRC application for hacking team communication.
+* Write wifi-share for hacking at TV. ;)
+* Design search framework.
 * Design application package standard.
 * Design keystroke standard and build one-key system for feature. ;)
 * Implement package manager and smart notify bar.
 * Write english completion plugins to make my figure faster. 
-* Write wifi-share for hacking at TV. ;)
 * Write hackable editor that powerful as emacs, then we can reach editor-strap. 
 * Add welcome page.
 * Research Atom editor, steal nice feature. ;)
@@ -45,6 +44,7 @@ Start build mrkeyboard
 * Image viewer: add nagivater.
 * Music player: use faster way to get duration.
 * Browser: write js vimium plugin.
+* Make browser support flash.
 
 ## BUG
 
