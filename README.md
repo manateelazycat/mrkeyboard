@@ -14,13 +14,18 @@ This is OS for top hacker, enjoy it. ;)
 
 vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0, gio-2.0, xcb
 
-## Usage
+## Install
+
+Install dependencies
+> sudo apt-get install valac gir1.2-gee-1.0 libgee-dev libgtk-3-dev libwebkitgtk-3.0-dev libclutter-1.0-dev libclutter-gtk-1.0-dev libgtksourceview-3.0-dev libgexiv2-dev libpoppler-glib-dev libvte-2.90-dev libsqlite3-dev uuid-runtime -y
 
 Build mrkeyboard main program
 > make
 
 Build mrkeyboard applications
 > ./build_apps make
+
+## Usage
 
 Start build mrkeyboard
 > ./main
