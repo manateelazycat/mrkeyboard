@@ -42,6 +42,7 @@ namespace Application {
                 });
             musicview.active_item.connect((item_index) => {
                     musicview.buffer.play_music(musicview.items.get(item_index));
+                    print("#### %s\n", musicview.items.get(item_index).get_path());
                     
                     musicview.queue_draw();
                 });
@@ -189,8 +190,8 @@ namespace Application {
             file_info = info;
             file_dir = directory;
             
+            var file_path = GLib.Path.build_filename(file_dir, file_info.get_name());
             try {
-                var file_path = GLib.Path.build_filename(file_dir, file_info.get_name());
                 tag = new Tagle.Id3(file_path);
                 duration = format_duration(tag.duration);
             } catch (Error err) {
@@ -225,15 +226,29 @@ namespace Application {
                     Draw.draw_surface(cr, buffer.play_surface, x + play_icon_padding_x, y + play_icon_padding_y);
                 }
             } else if (column_index == 1) {
+                string? title_or_name;
+                if (tag == null) {
+                    title_or_name = file_info.get_name().split(".")[0];
+                } else {
+                    title_or_name = tag.title;
+                    if (title_or_name == null || title_or_name == "") {
+                        title_or_name = file_info.get_name().split(".")[0];
+                    }
+                }
+                
                 Utils.set_context_color(cr, music_color);
-                Draw.draw_text(widget, cr, tag.title, x + music_padding_x, y);
+                Draw.draw_text(widget, cr, title_or_name, x + music_padding_x, y);
             } else if (column_index == 2) {
-                var font_description = widget.get_style_context().get_font(Gtk.StateFlags.NORMAL);
-                Utils.set_context_color(cr, artist_color);
-                Draw.render_text(cr, tag.artist, x, y, w, h, font_description, Pango.Alignment.RIGHT);
+                if (tag != null && tag.artist != null) {
+                    var font_description = widget.get_style_context().get_font(Gtk.StateFlags.NORMAL);
+                    Utils.set_context_color(cr, artist_color);
+                    Draw.render_text(cr, tag.artist, x, y, w, h, font_description, Pango.Alignment.RIGHT);
+                }
             } else if (column_index == 3) {
-                Utils.set_context_color(cr, duration_color);
-                Draw.draw_text(widget, cr, duration, x + duration_padding_x, y);
+                if (duration != null) {
+                    Utils.set_context_color(cr, duration_color);
+                    Draw.draw_text(widget, cr, duration, x + duration_padding_x, y);
+                }
             }
         }
         
@@ -252,6 +267,10 @@ namespace Application {
         }
         
         public static int compare_file_item(FileItem a, FileItem b) {
+            if (a.tag == null || a.tag.artist == null) {
+                return -1;
+            }
+
             if (a.tag.artist > b.tag.artist) {
                 return 1;
             } else if (a.tag.artist == b.tag.artist) {
