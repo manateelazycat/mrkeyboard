@@ -182,6 +182,7 @@ namespace Application {
         
         public int play_icon_padding_x = 5;
         public int play_icon_padding_y = 4;
+        public int text_padding_y = 4;
         public int music_padding_x = 3;
         public int duration_padding_x = 20;
         
@@ -237,17 +238,17 @@ namespace Application {
                 }
                 
                 Utils.set_context_color(cr, music_color);
-                Draw.draw_text(widget, cr, title_or_name, x + music_padding_x, y);
+                Draw.draw_text(widget, cr, title_or_name, x + music_padding_x, y + text_padding_y);
             } else if (column_index == 2) {
                 if (tag != null && tag.artist != null) {
                     var font_description = widget.get_style_context().get_font(Gtk.StateFlags.NORMAL);
                     Utils.set_context_color(cr, artist_color);
-                    Draw.render_text(cr, tag.artist, x, y, w, h, font_description, Pango.Alignment.RIGHT);
+                    Draw.render_text(cr, tag.artist, x, y + text_padding_y, w, h, font_description, Pango.Alignment.RIGHT);
                 }
             } else if (column_index == 3) {
                 if (duration != null) {
                     Utils.set_context_color(cr, duration_color);
-                    Draw.draw_text(widget, cr, duration, x + duration_padding_x, y);
+                    Draw.draw_text(widget, cr, duration, x + duration_padding_x, y + text_padding_y);
                 }
             }
         }

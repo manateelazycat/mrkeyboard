@@ -189,7 +189,7 @@ namespace Application {
         public FileInfo file_info;
         public string buffer_path;
         public string modification_time;
-        
+        public int column_padding_y = 4;
         public int column_padding_x = 10;
         
         public FileItem(FileInfo info, string directory) {
@@ -212,14 +212,14 @@ namespace Application {
                 } else {
                     Utils.set_context_color(cr, file_type_color);
                 }
-                Draw.draw_text(widget, cr, file_info.get_display_name(), x + column_padding_x, y);
+                Draw.draw_text(widget, cr, file_info.get_display_name(), x + column_padding_x, y + column_padding_y);
             } else if (column_index == 1) {
                 var font_description = widget.get_style_context().get_font(Gtk.StateFlags.NORMAL);
                 Utils.set_context_color(cr, attr_type_color);
-                Draw.render_text(cr, GLib.format_size(file_info.get_size()), x, y, w, h, font_description, Pango.Alignment.RIGHT);
+                Draw.render_text(cr, GLib.format_size(file_info.get_size()), x, y + column_padding_y, w, h, font_description, Pango.Alignment.RIGHT);
             } else if (column_index == 2) {
                 Utils.set_context_color(cr, attr_type_color);
-                Draw.draw_text(widget, cr, modification_time, x + column_padding_x, y);
+                Draw.draw_text(widget, cr, modification_time, x + column_padding_x, y + column_padding_y);
             }
         }
         
