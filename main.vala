@@ -94,10 +94,6 @@ public class DaemonServer : Object {
                     window_manager.new_tab("terminal", "", true);
                 } else if (keyevent_name == "Super + u") {
                     window_manager.new_tab("browser", "", true);
-                } else if (keyevent_name == "Super + j") {
-                    window_manager.new_tab("musicplayer", "/space/data/Music/Daniel Powter", true);
-                } else if (keyevent_name == "Super + k") {
-                    window_manager.new_tab("filemanager", "/space/data/Picture", true);
                 } else if (keyevent_name == "Super + i") {
                     window_manager.new_tab("ircclient", "irc.freenode.net#mrkeyboard", true);
                 } else if (keyevent_name == "Alt + ,") {
@@ -174,6 +170,20 @@ public class DaemonServer : Object {
         app.destroy.connect(quit);
         app.size_allocate.connect_after((w, e) => {
                 window_manager.update_windows_allocate();
+            });
+        app.show.connect((w) => {
+                if (args.length >= 2) {
+                    string app_name = args[1];
+                    string app_arg = "";
+                    for (int i = 2; i < args.length; i++) {
+                        if (app_arg == "") {
+                            app_arg = args[i];
+                        } else {
+                            app_arg = "%s %s".printf(app_arg, args[i]);
+                        }
+                    }
+                    window_manager.new_tab(app_name, app_arg, true);
+                }
             });
 
         app.show_all();
