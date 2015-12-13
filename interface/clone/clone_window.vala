@@ -84,8 +84,6 @@ namespace Interface {
             texture.set_automatic(true);            
             stage.add_child(texture);
             
-            stage.show();
-            
             update_texture_area();
         }
     }

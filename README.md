@@ -32,7 +32,6 @@ Start build mrkeyboard
 
 ## TODO
 
-* Fixed clutter clone issue: maybe cause by clutter new version. (Wait deepin window manager fix)
 * Fixed event pass to child process. (Wait deepin window manager fix)
 * Write IRC application for hacking team communication.
 * Write wifi-share for hacking at TV. ;) (https://github.com/albfan/miraclecast)
