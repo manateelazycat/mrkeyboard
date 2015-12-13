@@ -32,17 +32,17 @@ Start build mrkeyboard
 
 ## TODO
 
-* Fixed event pass to child process. (Wait deepin window manager fix)
+* Finish basic editor features.
 * Write IRC application for hacking team communication.
+* Research Atom editor, steal nice feature. ;)
 * Write wifi-share for hacking at TV. ;) (https://github.com/albfan/miraclecast)
 * Design search framework.
 * Design application package standard.
 * Design keystroke standard and build one-key system for feature. ;)
 * Implement package manager and smart notify bar.
 * Write english completion plugins to make my figure faster. 
-* Write hackable editor that powerful as emacs, then we can reach editor-strap. 
 * Add welcome page.
-* Research Atom editor, steal nice feature. ;)
+* Fixed event pass to child process. (Wait deepin window manager fix)
 
 ## Hacking mission
 * Image viewer: add rotate features.
