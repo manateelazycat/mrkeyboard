@@ -7,6 +7,7 @@ main: ../../interface/base_interface.vala \
       ../../lib/utils.vala \
       ../../lib/keymap.vala \
       application.vala \
+      render.vala \
       finger.vala
 	valac -o main \
     --pkg=clutter-1.0 \
@@ -23,6 +24,7 @@ main: ../../interface/base_interface.vala \
     ../../lib/utils.vala \
     ../../lib/keymap.vala \
     finger.vala \
+    render.vala \
     application.vala
 clean:
 	rm -f main

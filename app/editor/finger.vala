@@ -1,6 +1,7 @@
 using Gtk;
 using Draw;
 using Utils;
+using Render;
 
 namespace Finger {
     public static const string font_family = "Monospace";
@@ -8,10 +9,15 @@ namespace Finger {
     public static const int char_width = 10;
 
     public class LineNumberView : DrawingArea {
-        public Gdk.Color background_color = Utils.color_from_string("#050505");
-        public int width = 20;
+        public Gdk.Color background_color = Utils.color_from_string("#040404");
+        public Gdk.Color text_color = Utils.color_from_string("#202020");
+        public int padding_x = 4;
+        public int width = 30;
+        public EditView edit_view;
         
-        public LineNumberView() {
+        public LineNumberView(EditView view) {
+            edit_view = view;
+            
             set_can_focus(true);  // make widget can receive key event 
             add_events(Gdk.EventMask.BUTTON_PRESS_MASK
                        | Gdk.EventMask.BUTTON_RELEASE_MASK
@@ -28,8 +34,21 @@ namespace Finger {
             Gtk.Allocation alloc;
             widget.get_allocation(out alloc);
 
+            // Draw background.
             Utils.set_context_color(cr, background_color);
             Draw.draw_rectangle(cr, 0, 0, alloc.width, alloc.height);
+            
+            // Draw line number.
+            int render_y = 0;
+            int line_index = 1;
+            while (render_y < alloc.height) {
+                // Draw current line.
+                Utils.set_context_color(cr, text_color);
+                Render.render_line(cr, "%i\n".printf(line_index), padding_x, render_y, line_height, edit_view.font_description);
+                
+                line_index += 1;
+                render_y += line_height;
+            }
             
             return true;
         }        
@@ -116,9 +135,9 @@ namespace Finger {
             Gtk.Allocation alloc;
             widget.get_allocation(out alloc);
 
+            // Draw background.
             Utils.set_context_color(cr, background_color);
             Draw.draw_rectangle(cr, 0, 0, alloc.width, alloc.height);
-            
             
             int render_y = 0;
             int render_index = render_start_index;
@@ -127,35 +146,24 @@ namespace Finger {
                 string render_line_string = buffer.content.slice(render_index, line_end_index);
                 
                 if (cursor_index >= render_index && cursor_index <= line_end_index) {
+                    // Draw highlight line.
                     Utils.set_context_color(cr, line_background_color);
                     Draw.draw_rectangle(cr, 0, render_y, alloc.width, line_height);
-                    
+
+                    // Draw current cursor.
                     Utils.set_context_color(cr, line_cursor_color);
                     Draw.draw_rectangle(cr, 0, render_y, 2, line_height);
                 }
-                
+
+                // Draw current line.
                 Utils.set_context_color(cr, text_color);
-                render_line(cr, "%s\n".printf(render_line_string), 0, render_y, line_height, font_description);
+                Render.render_line(cr, "%s\n".printf(render_line_string), 0, render_y, line_height, font_description);
                 
                 render_index = line_end_index + 1;
                 render_y += line_height;
             }
             
             return true;
-        }
-        
-        public void render_line(Cairo.Context cr, string text, int x, int y, int height,
-                                Pango.FontDescription font_description) {
-            var layout = Pango.cairo_create_layout(cr);
-            layout.set_text(text, (int)text.length);
-            layout.set_height((int)(height * Pango.SCALE));
-            layout.set_width(-1);
-            layout.set_font_description(font_description);
-            layout.set_alignment(Pango.Alignment.LEFT);
-		
-            cr.move_to(x, y);
-            Pango.cairo_update_layout(cr, layout);
-            Pango.cairo_show_layout(cr, layout);
         }
     }
 
@@ -167,8 +175,8 @@ namespace Finger {
         public FingerView(FingerBuffer buf) {
             buffer = buf;
             
-            line_number_view = new LineNumberView();
             edit_view = new EditView(buf);
+            line_number_view = new LineNumberView(edit_view);
             
             pack_start(line_number_view, false, false, 0);
             pack_start(edit_view, true, true, 0);
