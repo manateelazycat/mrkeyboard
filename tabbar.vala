@@ -39,10 +39,10 @@ namespace Widgets {
         private int arrow_padding_y = 0;
         private int arrow_width = 16;
         private int close_button_padding_x = 8;
-        private int close_button_padding_y = 8;
+        private int close_button_padding_y = 2;
         private int close_button_width = 12;
         private int draw_offset = 0;
-        private int draw_padding_y = 6;
+        private int draw_padding_y = 8;
         private int hover_x = 0;
         private int text_padding_x = 12;
         
