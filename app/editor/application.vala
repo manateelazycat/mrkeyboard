@@ -79,7 +79,11 @@ namespace Application {
             
             source_buffer = new Gtk.SourceBuffer(null);
             string content;
-            FileUtils.get_contents(path, out content);
+            try {
+                FileUtils.get_contents(path, out content);
+            } catch (GLib.FileError err) {
+                stderr.printf ("Error: FileUtils.get_contents failed: %s\n", err.message);
+            }
             source_buffer.set_text(content);
             
             TextIter start_iter;
