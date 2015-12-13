@@ -38,6 +38,7 @@ namespace Finger {
     public class EditView : DrawingArea {
         public Gdk.Color background_color = Utils.color_from_string("#000000");
         public Gdk.Color line_background_color = Utils.color_from_string("#121212");
+        public Gdk.Color line_cursor_color = Utils.color_from_string("red");
         public Gdk.Color cursor_color = Utils.color_from_string("#ff1e00");
         public Gdk.Color text_color = Utils.color_from_string("#009900");
         public FingerBuffer buffer;
@@ -128,6 +129,9 @@ namespace Finger {
                 if (cursor_index >= render_index && cursor_index <= line_end_index) {
                     Utils.set_context_color(cr, line_background_color);
                     Draw.draw_rectangle(cr, 0, render_y, alloc.width, line_height);
+                    
+                    Utils.set_context_color(cr, line_cursor_color);
+                    Draw.draw_rectangle(cr, 0, render_y, 2, line_height);
                 }
                 
                 Utils.set_context_color(cr, text_color);
