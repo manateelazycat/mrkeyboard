@@ -15,6 +15,8 @@ namespace Finger {
         public int width = 30;
         public EditView edit_view;
         
+        public int render_start_row = 0;
+        
         public LineNumberView(EditView view) {
             edit_view = view;
             
@@ -28,6 +30,12 @@ namespace Finger {
             
             draw.connect(on_draw);
             set_size_request(width, -1);
+            
+            view.update_render_start_row.connect((row) => {
+                    render_start_row = row;
+                    
+                    queue_draw();
+                });
         }
         
         public bool on_draw(Gtk.Widget widget, Cairo.Context cr) {
@@ -40,7 +48,7 @@ namespace Finger {
             
             // Draw line number.
             int render_y = 0;
-            int line_index = 1;
+            int line_index = render_start_row + 1;
             while (render_y < alloc.height) {
                 // Draw current line.
                 Utils.set_context_color(cr, text_color);
@@ -63,11 +71,16 @@ namespace Finger {
         public FingerBuffer buffer;
         public Pango.FontDescription font_description;
         public int font_size = 12;
+        
         public int current_row = 0;
         public int current_column = 0;
+        
         public int render_start_index = 0;
         public int cursor_index = 0;
-        public int line_index = 0;
+        
+        public int render_start_row = 0;
+        
+        public signal void update_render_start_row(int render_row);
         
         public EditView(FingerBuffer buf) {
             buffer = buf;
@@ -110,6 +123,14 @@ namespace Finger {
             if (current_line_end_index < buffer.content.length - 1) {
                 cursor_index = current_line_end_index + 1;
                 
+                if (cursor_line_in_screen() == 1) {
+                    int line_end_index = buffer.content.index_of("\n", render_start_index);
+                    render_start_index = line_end_index + 1;
+                    
+                    render_start_row++;
+                    update_render_start_row(render_start_row);
+                }
+                
                 queue_draw();
             }
         }
@@ -126,8 +147,28 @@ namespace Finger {
             
             if (line_end_lines.length > 0) {
                 cursor_index = line_end_lines[line_end_lines.length - 2];
-                
+
                 queue_draw();
+            }
+            
+            if (cursor_line_in_screen() == -1) {
+                int line_above_index = 0;
+                int[] line_above_lines = {};
+                while (line_above_index < render_start_index) {
+                    line_above_index = buffer.content.index_of("\n", line_above_index);
+                    line_above_index++;
+                
+                    line_above_lines += line_above_index;
+                }
+
+                if (line_above_lines.length > 0) {
+                    render_start_index = line_above_lines[line_above_lines.length - 2];
+                    
+                    render_start_row--;
+                    update_render_start_row(render_start_row);
+                    
+                    queue_draw();
+                }
             }
         }
         
@@ -141,11 +182,14 @@ namespace Finger {
             
             int render_y = 0;
             int render_index = render_start_index;
+            int counter = 0;
             while(render_index < buffer.content.length && render_y < alloc.height) {
                 int line_end_index = buffer.content.index_of("\n", render_index);
                 string render_line_string = buffer.content.slice(render_index, line_end_index);
                 
                 if (cursor_index >= render_index && cursor_index <= line_end_index) {
+                    current_row = render_start_row + counter;
+                    
                     // Draw highlight line.
                     Utils.set_context_color(cr, line_background_color);
                     Draw.draw_rectangle(cr, 0, render_y, alloc.width, line_height);
@@ -161,9 +205,24 @@ namespace Finger {
                 
                 render_index = line_end_index + 1;
                 render_y += line_height;
+                counter++;
             }
             
             return true;
+        }
+        
+        public int cursor_line_in_screen() {
+            Gtk.Allocation alloc;
+            get_allocation(out alloc);
+
+            int render_y = (current_row - render_start_row) * line_height;
+            if (render_y > alloc.height - 2 * line_height) {
+                return 1;
+            } else if (render_y <= 2 * line_height) {
+                return -1;
+            } else {
+                return 0;
+            }
         }
     }
 
