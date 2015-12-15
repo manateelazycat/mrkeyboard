@@ -32,7 +32,20 @@ Start build mrkeyboard
 
 ## TODO
 
-* Finish basic editor features.
+* editor: handle line wrap render.
+* editor: move forward/backward char.
+* editor: move forward/backward word.
+* editor: move line home/end.
+* editor: scroll screen up/down.
+* editor: move to first non-blank char.
+* editor: kill line.
+* editor: kill to line home/end.
+* editor: kill forward/backward char.
+* editor: kill forward/backward word.
+* editor: add mark and mark switch.
+* editor: copy, paste, and insert.
+* editor: select to scroll screen.
+* editor: add text parser and syntax highlight.
 * Write IRC application for hacking team communication.
 * Research Atom editor, steal nice feature. ;)
 * Write wifi-share for hacking at TV. ;) (https://github.com/albfan/miraclecast)
