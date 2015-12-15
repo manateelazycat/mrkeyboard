@@ -49,7 +49,7 @@ namespace Finger {
             // Draw line number.
             int render_y = 0;
             int line_index = render_start_row + 1;
-            while (render_y < alloc.height) {
+            while (render_y + line_height < alloc.height) {
                 // Draw current line.
                 Utils.set_context_color(cr, text_color);
                 Render.render_line(cr, "%i\n".printf(line_index), padding_x, render_y, line_height, edit_view.font_description);
@@ -136,37 +136,25 @@ namespace Finger {
         }
         
         public void prev_line() {
-            int prev_line_end_index = render_start_index;
-            int[] line_end_lines = {};
-            while (prev_line_end_index < cursor_index) {
-                prev_line_end_index = buffer.content.index_of("\n", prev_line_end_index);
-                prev_line_end_index++;
-                
-                line_end_lines += prev_line_end_index;
-            }
-            
-            if (line_end_lines.length > 0) {
-                cursor_index = line_end_lines[line_end_lines.length - 2];
+            int prev_line_end_index = buffer.content.substring(0, cursor_index).last_index_of("\n");
+            if (prev_line_end_index < cursor_index && prev_line_end_index >= 0) {
+                cursor_index = prev_line_end_index;
 
                 queue_draw();
             }
             
             if (cursor_above_screen()) {
-                int line_above_index = 0;
-                int[] line_above_lines = {};
-                while (line_above_index < render_start_index) {
-                    line_above_index = buffer.content.index_of("\n", line_above_index);
-                    line_above_index++;
+                int prev_render_end_index = buffer.content.substring(0, render_start_index).last_index_of("\n");
+                if (prev_render_end_index < render_start_index) {
+                    if (prev_render_end_index >= 0) {
+                        render_start_index = prev_render_end_index;
+                    
+                        render_start_row--;
+                        update_render_start_row(render_start_row);
+                    } else {
+                        render_start_index = 0;
+                    }
                 
-                    line_above_lines += line_above_index;
-                }
-
-                if (line_above_lines.length > 0) {
-                    render_start_index = line_above_lines[line_above_lines.length - 2];
-                    
-                    render_start_row--;
-                    update_render_start_row(render_start_row);
-                    
                     queue_draw();
                 }
             }

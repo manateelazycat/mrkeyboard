@@ -1,6 +1,6 @@
 namespace Render {
     public void render_line(Cairo.Context cr, string text, int x, int y, int height,
-                                Pango.FontDescription font_description) {
+                            Pango.FontDescription font_description) {
         var layout = Pango.cairo_create_layout(cr);
         layout.set_text(text, (int)text.length);
         layout.set_height((int)(height * Pango.SCALE));
