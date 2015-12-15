@@ -123,7 +123,7 @@ namespace Finger {
             if (current_line_end_index < buffer.content.length - 1) {
                 cursor_index = current_line_end_index + 1;
                 
-                if (cursor_line_in_screen() == 1) {
+                if (cursor_below_screen()) {
                     int line_end_index = buffer.content.index_of("\n", render_start_index);
                     render_start_index = line_end_index + 1;
                     
@@ -151,7 +151,7 @@ namespace Finger {
                 queue_draw();
             }
             
-            if (cursor_line_in_screen() == -1) {
+            if (cursor_above_screen()) {
                 int line_above_index = 0;
                 int[] line_above_lines = {};
                 while (line_above_index < render_start_index) {
@@ -211,18 +211,20 @@ namespace Finger {
             return true;
         }
         
-        public int cursor_line_in_screen() {
+        public bool cursor_above_screen() {
             Gtk.Allocation alloc;
             get_allocation(out alloc);
 
             int render_y = (current_row - render_start_row) * line_height;
-            if (render_y > alloc.height - 2 * line_height) {
-                return 1;
-            } else if (render_y <= 2 * line_height) {
-                return -1;
-            } else {
-                return 0;
-            }
+            return (render_y <= 2 * line_height);
+        }
+        
+        public bool cursor_below_screen() {
+            Gtk.Allocation alloc;
+            get_allocation(out alloc);
+
+            int render_y = (current_row - render_start_row) * line_height;
+            return (render_y > alloc.height - 2 * line_height);
         }
     }
 
