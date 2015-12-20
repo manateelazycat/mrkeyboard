@@ -2,6 +2,7 @@ using Gtk;
 using Draw;
 using Utils;
 using Render;
+using Gee;
 
 namespace Finger {
     public static const string font_family = "Monospace";
@@ -31,7 +32,7 @@ namespace Finger {
             draw.connect(on_draw);
             set_size_request(width, -1);
             
-            view.update_render_start_row.connect((row) => {
+            view.render_line_number.connect((row) => {
                     render_start_row = row;
                     
                     queue_draw();
@@ -46,16 +47,20 @@ namespace Finger {
             Utils.set_context_color(cr, background_color);
             Draw.draw_rectangle(cr, 0, 0, alloc.width, alloc.height);
             
-            // Draw line number.
-            int render_y = 0;
-            int line_index = render_start_row + 1;
-            while (render_y + line_height < alloc.height) {
-                // Draw current line.
-                Utils.set_context_color(cr, text_color);
-                Render.render_line(cr, "%i\n".printf(line_index), padding_x, render_y, line_height, edit_view.font_description);
-                
-                line_index += 1;
-                render_y += line_height;
+            if (edit_view.render_line_heights.size > 0) {
+                // Draw line number.
+                int render_y = 0;
+                int line_index = render_start_row + 1;
+                int counter = 0;
+                while (render_y + line_height < alloc.height) {
+                    // Draw current line.
+                    Utils.set_context_color(cr, text_color);
+                    Render.render_line(cr, "%i\n".printf(line_index), padding_x, render_y, line_height, alloc.width, edit_view.font_description);
+                    
+                    line_index += 1;
+                    render_y += edit_view.render_line_heights[counter];
+                    counter++;
+                }
             }
             
             return true;
@@ -79,8 +84,9 @@ namespace Finger {
         public int cursor_index = 0;
         
         public int render_start_row = 0;
+        public ArrayList<int> render_line_heights = new ArrayList<int>();
         
-        public signal void update_render_start_row(int render_row);
+        public signal void render_line_number(int render_row);
         
         public EditView(FingerBuffer buf) {
             buffer = buf;
@@ -128,7 +134,6 @@ namespace Finger {
                     render_start_index = line_end_index + 1;
                     
                     render_start_row++;
-                    update_render_start_row(render_start_row);
                 }
                 
                 queue_draw();
@@ -150,7 +155,6 @@ namespace Finger {
                         render_start_index = prev_render_end_index;
                     
                         render_start_row--;
-                        update_render_start_row(render_start_row);
                     } else {
                         render_start_index = 0;
                     }
@@ -171,16 +175,19 @@ namespace Finger {
             int render_y = 0;
             int render_index = render_start_index;
             int counter = 0;
+            render_line_heights = new ArrayList<int>();
             while(render_index < buffer.content.length && render_y < alloc.height) {
                 int line_end_index = buffer.content.index_of("\n", render_index);
                 string render_line_string = buffer.content.slice(render_index, line_end_index);
+                int[] line_render_size = get_context_size("%s\n".printf(render_line_string), line_height, alloc.width, font_description);
+                render_line_heights.add(line_render_size[1]);
                 
                 if (cursor_index >= render_index && cursor_index <= line_end_index) {
                     current_row = render_start_row + counter;
                     
                     // Draw highlight line.
                     Utils.set_context_color(cr, line_background_color);
-                    Draw.draw_rectangle(cr, 0, render_y, alloc.width, line_height);
+                    Draw.draw_rectangle(cr, 0, render_y, alloc.width, line_render_size[1]);
 
                     // Draw current cursor.
                     Utils.set_context_color(cr, line_cursor_color);
@@ -189,12 +196,14 @@ namespace Finger {
 
                 // Draw current line.
                 Utils.set_context_color(cr, text_color);
-                Render.render_line(cr, "%s\n".printf(render_line_string), 0, render_y, line_height, font_description);
+                Render.render_line(cr, "%s\n".printf(render_line_string), 0, render_y, line_height, alloc.width, font_description);
                 
                 render_index = line_end_index + 1;
-                render_y += line_height;
+                render_y += line_render_size[1];
                 counter++;
             }
+            
+            render_line_number(render_start_row);
             
             return true;
         }

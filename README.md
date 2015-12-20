@@ -1,5 +1,7 @@
 # Mr. keyboard
 
+I, finger and my keyboard ...
+
 **Description**:
 
 Top hacker like live in emacs, keyboard control everything...
@@ -9,10 +11,6 @@ Why not build everything with keyboard?
 Like emacs style, but this time, we rebuild everything scratch from Mr. keyboard.
 
 This is OS for top hacker, enjoy it. ;)
-
-## Dependencies
-
-vala-0.28, clutter-1.0, clutter-gtk-1.0, clutter-x11-1.0, gtk+-3.0, gdk-x11-3.0, gio-2.0, xcb
 
 ## Install
 
@@ -27,12 +25,13 @@ Build mrkeyboard applications
 
 ## Usage
 
-Start build mrkeyboard
+Start mrkeyboard
 > ./main
 
 ## TODO
 
-* editor: handle line wrap render.
+* editor: next-line/prev-line: cursor move screen line, not logic line.
+* editor: next-line/prev-line handle screen scroll.
 * editor: move forward/backward char.
 * editor: move forward/backward word.
 * editor: move line home/end.
@@ -57,7 +56,7 @@ Start build mrkeyboard
 * Add welcome page.
 * Fixed event pass to child process. (Wait deepin window manager fix)
 
-## Hacking mission
+## Hacking missions
 * Image viewer: add rotate features.
 * Image viewer: add zoom-out/zoom-in features.
 * Image viewer: add nagivater.
@@ -65,9 +64,6 @@ Start build mrkeyboard
 * Browser: write js vimium plugin.
 * Make browser support flash.
 * Switch mode with osd style.
-
-## BUG
-
 * Make window resize as normal, not bigger and bigger.
 
 ## Getting involved
