@@ -73,17 +73,15 @@ namespace Finger {
         public Gdk.Color line_cursor_color = Utils.color_from_string("red");
         public Gdk.Color cursor_color = Utils.color_from_string("#ff1e00");
         public Gdk.Color text_color = Utils.color_from_string("#009900");
+		
         public FingerBuffer buffer;
         public Pango.FontDescription font_description;
         public int font_size = 12;
         
-        public int current_row = 0;
-        public int current_column = 0;
-        
-        public int render_start_index = 0;
         public int cursor_index = 0;
 		public int cursor_trailing = 0;
 		public int cursor_width = 2;
+		public int render_offset = 0;
         
         public int render_start_row = 0;
         public ArrayList<int> render_line_heights = new ArrayList<int>();
@@ -142,6 +140,8 @@ namespace Finger {
 			cursor_index = new_index;
 			cursor_trailing = new_trailing;
 			
+			try_scroll_up();
+			
 			queue_draw();
         }
         
@@ -155,6 +155,8 @@ namespace Finger {
 			cursor_index = new_index;
 			cursor_trailing = new_trailing;
 			
+			try_scroll_down();
+			
 			queue_draw();
         }
 		
@@ -163,6 +165,8 @@ namespace Finger {
 			layout.move_cursor_visually(true, cursor_index, cursor_trailing, 1, out new_index, out new_trailing);
 			cursor_index = new_index;
 			cursor_trailing = new_trailing;
+			
+			try_scroll_up();
 			
 			queue_draw();
 		}
@@ -174,8 +178,32 @@ namespace Finger {
 				cursor_index = new_index;
 			}
 			cursor_trailing = new_trailing;
+			
+			try_scroll_down();
 
 			queue_draw();
+		}
+
+		public void try_scroll_up() {
+			int line, x_pos;
+			bool trailing = cursor_trailing > 0;
+			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
+			
+            Gtk.Allocation alloc;
+            get_allocation(out alloc);
+			if ((line + 2) * line_height - render_offset > alloc.height) {
+				render_offset += line_height;
+			}
+		}
+		
+		public void try_scroll_down() {
+			int line, x_pos;
+			bool trailing = cursor_trailing > 0;
+			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
+			
+			if ((line - 1) * line_height - render_offset < line_height) {
+				render_offset = int.max(render_offset - line_height, 0);
+			}
 		}
         
         public bool on_draw(Gtk.Widget widget, Cairo.Context cr) {
@@ -184,38 +212,45 @@ namespace Finger {
 			
 			if (layout == null) {
 				layout = Pango.cairo_create_layout(cr);
+				layout.set_text(buffer.content, (int)buffer.content.length);
+				layout.set_wrap(Pango.WrapMode.WORD_CHAR);
+				layout.set_font_description(font_description);
+				layout.set_alignment(Pango.Alignment.LEFT);
 			}
 
+			layout.set_width((int)(alloc.width * Pango.SCALE));
+			
 			int line, x_pos;
 			bool trailing = cursor_trailing > 0;
 			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
-			
-			layout.set_text(buffer.content, (int)buffer.content.length);
-			layout.set_height((int)(alloc.height * Pango.SCALE));
-			layout.set_width((int)(alloc.width * Pango.SCALE));
-			layout.set_wrap(Pango.WrapMode.WORD_CHAR);
-			layout.set_font_description(font_description);
-			layout.set_alignment(Pango.Alignment.LEFT);
 			
             // Draw background.
             Utils.set_context_color(cr, background_color);
             Draw.draw_rectangle(cr, 0, 0, alloc.width, alloc.height);
 			
+			cr.translate(0, -render_offset);
+			
 			// Draw line background.
 			int[] line_bound = find_line_bound();
 			int start_line, start_line_x_pos;
 			int end_line, end_line_x_pos;
-
+			
 			layout.index_to_line_x(line_bound[0], false, out start_line, out start_line_x_pos);
 			layout.index_to_line_x(line_bound[1], false, out end_line, out end_line_x_pos);
 			Utils.set_context_color(cr, line_background_color);
-			draw_rectangle(cr, 0, start_line * line_height, alloc.width, (end_line - start_line) * line_height);
+			draw_rectangle(cr, 0, start_line * line_height, alloc.width, int.max((end_line - start_line), 1 )* line_height);
 			
 			// Draw context.
+			cr.save();
+			
+			cr.rectangle(0, render_offset, alloc.width, alloc.height);
+			cr.clip();
+			
             Utils.set_context_color(cr, text_color);
-			cr.move_to(0, 0);
 			Pango.cairo_update_layout(cr, layout);
 			Pango.cairo_show_layout(cr, layout);
+			
+			cr.restore();
 			
 			// Draw cursor.
 			Utils.set_context_color(cr, cursor_color);
@@ -230,7 +265,12 @@ namespace Finger {
 			int[] line_bound = new int[2];
 			
 			line_bound[0] = int.max(0, buffer.content.substring(0, cursor_index).last_index_of_char('\n')) + 1;
-			line_bound[1] = buffer.content.index_of_char('\n', cursor_index) + 1;
+			line_bound[1] = buffer.content.index_of_char('\n', cursor_index);
+			if (line_bound[1] == -1) {
+				line_bound[1] = buffer.content.char_count() - 1;
+			} else {
+				line_bound[1] += 1;
+			}
 			
 			return line_bound;
 		}
