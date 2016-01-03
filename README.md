@@ -26,7 +26,20 @@ Build mrkeyboard applications
 ## Usage
 
 Start mrkeyboard
-> ./main
+> ./mrkeyboard.sh
+
+Start mrkeyboard with filemanager
+> ./mrkeyboard.sh filemanager /home/
+
+Start mrkeyboard with musicplayer
+> ./mrkeyboard.sh musicplayer /your_music_directory
+
+After start mrkeyboard, you can press Win + u to start browser, Win + n to start terminal.
+Other programs, such editor, imageviewer, pdfviewer, videoplayer, you can press return in filemanager, filemanager keystrokes are: j, k, f, '
+
+After open applications, try Alt + ; and Alt + : to split window, Alt + ' and Alt + " to close window, Alt + , and Alt + . to switch tab, Alt + < and Alt + > to switch modes.
+
+Because it's still in developing stage, start application is not so easy, I would write a launcher similar emacs-helm to use start application smartly.
 
 ## Getting involved
 
