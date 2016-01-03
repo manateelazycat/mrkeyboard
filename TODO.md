@@ -1,7 +1,6 @@
 ## TODO
 
 * editor: scroll screen up/down.
-* editor: move to file home/end.
 * editor: kill line.
 * editor: kill to line home/end.
 * editor: kill forward/backward char.
@@ -9,6 +8,7 @@
 * editor: kill selected.
 * editor: add mark and mark switch.
 * editor: select all.
+* editor: move select up/down.
 * editor: copy, paste, and insert.
 * editor: select to scroll screen.
 * editor: add text parser and syntax highlight.

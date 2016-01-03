@@ -143,6 +143,10 @@ namespace Finger {
 				move_end_of_line();
 			} else if (keyname == "Alt + m") {
 				back_to_indentation();
+			} else if (keyname == "Ctrl + N") {
+				end_of_buffer();
+			} else if (keyname == "Ctrl + P") {
+				beginning_of_buffer();
 			}
         }
         
@@ -270,6 +274,28 @@ namespace Finger {
 			queue_draw();
 		}
 		
+		public void beginning_of_buffer() {
+			cursor_index = 0;
+			cursor_trailing = 0;
+			
+			remeber_column_offset();
+			
+			visible_cursor();
+			
+			queue_draw();
+		}
+		
+		public void end_of_buffer() {
+			cursor_index = buffer.content.char_count() - 1;
+			cursor_trailing = 1;
+			
+			remeber_column_offset();
+			
+			visible_cursor();
+			
+			queue_draw();
+		}
+		
 		public void move_beginning_of_line_internal() {
 			int[] line_bound = find_line_bound();
 			cursor_index = line_bound[0];
@@ -386,6 +412,17 @@ namespace Finger {
 			if ((line - 1) * line_height - render_offset < line_height) {
 				render_offset = int.max(render_offset - line_height, 0);
 			}
+		}
+		
+		public void visible_cursor() {
+            Gtk.Allocation alloc;
+            get_allocation(out alloc);
+			
+			int line, x_pos;
+			bool trailing = cursor_trailing > 0;
+			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
+			
+			render_offset = int.min(line * line_height, (layout.get_line_count() + 1) * line_height - alloc.height);
 		}
         
         public bool on_draw(Gtk.Widget widget, Cairo.Context cr) {
