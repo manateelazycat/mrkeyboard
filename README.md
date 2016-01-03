@@ -35,11 +35,16 @@ Start mrkeyboard with musicplayer
 > ./mrkeyboard.sh musicplayer /your_music_directory
 
 After start mrkeyboard, you can press Win + u to start browser, Win + n to start terminal.
-Other programs, such editor, imageviewer, pdfviewer, videoplayer, you can press return in filemanager, filemanager keystrokes are: j, k, f, '
+Other programs, such editor, imageviewer, pdfviewer, videoplayer, you can press Enter in filemanager to start, filemanager keystrokes are: j, k, f, '
 
-After open applications, try Alt + ; and Alt + : to split window, Alt + ' and Alt + " to close window, Alt + , and Alt + . to switch tab, Alt + < and Alt + > to switch modes.
+Once you open two or above applications, try below keystrokes:
+* Split window: Alt + ; and Alt + :
+* Close window: Alt + ' and Alt + "
+* Switch tab:   Alt + , and Alt + .
+* Close tab:    Ctrl + w
+* Switch mode:  Alt + < and Alt + > 
 
-Because it's still in developing stage, start application is not so easy, I would write a launcher similar emacs-helm to use start application smartly.
+Because it's still in developing stage, start application is not so easy, I would write a launcher similar emacs-helm to use application smartly.
 
 ## Getting involved
 
