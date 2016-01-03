@@ -186,33 +186,54 @@ namespace Finger {
 				layout = Pango.cairo_create_layout(cr);
 			}
 
-            // Draw background.
-            Utils.set_context_color(cr, background_color);
-            Draw.draw_rectangle(cr, 0, 0, alloc.width, alloc.height);
+			int line, x_pos;
+			bool trailing = cursor_trailing > 0;
+			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
 			
-			// Draw context.
-            Utils.set_context_color(cr, text_color);
 			layout.set_text(buffer.content, (int)buffer.content.length);
 			layout.set_height((int)(alloc.height * Pango.SCALE));
 			layout.set_width((int)(alloc.width * Pango.SCALE));
 			layout.set_wrap(Pango.WrapMode.WORD_CHAR);
 			layout.set_font_description(font_description);
 			layout.set_alignment(Pango.Alignment.LEFT);
+			
+            // Draw background.
+            Utils.set_context_color(cr, background_color);
+            Draw.draw_rectangle(cr, 0, 0, alloc.width, alloc.height);
+			
+			// Draw line background.
+			int[] line_bound = find_line_bound();
+			int start_line, start_line_x_pos;
+			int end_line, end_line_x_pos;
+
+			layout.index_to_line_x(line_bound[0], false, out start_line, out start_line_x_pos);
+			layout.index_to_line_x(line_bound[1], false, out end_line, out end_line_x_pos);
+			Utils.set_context_color(cr, line_background_color);
+			draw_rectangle(cr, 0, start_line * line_height, alloc.width, (end_line - start_line) * line_height);
+			
+			// Draw context.
+            Utils.set_context_color(cr, text_color);
 			cr.move_to(0, 0);
 			Pango.cairo_update_layout(cr, layout);
 			Pango.cairo_show_layout(cr, layout);
 			
 			// Draw cursor.
-			int line, x_pos;
-			bool trailing = cursor_trailing > 0;
-			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
 			Utils.set_context_color(cr, cursor_color);
 			draw_rectangle(cr, x_pos / Pango.SCALE, line * line_height, cursor_width, line_height);
 			
-            render_line_number(render_start_row);
+			render_line_number(render_start_row);
             
             return true;
         }
+
+		public int[] find_line_bound() {
+			int[] line_bound = new int[2];
+			
+			line_bound[0] = int.max(0, buffer.content.substring(0, cursor_index).last_index_of_char('\n')) + 1;
+			line_bound[1] = buffer.content.index_of_char('\n', cursor_index) + 1;
+			
+			return line_bound;
+		}
     }
 
     public class FingerView : HBox {
