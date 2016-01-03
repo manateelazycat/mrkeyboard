@@ -30,10 +30,8 @@ Start mrkeyboard
 
 ## TODO
 
-* editor: next-line/prev-line: cursor move screen line, not logic line.
-* editor: next-line/prev-line handle screen scroll.
-* editor: move forward/backward char.
-* editor: move forward/backward word.
+* editor: screen scroll with cursor motion.
+* editor: line number with pango layout.
 * editor: move line home/end.
 * editor: scroll screen up/down.
 * editor: move to first non-blank char.
