@@ -2,7 +2,6 @@
 
 * editor: scroll screen up/down.
 * editor: move to file home/end.
-* editor: move to first non-blank char.
 * editor: kill line.
 * editor: kill to line home/end.
 * editor: kill forward/backward char.

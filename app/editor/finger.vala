@@ -141,6 +141,8 @@ namespace Finger {
 				move_beginning_of_line();
 			} else if (keyname == "Ctrl + e") {
 				move_end_of_line();
+			} else if (keyname == "Alt + m") {
+				back_to_indentation();
 			}
         }
         
@@ -243,9 +245,7 @@ namespace Finger {
 		}
 		
 		public void move_beginning_of_line() {
-			int[] line_bound = find_line_bound();
-			cursor_index = line_bound[0];
-			cursor_trailing = 0;
+			move_beginning_of_line_internal();
 			
 			remeber_column_offset();
 			
@@ -253,13 +253,50 @@ namespace Finger {
 		}
 		
 		public void move_end_of_line() {
-			int[] line_bound = find_line_bound();
-			cursor_index = line_bound[1];
-			cursor_trailing = 1;
+			move_end_of_line_internal();
 
 			remeber_column_offset();
 			
 			queue_draw();
+		}
+		
+		public void back_to_indentation() {
+			move_beginning_of_line_internal();
+			
+			forward_skip_indentation_chars();
+			
+			remeber_column_offset();
+			
+			queue_draw();
+		}
+		
+		public void move_beginning_of_line_internal() {
+			int[] line_bound = find_line_bound();
+			cursor_index = line_bound[0];
+			cursor_trailing = 0;
+		}
+		
+		public void move_end_of_line_internal() {
+			int[] line_bound = find_line_bound();
+			cursor_index = line_bound[1];
+			cursor_trailing = 1;
+		}
+		
+		public void forward_skip_indentation_chars() {
+			bool reach_end = false;
+			unichar c = 0;
+			bool found_next_char = true;
+
+			found_next_char = buffer.content.get_next_char(ref cursor_index, out c);
+			while (found_next_char && !reach_end) {
+				if (is_indentation_chars(c, true)) {
+					backward_char_internal();
+					reach_end = true;
+				} else {
+					found_next_char = buffer.content.get_next_char(ref cursor_index, out c);
+					reach_end = !found_next_char;
+				}
+			}
 		}
 
 		public void forward_skip_word_chars() {
@@ -316,6 +353,16 @@ namespace Finger {
 				return !(c in word_chars);
 			} else {
 				return c in word_chars;
+			}
+		}
+		
+		public bool is_indentation_chars(unichar c, bool is_skip) {
+			unichar[] indentation_chars = {' ', '\t'};
+			
+			if (is_skip) {
+				return !(c in indentation_chars);
+			} else {
+				return c in indentation_chars;
 			}
 		}
 		
