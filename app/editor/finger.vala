@@ -137,6 +137,10 @@ namespace Finger {
 				forward_word();
 			} else if (keyname == "Alt + b") {
 				backward_word();
+			} else if (keyname == "Ctrl + a") {
+				move_beginning_of_line();
+			} else if (keyname == "Ctrl + e") {
+				move_end_of_line();
 			}
         }
         
@@ -234,6 +238,26 @@ namespace Finger {
 			remeber_column_offset();
 			
 			try_scroll_down();
+			
+			queue_draw();
+		}
+		
+		public void move_beginning_of_line() {
+			int[] line_bound = find_line_bound();
+			cursor_index = line_bound[0];
+			cursor_trailing = 0;
+			
+			remeber_column_offset();
+			
+			queue_draw();
+		}
+		
+		public void move_end_of_line() {
+			int[] line_bound = find_line_bound();
+			cursor_index = line_bound[1];
+			cursor_trailing = 1;
+
+			remeber_column_offset();
 			
 			queue_draw();
 		}
@@ -335,7 +359,7 @@ namespace Finger {
 			bool trailing = cursor_trailing > 0;
 			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
 			
-            // Draw background.
+			// Draw background.
             Utils.set_context_color(cr, background_color);
             Draw.draw_rectangle(cr, 0, 0, alloc.width, alloc.height);
 			
@@ -343,9 +367,10 @@ namespace Finger {
 			
 			// Draw line background.
 			int[] line_bound = find_line_bound();
+			line_bound[1] += 1;
+			
 			int start_line, start_line_x_pos;
 			int end_line, end_line_x_pos;
-			
 			layout.index_to_line_x(line_bound[0], false, out start_line, out start_line_x_pos);
 			layout.index_to_line_x(line_bound[1], false, out end_line, out end_line_x_pos);
 			Utils.set_context_color(cr, line_background_color);
@@ -383,12 +408,11 @@ namespace Finger {
 		public int[] find_line_bound() {
 			int[] line_bound = new int[2];
 			
-			line_bound[0] = int.max(0, buffer.content.substring(0, cursor_index).last_index_of_char('\n')) + 1;
+			line_bound[0] = buffer.content.substring(0, cursor_index).last_index_of_char('\n') + 1;
 			line_bound[1] = buffer.content.index_of_char('\n', cursor_index);
+			
 			if (line_bound[1] == -1) {
 				line_bound[1] = buffer.content.char_count() - 1;
-			} else {
-				line_bound[1] += 1;
 			}
 			
 			return line_bound;
