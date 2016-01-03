@@ -1,6 +1,5 @@
 ## TODO
 
-* editor: move forward/backward word.
 * editor: scroll screen up/down.
 * editor: move line home/end.
 * editor: move to first non-blank char.

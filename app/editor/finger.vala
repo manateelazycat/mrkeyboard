@@ -133,6 +133,10 @@ namespace Finger {
 				forward_char();
 			} else if (keyname == "Ctrl + b") {
 				backward_char();
+			} else if (keyname == "Alt + f") {
+				forward_word();
+			} else if (keyname == "Alt + b") {
+				backward_word();
 			}
         }
         
@@ -167,10 +171,7 @@ namespace Finger {
         }
 		
 		public void forward_char() {
-			int new_index, new_trailing;
-			layout.move_cursor_visually(true, cursor_index, cursor_trailing, 1, out new_index, out new_trailing);
-			cursor_index = new_index;
-			cursor_trailing = new_trailing;
+			forward_char_internal();
 			
 			remeber_column_offset();
 			
@@ -180,12 +181,7 @@ namespace Finger {
 		}
 		
 		public void backward_char() {
-			int new_index, new_trailing;
-			layout.move_cursor_visually(true, cursor_index, cursor_trailing, -1, out new_index, out new_trailing);
-			if (new_index >= 0) {
-				cursor_index = new_index;
-			}
-			cursor_trailing = new_trailing;
+			backward_char_internal();
 			
 			remeber_column_offset();
 			
@@ -193,7 +189,112 @@ namespace Finger {
 
 			queue_draw();
 		}
+		
+		public bool forward_char_internal() {
+			int new_index, new_trailing;
+			layout.move_cursor_visually(true, cursor_index, cursor_trailing, 1, out new_index, out new_trailing);
+			
+			if (new_index != int.MAX) {
+				cursor_index = new_index;
+				cursor_trailing = new_trailing;
+			}
+			
+			return new_index == int.MAX;
+		}
+		
+		public bool backward_char_internal() {
+			int new_index, new_trailing;
+			layout.move_cursor_visually(true, cursor_index, cursor_trailing, -1, out new_index, out new_trailing);
+			
+			if (new_index >= 0) {
+				cursor_index = new_index;
+				cursor_trailing = new_trailing;
+			}
+			
+			return new_trailing == -1;
+		}
+		
+		public void forward_word() {
+			forward_skip_word_chars();
+			
+			forward_to_word_bound();
+			
+			remeber_column_offset();
+			
+			try_scroll_up();
+			
+			queue_draw();
+		}
+		
+		public void backward_word() {
+			backward_skip_word_chars();
+			
+			backward_to_word_bound();
+			
+			remeber_column_offset();
+			
+			try_scroll_down();
+			
+			queue_draw();
+		}
 
+		public void forward_skip_word_chars() {
+			forward_to_word_bound(true);
+		}
+		
+		public void forward_to_word_bound(bool is_skip=false) {
+			bool reach_end = false;
+			unichar c = 0;
+			bool found_next_char = true;
+
+			found_next_char = buffer.content.get_next_char(ref cursor_index, out c);
+			while (found_next_char && !reach_end) {
+				if (is_word_bound_chars(c, is_skip)) {
+					backward_char_internal();
+					reach_end = true;
+				} else {
+					found_next_char = buffer.content.get_next_char(ref cursor_index, out c);
+					reach_end = !found_next_char;
+				}
+			}
+		}
+
+		public void backward_skip_word_chars() {
+			backward_to_word_bound(true);
+		}
+		
+		public void backward_to_word_bound(bool is_skip=false) {
+			bool reach_end = false;
+			unichar c = 0;
+			bool found_prev_char = true;
+
+			found_prev_char = buffer.content.get_prev_char(ref cursor_index, out c);
+			while (found_prev_char && !reach_end) {
+				if (is_word_bound_chars(c, is_skip)) {
+					forward_char_internal();
+					reach_end = true;
+				} else {
+					found_prev_char = buffer.content.get_prev_char(ref cursor_index, out c);
+					reach_end = !found_prev_char;
+				}
+			}
+		}
+		
+		public bool is_word_bound_chars(unichar c, bool is_skip) {
+			unichar[] word_chars =  {' ', '_', '-', ',', '.',
+									 '\n', '\t', ';', ':', '!',
+									 '|', '&', '>', '<', '{', '}',
+									 '[', ']', '#', '\"', '(', ')',
+									 '=', '*', '^', '%', '$', '@',
+									 '?', '/', '~', '`'};
+			
+			if (is_skip) {
+				return !(c in word_chars);
+			} else {
+				return c in word_chars;
+			}
+		}
+		
 		public void try_scroll_up() {
 			int line, x_pos;
 			bool trailing = cursor_trailing > 0;
