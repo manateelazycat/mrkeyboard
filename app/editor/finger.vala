@@ -62,6 +62,7 @@ namespace Finger {
 							}
 						}
 					} else {
+						// We need increment line number count once found wrap line.
 						skip_line_count += 1;
 					}
 				}
@@ -89,11 +90,11 @@ namespace Finger {
 		public int cursor_width = 2;
 		public int render_offset = 0;
         
-        public ArrayList<int> render_line_heights = new ArrayList<int>();
-        
-        public signal void render_line_number();
-		
 		public Pango.Layout layout;		
+		
+		public int column_offset = 0;
+		
+		public signal void render_line_number();
 		
 		public EditView(FingerBuffer buf) {
             buffer = buf;
@@ -141,7 +142,7 @@ namespace Finger {
 			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
 
 			int new_index, new_trailing;
-			layout.xy_to_index(x_pos, (line + 1) * line_height * Pango.SCALE, out new_index, out new_trailing);
+			layout.xy_to_index(column_offset, (line + 1) * line_height * Pango.SCALE, out new_index, out new_trailing);
 			cursor_index = new_index;
 			cursor_trailing = new_trailing;
 			
@@ -156,7 +157,7 @@ namespace Finger {
 			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
 
 			int new_index, new_trailing;
-			layout.xy_to_index(x_pos, (line - 1) * line_height * Pango.SCALE, out new_index, out new_trailing);
+			layout.xy_to_index(column_offset, (line - 1) * line_height * Pango.SCALE, out new_index, out new_trailing);
 			cursor_index = new_index;
 			cursor_trailing = new_trailing;
 			
@@ -171,6 +172,8 @@ namespace Finger {
 			cursor_index = new_index;
 			cursor_trailing = new_trailing;
 			
+			remeber_column_offset();
+			
 			try_scroll_up();
 			
 			queue_draw();
@@ -183,6 +186,8 @@ namespace Finger {
 				cursor_index = new_index;
 			}
 			cursor_trailing = new_trailing;
+			
+			remeber_column_offset();
 			
 			try_scroll_down();
 
@@ -265,6 +270,14 @@ namespace Finger {
             
             return true;
         }
+		
+		public void remeber_column_offset() {
+			int line, x_pos;
+			bool trailing = cursor_trailing > 0;
+			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
+			
+			column_offset = x_pos;
+		}
 
 		public int[] find_line_bound() {
 			int[] line_bound = new int[2];

@@ -1,8 +1,8 @@
 ## TODO
 
-* editor: next-line/previous-line don't forget column number.
-* editor: move line home/end.
+* editor: move forward/backward word.
 * editor: scroll screen up/down.
+* editor: move line home/end.
 * editor: move to first non-blank char.
 * editor: kill line.
 * editor: kill to line home/end.
