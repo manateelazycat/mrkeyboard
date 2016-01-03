@@ -1,6 +1,5 @@
 ## TODO
 
-* editor: line number with pango layout.
 * editor: next-line/previous-line don't forget column number.
 * editor: move line home/end.
 * editor: scroll screen up/down.

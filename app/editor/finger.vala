@@ -13,10 +13,7 @@ namespace Finger {
         public Gdk.Color background_color = Utils.color_from_string("#040404");
         public Gdk.Color text_color = Utils.color_from_string("#202020");
         public int padding_x = 4;
-        public int width = 30;
         public EditView edit_view;
-        
-        public int render_start_row = 0;
         
         public LineNumberView(EditView view) {
             edit_view = view;
@@ -30,12 +27,12 @@ namespace Finger {
                        | Gdk.EventMask.LEAVE_NOTIFY_MASK);
             
             draw.connect(on_draw);
-            set_size_request(width, -1);
             
             view.render_line_number.connect((row) => {
-                    render_start_row = row;
-                    
-                    queue_draw();
+					int line_number = edit_view.get_logic_line_count();
+					set_size_request(padding_x * 2 + line_number.to_string().length * char_width, -1);
+					
+					queue_draw();
                 });
         }
         
@@ -46,24 +43,33 @@ namespace Finger {
             // Draw background.
             Utils.set_context_color(cr, background_color);
             Draw.draw_rectangle(cr, 0, 0, alloc.width, alloc.height);
+			
+			// Draw line number.
+			int render_y = 0;
+			int skip_line_count = 0;
+			bool reach_bottom = false;
+			while (render_y < alloc.height && !reach_bottom) {
+				int[]? lines = edit_view.index_to_lines(0, (edit_view.render_offset + render_y) * Pango.SCALE);
+				if (lines != null) {
+					
+					if (lines[0] == lines[1]) {
+						if (lines[0] <= edit_view.layout.get_line_count() - 1) {
+							Utils.set_context_color(cr, text_color);
+							render_text(cr, (lines[1] + 1 - skip_line_count).to_string(),
+										padding_x, render_y, alloc.width, line_height, edit_view.font_description);
+							if (lines[0] == edit_view.layout.get_line_count() - 1) {
+								reach_bottom = true;
+							}
+						}
+					} else {
+						skip_line_count += 1;
+					}
+				}
+
+				render_y += line_height;
+			}
             
-            if (edit_view.render_line_heights.size > 0) {
-                // Draw line number.
-                int render_y = 0;
-                int line_index = render_start_row + 1;
-                int counter = 0;
-                while (render_y + line_height < alloc.height) {
-                    // Draw current line.
-                    Utils.set_context_color(cr, text_color);
-                    Render.render_line(cr, "%i\n".printf(line_index), padding_x, render_y, line_height, alloc.width, edit_view.font_description);
-                    
-                    line_index += 1;
-                    render_y += edit_view.render_line_heights[counter];
-                    counter++;
-                }
-            }
-            
-            return true;
+			return true;
         }        
     }
 
@@ -83,10 +89,9 @@ namespace Finger {
 		public int cursor_width = 2;
 		public int render_offset = 0;
         
-        public int render_start_row = 0;
         public ArrayList<int> render_line_heights = new ArrayList<int>();
         
-        public signal void render_line_number(int render_row);
+        public signal void render_line_number();
 		
 		public Pango.Layout layout;		
 		
@@ -256,7 +261,7 @@ namespace Finger {
 			Utils.set_context_color(cr, cursor_color);
 			draw_rectangle(cr, x_pos / Pango.SCALE, line * line_height, cursor_width, line_height);
 			
-			render_line_number(render_start_row);
+			render_line_number();
             
             return true;
         }
@@ -273,6 +278,33 @@ namespace Finger {
 			}
 			
 			return line_bound;
+		}
+		
+		public int get_logic_line_count() {
+			int line_index = int.max(0, buffer.content.last_index_of_char('\n')) + 1;
+			int line, line_x_pos;
+			layout.index_to_line_x(line_index, false, out line, out line_x_pos);
+			
+			return line;
+		}
+		
+		public int[]? index_to_lines(int x, int y) {
+			if (layout != null) {
+				int target_index, target_trailing;
+				layout.xy_to_index(x, y, out target_index, out target_trailing);
+				
+			    int target_line, target_line_x_pos;
+			    layout.index_to_line_x(target_index, false, out target_line, out target_line_x_pos);
+			    
+			    int start_line_index = int.max(0, buffer.content.substring(0, target_index).last_index_of_char('\n')) + 1;
+			    int start_line, start_line_x_pos;
+			    layout.index_to_line_x(start_line_index, false, out start_line, out start_line_x_pos);
+			    
+			    int[] lines = {target_line, start_line};
+			    return lines;
+			} else {
+				return null;
+			}
 		}
     }
 
