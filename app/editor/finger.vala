@@ -82,18 +82,22 @@ namespace Finger {
         
         public int render_start_index = 0;
         public int cursor_index = 0;
+		public int cursor_trailing = 0;
+		public int cursor_width = 2;
         
         public int render_start_row = 0;
         public ArrayList<int> render_line_heights = new ArrayList<int>();
         
         public signal void render_line_number(int render_row);
-        
-        public EditView(FingerBuffer buf) {
+		
+		public Pango.Layout layout;		
+		
+		public EditView(FingerBuffer buf) {
             buffer = buf;
             font_description = new Pango.FontDescription();
             font_description.set_family(font_family);
             font_description.set_size((int)(font_size * Pango.SCALE));
-            
+			
             set_can_focus(true);  // make widget can receive key event 
             add_events(Gdk.EventMask.BUTTON_PRESS_MASK
                        | Gdk.EventMask.BUTTON_RELEASE_MASK
@@ -121,107 +125,74 @@ namespace Finger {
                 next_line();
             } else if (keyname == "Ctrl + p") {
                 prev_line();
-            }
+            } else if (keyname == "Ctrl + f") {
+				forward_char();
+			} else if (keyname == "Ctrl + b") {
+				backward_char();
+			}
         }
         
         public void next_line() {
-            int current_line_end_index = buffer.content.index_of("\n", cursor_index);
-            if (current_line_end_index < buffer.content.length - 1) {
-                cursor_index = current_line_end_index + 1;
-                
-                if (cursor_below_screen()) {
-                    int line_end_index = buffer.content.index_of("\n", render_start_index);
-                    render_start_index = line_end_index + 1;
-                    
-                    render_start_row++;
-                }
-                
-                queue_draw();
-            }
+			
         }
         
         public void prev_line() {
-            int prev_line_end_index = buffer.content.substring(0, cursor_index).last_index_of("\n");
-            if (prev_line_end_index < cursor_index && prev_line_end_index >= 0) {
-                cursor_index = prev_line_end_index;
-
-                queue_draw();
-            }
-            
-            if (cursor_above_screen()) {
-                int prev_render_end_index = buffer.content.substring(0, render_start_index).last_index_of("\n");
-                if (prev_render_end_index < render_start_index) {
-                    if (prev_render_end_index >= 0) {
-                        render_start_index = prev_render_end_index;
-                    
-                        render_start_row--;
-                    } else {
-                        render_start_index = 0;
-                    }
-                
-                    queue_draw();
-                }
-            }
         }
+		
+		public void forward_char() {
+			int new_index, new_trailing;
+			layout.move_cursor_visually(true, cursor_index, cursor_trailing, 1, out new_index, out new_trailing);
+			cursor_index = new_index;
+			cursor_trailing = new_trailing;
+			
+			queue_draw();
+		}
+		
+		public void backward_char() {
+			int new_index, new_trailing;
+			layout.move_cursor_visually(true, cursor_index, cursor_trailing, -1, out new_index, out new_trailing);
+			if (new_index >= 0) {
+				cursor_index = new_index;
+			}
+			cursor_trailing = new_trailing;
+
+			queue_draw();
+		}
         
         public bool on_draw(Gtk.Widget widget, Cairo.Context cr) {
             Gtk.Allocation alloc;
             widget.get_allocation(out alloc);
+			
+			if (layout == null) {
+				layout = Pango.cairo_create_layout(cr);
+			}
 
             // Draw background.
             Utils.set_context_color(cr, background_color);
             Draw.draw_rectangle(cr, 0, 0, alloc.width, alloc.height);
-            
-            int render_y = 0;
-            int render_index = render_start_index;
-            int counter = 0;
-            render_line_heights = new ArrayList<int>();
-            while(render_index < buffer.content.length && render_y < alloc.height) {
-                int line_end_index = buffer.content.index_of("\n", render_index);
-                string render_line_string = buffer.content.slice(render_index, line_end_index);
-                int[] line_render_size = get_context_size("%s\n".printf(render_line_string), line_height, alloc.width, font_description);
-                render_line_heights.add(line_render_size[1]);
-                
-                if (cursor_index >= render_index && cursor_index <= line_end_index) {
-                    current_row = render_start_row + counter;
-                    
-                    // Draw highlight line.
-                    Utils.set_context_color(cr, line_background_color);
-                    Draw.draw_rectangle(cr, 0, render_y, alloc.width, line_render_size[1]);
-
-                    // Draw current cursor.
-                    Utils.set_context_color(cr, line_cursor_color);
-                    Draw.draw_rectangle(cr, 0, render_y, 2, line_height);
-                }
-
-                // Draw current line.
-                Utils.set_context_color(cr, text_color);
-                Render.render_line(cr, "%s\n".printf(render_line_string), 0, render_y, line_height, alloc.width, font_description);
-                
-                render_index = line_end_index + 1;
-                render_y += line_render_size[1];
-                counter++;
-            }
-            
+			
+			// Draw context.
+            Utils.set_context_color(cr, text_color);
+			layout.set_text(buffer.content, (int)buffer.content.length);
+			layout.set_height((int)(alloc.height * Pango.SCALE));
+			layout.set_width((int)(alloc.width * Pango.SCALE));
+			layout.set_wrap(Pango.WrapMode.WORD_CHAR);
+			layout.set_font_description(font_description);
+			layout.set_alignment(Pango.Alignment.LEFT);
+			cr.move_to(0, 0);
+			Pango.cairo_update_layout(cr, layout);
+			Pango.cairo_show_layout(cr, layout);
+			
+			// Draw cursor.
+			int line, x_pos;
+			bool trailing = cursor_trailing > 0;
+			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
+			Utils.set_context_color(cr, cursor_color);
+			draw_rectangle(cr, x_pos / Pango.SCALE, line * line_height, cursor_width, line_height);
+			
             render_line_number(render_start_row);
             
             return true;
-        }
-        
-        public bool cursor_above_screen() {
-            Gtk.Allocation alloc;
-            get_allocation(out alloc);
-
-            int render_y = (current_row - render_start_row) * line_height;
-            return (render_y <= 2 * line_height);
-        }
-        
-        public bool cursor_below_screen() {
-            Gtk.Allocation alloc;
-            get_allocation(out alloc);
-
-            int render_y = (current_row - render_start_row) * line_height;
-            return (render_y > alloc.height - 2 * line_height);
         }
     }
 
