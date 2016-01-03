@@ -133,10 +133,29 @@ namespace Finger {
         }
         
         public void next_line() {
+			int line, x_pos;
+			bool trailing = cursor_trailing > 0;
+			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
+
+			int new_index, new_trailing;
+			layout.xy_to_index(x_pos, (line + 1) * line_height * Pango.SCALE, out new_index, out new_trailing);
+			cursor_index = new_index;
+			cursor_trailing = new_trailing;
 			
+			queue_draw();
         }
         
         public void prev_line() {
+			int line, x_pos;
+			bool trailing = cursor_trailing > 0;
+			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
+
+			int new_index, new_trailing;
+			layout.xy_to_index(x_pos, (line - 1) * line_height * Pango.SCALE, out new_index, out new_trailing);
+			cursor_index = new_index;
+			cursor_trailing = new_trailing;
+			
+			queue_draw();
         }
 		
 		public void forward_char() {
