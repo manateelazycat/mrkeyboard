@@ -335,11 +335,7 @@ namespace Finger {
 		}
 		
 		public int get_cursor_line() {
-			int line, x_pos;
-			bool trailing = cursor_trailing > 0;
-			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
-
-			return line;
+			return index_to_line_x(cursor_index, cursor_trailing)[0];
 		}
 		
 		public void move_beginning_of_line_internal() {
@@ -478,10 +474,10 @@ namespace Finger {
 			}
 
 			layout.set_width((int)(alloc.width * Pango.SCALE));
-			
-			int line, x_pos;
-			bool trailing = cursor_trailing > 0;
-			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
+
+			int[] index_coordinate = index_to_line_x(cursor_index, cursor_trailing);
+			int line = index_coordinate[0];
+			int x_pos = index_coordinate[1];
 			
 			// Draw background.
             Utils.set_context_color(cr, background_color);
@@ -493,10 +489,8 @@ namespace Finger {
 			int[] line_bound = find_line_bound();
 			line_bound[1] += 1;
 			
-			int start_line, start_line_x_pos;
-			int end_line, end_line_x_pos;
-			layout.index_to_line_x(line_bound[0], false, out start_line, out start_line_x_pos);
-			layout.index_to_line_x(line_bound[1], false, out end_line, out end_line_x_pos);
+			int start_line = index_to_line_x(line_bound[0], 0)[0];
+			int end_line = index_to_line_x(line_bound[1], 0)[0];
 			Utils.set_context_color(cr, line_background_color);
 			draw_rectangle(cr, 0, start_line * line_height, alloc.width, int.max((end_line - start_line), 1 )* line_height);
 			
@@ -522,11 +516,7 @@ namespace Finger {
         }
 		
 		public void remeber_column_offset() {
-			int line, x_pos;
-			bool trailing = cursor_trailing > 0;
-			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
-			
-			column_offset = x_pos;
+			column_offset = index_to_line_x(cursor_index, cursor_trailing)[1];
 		}
 
 		public int[] find_line_bound() {
@@ -544,10 +534,8 @@ namespace Finger {
 		
 		public int get_logic_line_count() {
 			int line_index = int.max(0, buffer.content.last_index_of_char('\n')) + 1;
-			int line, line_x_pos;
-			layout.index_to_line_x(line_index, false, out line, out line_x_pos);
 			
-			return line;
+			return index_to_line_x(line_index, 0)[0];
 		}
 		
 		public int[]? index_to_lines(int x, int y) {
@@ -555,18 +543,24 @@ namespace Finger {
 				int target_index, target_trailing;
 				layout.xy_to_index(x, y, out target_index, out target_trailing);
 				
-			    int target_line, target_line_x_pos;
-			    layout.index_to_line_x(target_index, false, out target_line, out target_line_x_pos);
+			    int target_line = index_to_line_x(target_index, 0)[0];
 			    
 			    int start_line_index = int.max(0, buffer.content.substring(0, target_index).last_index_of_char('\n')) + 1;
-			    int start_line, start_line_x_pos;
-			    layout.index_to_line_x(start_line_index, false, out start_line, out start_line_x_pos);
+			    int start_line = index_to_line_x(start_line_index, 0)[0];
 			    
 			    int[] lines = {target_line, start_line};
 			    return lines;
 			} else {
 				return null;
 			}
+		}
+		
+		public int[] index_to_line_x(int index, int trailing) {
+			int line, x_pos;
+			bool is_trailing = trailing > 0;
+			layout.index_to_line_x(index, is_trailing, out line, out x_pos);
+			
+			return {line, x_pos};
 		}
     }
 
