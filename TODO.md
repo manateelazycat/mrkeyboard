@@ -1,6 +1,5 @@
 ## TODO
 
-* editor: scroll screen up/down.
 * editor: draw indentation line.
 * editor: kill line.
 * editor: kill to line home/end.

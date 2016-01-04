@@ -11,7 +11,7 @@ namespace Finger {
 
     public class LineNumberView : DrawingArea {
         public Gdk.Color background_color = Utils.color_from_string("#040404");
-        public Gdk.Color text_color = Utils.color_from_string("#202020");
+        public Gdk.Color text_color = Utils.color_from_string("#404040");
         public int padding_x = 4;
         public EditView edit_view;
         
@@ -147,13 +147,15 @@ namespace Finger {
 				end_of_buffer();
 			} else if (keyname == "Ctrl + P") {
 				beginning_of_buffer();
+			} else if (keyname == "Super + J") {
+				scroll_up_one_line();
+			} else if (keyname == "Super + K") {
+				scroll_down_one_line();
 			}
         }
         
         public void next_line() {
-			int line, x_pos;
-			bool trailing = cursor_trailing > 0;
-			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
+			int line = get_cursor_line();
 
 			int new_index, new_trailing;
 			layout.xy_to_index(column_offset, (line + 1) * line_height * Pango.SCALE, out new_index, out new_trailing);
@@ -166,9 +168,7 @@ namespace Finger {
         }
         
         public void prev_line() {
-			int line, x_pos;
-			bool trailing = cursor_trailing > 0;
-			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
+			int line = get_cursor_line();
 
 			int new_index, new_trailing;
 			layout.xy_to_index(column_offset, (line - 1) * line_height * Pango.SCALE, out new_index, out new_trailing);
@@ -296,6 +296,52 @@ namespace Finger {
 			queue_draw();
 		}
 		
+		public void scroll_up_one_line() {
+            Gtk.Allocation alloc;
+            get_allocation(out alloc);
+			
+			render_offset = int.min(render_offset + line_height, (layout.get_line_count() + 1) * line_height - alloc.height);
+			
+			int line = get_cursor_line();
+
+			if (line * line_height < render_offset + line_height) {
+				int new_index, new_trailing;
+				layout.xy_to_index(column_offset, (render_offset + line_height) * Pango.SCALE, out new_index, out new_trailing);
+
+				cursor_index = new_index;
+				cursor_trailing = new_trailing;
+			}
+			
+			queue_draw();
+		}
+		
+		public void scroll_down_one_line() {
+            Gtk.Allocation alloc;
+            get_allocation(out alloc);
+			
+			render_offset = int.max(render_offset - line_height, 0);
+			
+			int line = get_cursor_line();
+
+			if (line * line_height > render_offset + alloc.height - 2 * line_height) {
+				int new_index, new_trailing;
+				layout.xy_to_index(column_offset, (render_offset + alloc.height - 2 * line_height) * Pango.SCALE, out new_index, out new_trailing);
+
+				cursor_index = new_index;
+				cursor_trailing = new_trailing;
+			}
+			
+			queue_draw();
+		}
+		
+		public int get_cursor_line() {
+			int line, x_pos;
+			bool trailing = cursor_trailing > 0;
+			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
+
+			return line;
+		}
+		
 		public void move_beginning_of_line_internal() {
 			int[] line_bound = find_line_bound();
 			cursor_index = line_bound[0];
@@ -393,9 +439,7 @@ namespace Finger {
 		}
 		
 		public void try_scroll_up() {
-			int line, x_pos;
-			bool trailing = cursor_trailing > 0;
-			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
+			int line = get_cursor_line();
 			
             Gtk.Allocation alloc;
             get_allocation(out alloc);
@@ -405,9 +449,7 @@ namespace Finger {
 		}
 		
 		public void try_scroll_down() {
-			int line, x_pos;
-			bool trailing = cursor_trailing > 0;
-			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
+			int line = get_cursor_line();
 			
 			if ((line - 1) * line_height - render_offset < line_height) {
 				render_offset = int.max(render_offset - line_height, 0);
@@ -418,10 +460,8 @@ namespace Finger {
             Gtk.Allocation alloc;
             get_allocation(out alloc);
 			
-			int line, x_pos;
-			bool trailing = cursor_trailing > 0;
-			layout.index_to_line_x(cursor_index, trailing, out line, out x_pos);
-			
+			int line = get_cursor_line();
+
 			render_offset = int.min(line * line_height, (layout.get_line_count() + 1) * line_height - alloc.height);
 		}
         
