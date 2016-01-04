@@ -14,6 +14,8 @@
 * Write IRC application for hacking team communication.
 * Research Atom editor, steal nice feature. ;)
 * Write wifi-share for hacking at TV. ;) (https://github.com/albfan/miraclecast)
+* pdfviewer: remeber book number.
+* pdfviewer: smooth scroll.
 * Design search framework.
 * Design application package standard.
 * Design keystroke standard and build one-key system for feature. ;)
