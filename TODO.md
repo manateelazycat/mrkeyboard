@@ -1,6 +1,5 @@
 ## TODO
 
-* editor: draw indentation line.
 * editor: kill line.
 * editor: kill to line home/end.
 * editor: kill forward/backward char.
@@ -12,6 +11,7 @@
 * editor: copy, paste, and insert.
 * editor: select to scroll screen.
 * editor: add text parser and syntax highlight.
+* editor: draw indentation line with programming language.
 * Write IRC application for hacking team communication.
 * Research Atom editor, steal nice feature. ;)
 * Write wifi-share for hacking at TV. ;) (https://github.com/albfan/miraclecast)
