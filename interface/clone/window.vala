@@ -1,4 +1,5 @@
 using Gtk;
+using Gdk;
 
 namespace Interface {
     public class Window : Gtk.Window {
@@ -51,11 +52,21 @@ namespace Interface {
                 event = (Gdk.EventKey*) new Gdk.Event(Gdk.EventType.KEY_RELEASE);
             }
             var window = get_event_window();
+            window.ref();
             event->window = window;
             event->keyval = key_val;
             event->state = (Gdk.ModifierType) key_state;
             event->time = key_time;
             event->hardware_keycode = (uint16) hardware_keycode;
+
+            var display = Display.get_default();
+            var dev_manger = display.get_device_manager();
+            var client_pointer = dev_manger.get_client_pointer();
+
+            var device = client_pointer.get_associated_device();
+            event->set_device(device);
+            event->set_source_device(device);
+
             ((Gdk.Event*) event)->put();
         }
         

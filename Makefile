@@ -21,6 +21,7 @@ main: ./lib/draw.vala \
     --pkg=gtk+-3.0 \
     --pkg=json-glib-1.0 \
     --pkg=xcb \
+    --pkg=x11-xcb \
     --vapidir=./lib \
     ./lib/draw.vala \
     ./lib/keymap.vala \
