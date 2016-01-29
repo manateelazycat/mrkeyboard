@@ -18,35 +18,15 @@ namespace Interface {
             }
             
             try {
-                daemon = Bus.get_proxy_sync(BusType.SESSION, "org.mrkeyboard.Daemon",
-                                                            "/org/mrkeyboard/daemon");
+                daemon = Bus.get_proxy_sync(BusType.SESSION, "org.mrkeyboard.Daemon", "/org/mrkeyboard/daemon");
             
-                daemon.send_key_event.connect((focus_window, key_val, key_state, hardware_keycode, key_time, press) => {
-                        handle_send_key_event(focus_window, key_val, key_state, hardware_keycode, key_time, press);
-                    });
-                daemon.destroy_windows.connect((window_id) => {
-                        handle_destroy_windows(window_id);
-                    });
-                daemon.destroy_buffer.connect((buffer_id) => {
-                        handle_destroy_buffer(buffer_id) ;
-                    });
-                daemon.resize_window.connect((window_id, width, height) => {
-                        handle_resize(window_id, width, height);
-                    });
-                daemon.scroll_vertical_up.connect((window_id) => {
-                        handle_scroll_vertical_up(window_id);
-                    });
-                daemon.scroll_vertical_down.connect((window_id) => {
-                        handle_scroll_vertical_down(window_id);
-                    });
-                daemon.quit_app.connect(() => {
-                        print("Receive quit signal from daemon, quit app process...\n");
-                        
-                        destroy_buffers();
-                        destroy_windows();
-                        
-                        Gtk.main_quit();
-                    });
+                daemon.send_key_event.connect(handle_send_key_event);
+                daemon.destroy_windows.connect(handle_destroy_windows);
+                daemon.destroy_buffer.connect(handle_destroy_buffer);
+                daemon.resize_window.connect(handle_resize);
+                daemon.scroll_vertical_up.connect(handle_scroll_vertical_up);
+                daemon.scroll_vertical_down.connect(handle_scroll_vertical_down);
+                daemon.quit_app.connect(handle_quit);
             } catch (IOError e) {
                 stderr.printf("%s\n", e.message);
             }    
@@ -161,6 +141,15 @@ namespace Interface {
             if (window != null) {
                 window.scroll_vertical(false);
             }
+        }
+        
+        public void handle_quit() {
+            print("Receive quit signal from daemon, quit app process...\n");
+                        
+            destroy_buffers();
+            destroy_windows();
+                        
+            Gtk.main_quit();
         }
         
         private void handle_destroy_windows(int[] window_ids) {
