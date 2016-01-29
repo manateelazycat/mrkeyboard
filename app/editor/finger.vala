@@ -379,7 +379,10 @@ namespace Finger {
 			found_next_char = buffer.content.get_next_char(ref cursor_index, out c);
 			while (found_next_char && !reach_end) {
 				if (is_word_bound_chars(c, is_skip)) {
-					backward_char_internal();
+                    if (c != '\n') {
+                        backward_char_internal();
+                    }
+                    
 					reach_end = true;
 				} else {
 					found_next_char = buffer.content.get_next_char(ref cursor_index, out c);
