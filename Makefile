@@ -12,6 +12,7 @@ main: ./lib/draw.vala \
       window_rectangle.vala \
       main.vala
 	valac -o main \
+	-X -w \
     --pkg=clutter-1.0 \
     --pkg=clutter-gtk-1.0 \
     --pkg=clutter-x11-1.0 \

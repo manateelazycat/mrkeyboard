@@ -5,6 +5,7 @@ main: ../../interface/base_interface.vala \
       ../../interface/clone/clone_window.vala \
       application.vala
 	valac -o main \
+	-X -w \
     --pkg=clutter-1.0 \
     --pkg=clutter-gtk-1.0 \
     --pkg=clutter-x11-1.0 \
