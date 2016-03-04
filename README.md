@@ -34,11 +34,9 @@ Start mrkeyboard
 Start mrkeyboard with filemanager
 > ./mrkeyboard.sh filemanager /home/
 
-Start mrkeyboard with musicplayer
-> ./mrkeyboard.sh musicplayer /your_music_directory
-
 After start mrkeyboard, you can press Win + u to start browser, Win + n to start terminal.
-Other programs, such editor, imageviewer, pdfviewer, videoplayer, you can press Enter in filemanager to start, filemanager keystrokes are: j, k, f, '
+Other programs, such editor, imageviewer, pdfviewer, videoplayer, musicplayer,
+you can press Enter in filemanager to start, filemanager keystrokes are: j, k, f, '
 
 Once you open two or above applications, try below keystrokes:
 * Split window: Alt + ; and Alt + :
