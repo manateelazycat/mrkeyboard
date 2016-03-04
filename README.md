@@ -15,10 +15,7 @@ This is OS for top hacker, enjoy it. ;)
 ## Install
 
 Install dependencies
-> sudo apt-get install valac uuid-runtime mplayer2 -y
-> sudo apt-get install libwebkitgtk-3.0-dev libgexiv2-dev libsqlite3-dev -y
-> sudo apt-get install gir1.2-gee-1.0 gir1.2-gtk-3.0 gir1.2-clutter-1.0 gir1.2-gtkclutter-1.0 gir1.2-poppler-0.18 gir1.2-vte-2.91 -y
-> sudo apt-get install libgee-dev libgtk-3-dev libclutter-1.0-dev libclutter-gtk-1.0-dev libpoppler-glib-dev libvte-2.91-dev -y
+> sudo apt-get install valac uuid-runtime mplayer2 libwebkitgtk-3.0-dev libgexiv2-dev libsqlite3-dev gir1.2-gee-1.0 gir1.2-gtk-3.0 gir1.2-clutter-1.0 gir1.2-gtkclutter-1.0 gir1.2-poppler-0.18 gir1.2-vte-2.91 libgee-dev libgtk-3-dev libclutter-1.0-dev libclutter-gtk-1.0-dev libpoppler-glib-dev libvte-2.91-dev -y
 
 Build mrkeyboard main program
 > make
