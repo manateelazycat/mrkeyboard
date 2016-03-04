@@ -62,10 +62,13 @@ namespace Application {
             }
             try {
                 string? working_directory = null;
+				string?[] envv = null;
+				
                 if (buffer_path.length > 0) {
                     working_directory = buffer_path;
                 }
-                term.fork_command_full(PtyFlags.DEFAULT, working_directory, arguments, null, SpawnFlags.SEARCH_PATH, null, out process_id);
+				
+				term.spawn_sync(Vte.PtyFlags.DEFAULT, working_directory, {shell}, envv, SpawnFlags.SEARCH_PATH, null, out process_id, null);
             } catch (GLib.Error e) {
                 print("Got error when fork_command_full: %s\n", e.message);
             }
