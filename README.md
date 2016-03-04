@@ -44,9 +44,15 @@ Once you open two or above applications, try below keystrokes:
 
 Because it's still in developing stage, start application is not so easy, I would write a launcher similar emacs-helm to use application smartly.
 
+## License
+
+This project distributed under the terms of GPL3+
+
 ## Getting involved
 
 This project just start, any idea and suggestion are welcome.
 
 You can contact me with lazycat.manatee@gmail.com 
+
+
 
