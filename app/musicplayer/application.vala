@@ -76,8 +76,8 @@ namespace Application {
         
         public Musicview(Buffer buf) {
             base();
-            background_color = Utils.color_from_string("#201F1E");
-            item_select_color = Utils.color_from_string("#121212");
+            background_color.parse("#201F1E");
+            item_select_color.parse("#121212");
             
             buffer = buf;
             items = new ArrayList<FileItem>();
@@ -169,9 +169,9 @@ namespace Application {
     }
 
     public class FileItem : ListItem {
-        public Gdk.Color music_color = Utils.color_from_string("#B3B4B4");
-        public Gdk.Color artist_color = Utils.color_from_string("#717171");
-        public Gdk.Color duration_color = Utils.color_from_string("#5A5A5A");
+        public Gdk.RGBA music_color = Gdk.RGBA();
+        public Gdk.RGBA artist_color = Gdk.RGBA();
+        public Gdk.RGBA duration_color = Gdk.RGBA();
         
         public FileInfo file_info;
         public string file_dir;
@@ -186,6 +186,10 @@ namespace Application {
         public int duration_padding_x = 20;
         
         public FileItem(Buffer buf, FileInfo info, string directory) {
+			music_color.parse("#B3B4B4");
+			artist_color.parse("#717171");
+			duration_color.parse("#5A5A5A");
+			
             buffer = buf;
             file_info = info;
             file_dir = directory;

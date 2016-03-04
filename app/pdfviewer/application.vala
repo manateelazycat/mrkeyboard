@@ -63,9 +63,11 @@ namespace Application {
         public int render_y;
         public int scroll_offset;
         public Buffer buffer;
-        public Gdk.Color background_color = Utils.color_from_string("#ffffff");
+        public Gdk.RGBA background_color = Gdk.RGBA();
 
         public PdfView(Buffer buf) {
+			background_color.parse("#ffffff");
+			
             page_index = 0;
             render_y = 0;
             scroll_offset = 20;

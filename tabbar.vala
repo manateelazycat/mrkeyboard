@@ -19,15 +19,15 @@ namespace Widgets {
         public int height = 28;
         public int tab_index = 0;
         
-        public Gdk.Color background_color = Utils.color_from_string("#171814");
-        public Gdk.Color active_tab_color = Utils.color_from_string("#272822");
-        public Gdk.Color inactive_tab_color = Utils.color_from_string("#393937");
-        public Gdk.Color hover_tab_color = Utils.color_from_string("#494943");
-        public Gdk.Color inactive_arrow_color = Utils.color_from_string("#393937");
-        public Gdk.Color hover_arrow_color = Utils.color_from_string("#494943");
-        public Gdk.Color text_color = Utils.color_from_string("#aaaaaa");
-        public Gdk.Color hover_text_color = Utils.color_from_string("#ffffff");
-        public Gdk.Color percent_color = Utils.color_from_string("#3880AB");
+        public Gdk.RGBA background_color = Gdk.RGBA();
+        public Gdk.RGBA active_tab_color = Gdk.RGBA();
+        public Gdk.RGBA inactive_tab_color = Gdk.RGBA();
+        public Gdk.RGBA hover_tab_color = Gdk.RGBA();
+        public Gdk.RGBA inactive_arrow_color = Gdk.RGBA();
+        public Gdk.RGBA hover_arrow_color = Gdk.RGBA();
+        public Gdk.RGBA text_color = Gdk.RGBA();
+        public Gdk.RGBA hover_text_color = Gdk.RGBA();
+        public Gdk.RGBA percent_color = Gdk.RGBA();
         
         private Cairo.ImageSurface hover_surface;
         private Cairo.ImageSurface normal_surface;
@@ -51,6 +51,16 @@ namespace Widgets {
         public signal void press_tab(int tab_index);
         
         public Tabbar(string image_path) {
+            background_color.parse("#171814");
+            active_tab_color.parse("#272822");
+            inactive_tab_color.parse("#393937");
+            hover_tab_color.parse("#494943");
+            inactive_arrow_color.parse("#393937");
+            hover_arrow_color.parse("#494943");
+            text_color.parse("#aaaaaa");
+            hover_text_color.parse("#ffffff");
+            percent_color.parse("#3880AB");
+		
             add_events (Gdk.EventMask.BUTTON_PRESS_MASK
                         | Gdk.EventMask.BUTTON_RELEASE_MASK
                         | Gdk.EventMask.POINTER_MOTION_MASK

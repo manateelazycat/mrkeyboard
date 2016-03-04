@@ -10,12 +10,15 @@ namespace Finger {
     public static const int char_width = 10;
 
     public class LineNumberView : DrawingArea {
-        public Gdk.Color background_color = Utils.color_from_string("#040404");
-        public Gdk.Color text_color = Utils.color_from_string("#404040");
+        public Gdk.RGBA background_color = Gdk.RGBA();
+        public Gdk.RGBA text_color = Gdk.RGBA();
         public int padding_x = 4;
         public EditView edit_view;
         
         public LineNumberView(EditView view) {
+			background_color.parse("#040404");
+			text_color.parse("#040404");
+			
             edit_view = view;
             
             set_can_focus(true);  // make widget can receive key event 
@@ -75,11 +78,11 @@ namespace Finger {
     }
 
     public class EditView : DrawingArea {
-        public Gdk.Color background_color = Utils.color_from_string("#000000");
-        public Gdk.Color line_background_color = Utils.color_from_string("#121212");
-        public Gdk.Color line_cursor_color = Utils.color_from_string("red");
-        public Gdk.Color cursor_color = Utils.color_from_string("#ff1e00");
-        public Gdk.Color text_color = Utils.color_from_string("#009900");
+        public Gdk.RGBA background_color = Gdk.RGBA();
+        public Gdk.RGBA line_background_color = Gdk.RGBA();
+        public Gdk.RGBA line_cursor_color = Gdk.RGBA();
+        public Gdk.RGBA cursor_color = Gdk.RGBA();
+        public Gdk.RGBA text_color = Gdk.RGBA();
 		
         public FingerBuffer buffer;
         public Pango.FontDescription font_description;
@@ -97,6 +100,12 @@ namespace Finger {
 		public signal void render_line_number();
 		
 		public EditView(FingerBuffer buf) {
+			background_color.parse("#000000");
+			line_background_color.parse("#121212");
+			line_cursor_color.parse("red");
+			cursor_color.parse("#ff1e00");
+			text_color.parse("#009900");
+			
             buffer = buf;
             font_description = new Pango.FontDescription();
             font_description.set_family(font_family);

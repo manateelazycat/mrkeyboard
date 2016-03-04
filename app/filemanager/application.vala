@@ -182,9 +182,9 @@ namespace Application {
     }
 
     public class FileItem : ListItem {
-        public Gdk.Color directory_type_color = Utils.color_from_string("#1E90FF");
-        public Gdk.Color file_type_color = Utils.color_from_string("#00CD00");
-        public Gdk.Color attr_type_color = Utils.color_from_string("#333333");
+        public Gdk.RGBA directory_type_color = Gdk.RGBA();
+        public Gdk.RGBA file_type_color = Gdk.RGBA();
+        public Gdk.RGBA attr_type_color = Gdk.RGBA();
         
         public FileInfo file_info;
         public string buffer_path;
@@ -193,6 +193,10 @@ namespace Application {
         public int column_padding_x = 10;
         
         public FileItem(FileInfo info, string directory) {
+			directory_type_color.parse("#1E90FF");
+			file_type_color.parse("#00CD00");
+			attr_type_color.parse("#333333");
+		
             file_info = info;
             buffer_path = directory;
             

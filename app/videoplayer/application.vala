@@ -55,7 +55,7 @@ namespace Application {
 
     public class PlayerView : DrawingArea {
         public GLib.Pid process_id;
-        public Gdk.Color background_color = Utils.color_from_string("#000000");
+        public Gdk.RGBA background_color = Gdk.RGBA();
         public int time_offset;
         public int volume_offset;
         public string video_path;
@@ -73,6 +73,8 @@ namespace Application {
         private string time_pos;
         
         public PlayerView(string path) {
+			background_color.parse("#000000");
+			
             video_path = path;
             volume_offset = 5;
             time_offset = 5;
@@ -138,12 +140,8 @@ namespace Application {
                     }
                 });
             destroy.connect((w) => {
-                    try {
-                        flush_command("quit 0");
-                    } catch (SpawnError e) {
-                        stderr.printf("%s\n", e.message);
-                    }
-                });
+					flush_command("quit 0");
+				});
             key_press_event.connect((w, e) => {
                     handle_key_press(w, e);
                     

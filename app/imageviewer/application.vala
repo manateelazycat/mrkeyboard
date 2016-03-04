@@ -62,9 +62,11 @@ namespace Application {
 
     public class ImageView : DrawingArea {
         public Buffer buffer;
-        public Gdk.Color background_color = Utils.color_from_string("#000000");
+        public Gdk.RGBA background_color = Gdk.RGBA();
 
         public ImageView(Buffer buf) {
+			background_color.parse("#000000");
+			
             buffer = buf;
             
             set_can_focus(true);  // make widget can receive key event 

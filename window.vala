@@ -4,8 +4,8 @@ using Widgets;
 
 namespace Widgets {
     public class Window : Gtk.EventBox {
-        public Gdk.Color window_frame_active_color = Utils.color_from_string("#3880AB");
-        public Gdk.Color window_frame_color = Utils.color_from_string("#666666");
+        public Gdk.RGBA window_frame_active_color = Gdk.RGBA();
+        public Gdk.RGBA window_frame_color = Gdk.RGBA();
         public Gtk.Box window_content_area;
         public Widgets.Tabbar tabbar;
         public int padding = 1;
@@ -16,6 +16,9 @@ namespace Widgets {
         private bool visible_tab_after_size = false;
         
         public Window(Widgets.WindowManager wm) {
+            window_frame_active_color.parse("#3880AB");
+            window_frame_color.parse("#666666");
+		
             window_manager = wm;
             
             var align = new Gtk.Alignment(0, 0, 1, 1);

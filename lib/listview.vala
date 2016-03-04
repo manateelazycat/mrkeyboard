@@ -5,8 +5,8 @@ using Keymap;
 
 namespace Widget {
     public class ListView : DrawingArea {
-        public Gdk.Color background_color = Utils.color_from_string("#000000");
-        public Gdk.Color item_select_color = Utils.color_from_string("#111111");
+        public Gdk.RGBA background_color = Gdk.RGBA();
+        public Gdk.RGBA item_select_color = Gdk.RGBA();
         public ArrayList<ListItem> list_items;
         public int start_row = 0;
         public int current_row = 0;
@@ -14,6 +14,9 @@ namespace Widget {
         public signal void active_item(int item_index);
         
         public ListView() {
+			background_color.parse("#000000");
+			item_select_color.parse("#111111");
+		
             set_can_focus(true);  // make widget can receive key event 
             add_events (Gdk.EventMask.BUTTON_PRESS_MASK
                         | Gdk.EventMask.BUTTON_RELEASE_MASK
