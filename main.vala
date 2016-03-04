@@ -47,7 +47,9 @@ public class DaemonServer : Object {
                 window_manager.new_tab("videoplayer", path, true);
             } else if (file_type == "image") {
                 window_manager.new_tab("imageviewer", path, true);
-            } else {
+            } else if (file_type == "audio") {
+				window_manager.new_tab("musicplayer", path, true);
+			} else {
                 print("Open %s: %s %s\n", file_type, file_info.get_content_type(), path);
             }
         } catch (Error err) {

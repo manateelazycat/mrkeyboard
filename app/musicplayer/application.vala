@@ -42,7 +42,6 @@ namespace Application {
                 });
             musicview.active_item.connect((item_index) => {
                     musicview.buffer.play_music(musicview.items.get(item_index));
-                    print("#### %s\n", musicview.items.get(item_index).get_path());
                     
                     musicview.queue_draw();
                 });
@@ -310,7 +309,7 @@ namespace Application {
             time_offset = 5;
             volume_offset = 5;
             
-            load_directory(buffer_path);
+            load_directory();
             
             quit.connect(() => {
                     if (io_write != null) {
@@ -319,10 +318,8 @@ namespace Application {
                 });
         }
         
-        public void load_directory(string path) {
-            buffer_path = path;
-            
-            file_items.clear();
+        public void load_directory() {
+			file_items.clear();
             load_files(buffer_path);
             
             if (file_items.size > 0) {
@@ -396,20 +393,27 @@ namespace Application {
         }
         
         public void load_files(string path) {
+			var file = File.new_for_path(path);
+			
             try {
-        	    FileEnumerator enumerator = File.new_for_path(path).enumerate_children (
-        	    	"standard::*",
-        	    	FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
-                
-        	    FileInfo info = null;
-        	    while (((info = enumerator.next_file()) != null)) {
-                    if (info.get_file_type() == FileType.DIRECTORY) {
-                        load_files(GLib.Path.build_filename(path, info.get_name()));
-                    } else if (info.get_content_type().split("/")[0] == "audio") {
-                        file_items.add(new FileItem(this, info, path));
-                    }
-        	    }
-                
+				var file_info = file.query_info(FileAttribute.STANDARD_TYPE, FileQueryInfoFlags.NONE, null);
+				if (file_info.get_file_type() == FileType.DIRECTORY) {
+        	        FileEnumerator enumerator = File.new_for_path(path).enumerate_children(
+        	        	"standard::*",
+        	        	FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
+                    
+        	        FileInfo info = null;
+        	        while (((info = enumerator.next_file()) != null)) {
+                        if (info.get_file_type() == FileType.DIRECTORY) {
+                            load_files(GLib.Path.build_filename(path, info.get_name()));
+                        } else if (info.get_content_type().split("/")[0] == "audio") {
+                            file_items.add(new FileItem(this, info, path));
+                        }
+        	        }
+				} else {
+					file_items.add(new FileItem(this, file_info, path));
+				}
+				
                 file_items.sort((CompareFunc) FileItem.compare_file_item);
             } catch (Error err) {
                 stderr.printf ("Error: list_files failed: %s\n", err.message);

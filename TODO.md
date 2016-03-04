@@ -11,6 +11,8 @@
 * editor: move select up/down.
 * editor: copy, paste, and insert.
 * editor: select to scroll screen.
+* musicplayer: if music file path is same, avoid create new playlist.
+* musicplayer: multi playerlist share same music play daemon.
 * Write IRC application for hacking team communication.
 * Research Atom editor, steal nice feature. ;)
 * Write wifi-share for hacking at TV. ;) (https://github.com/albfan/miraclecast)
