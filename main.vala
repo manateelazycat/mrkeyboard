@@ -96,7 +96,9 @@ public class DaemonServer : Object {
                     window_manager.new_tab("terminal", "", true);
                 } else if (keyevent_name == "Super + u") {
                     window_manager.new_tab("browser", "", true);
-                } else if (keyevent_name == "Super + i") {
+                } else if (keyevent_name == "Super + j") {
+					window_manager.new_tab("filemanager", "/home", true);
+				} else if (keyevent_name == "Super + i") {
                     window_manager.new_tab("ircclient", "irc.freenode.net#mrkeyboard", true);
                 } else if (keyevent_name == "Alt + ,") {
                     var window = window_manager.get_focus_window();

@@ -28,21 +28,31 @@ Build mrkeyboard applications
 Start mrkeyboard
 > ./mrkeyboard.sh
 
-Start mrkeyboard with filemanager
-> ./mrkeyboard.sh filemanager /home/
+After start mrkeyboard, you can press below command to start applications:
+| **Win** + **u**  | browser      |
+| **Win** + **n**  | temrinal	  |
+| **Win** + **j**  | file manager |
 
-After start mrkeyboard, you can press Win + u to start browser, Win + n to start terminal.
-Other programs, such editor, imageviewer, pdfviewer, videoplayer, musicplayer,
-you can press Enter in filemanager to start, filemanager keystrokes are: j, k, f, '
+Other programs, such editor, imageviewer, pdfviewer, videoplayer, musicplayer, you can press Enter in filemanager to start.
+Filemanager keystrokes are:
+| **j**    | select next file     |
+| **k**    | select previous file |
+| **f**    | open file            |
+| **'**    | previous directory   |
 
 Once you open two or above applications, try below keystrokes:
-* Split window: Alt + ; and Alt + :
-* Close window: Alt + ' and Alt + "
-* Switch tab:   Alt + , and Alt + .
-* Close tab:    Ctrl + w
-* Switch mode:  Alt + < and Alt + > 
+| **Alt** + **;**  | split window vertically   |
+| **Alt** + **:**  | split window hortioncally |
+| **Alt** + **'**  | close current window      |
+| **Alt** + **"**  | close other windows       |
+| **Alt** + **,**  | Select previous tab       |
+| **Alt** + **.**  | Select next tab           |
+| **Ctrl** + **w** | Close tab                 |
+| **Alt** + **<**  | Switch previous mode      |
+| **Alt** + **>**  | Switch next mode          |
 
-Because it's still in developing stage, start application is not so easy, I would write a launcher similar emacs-helm to use application smartly.
+Because it's still in developing stage, start application is not so easy,
+I would write a launcher similar emacs-helm to use application smartly.
 
 ## License
 

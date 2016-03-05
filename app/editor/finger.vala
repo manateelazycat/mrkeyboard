@@ -17,7 +17,7 @@ namespace Finger {
         
         public LineNumberView(EditView view) {
 			background_color.parse("#040404");
-			text_color.parse("#040404");
+			text_color.parse("#888888");
 			
             edit_view = view;
             
