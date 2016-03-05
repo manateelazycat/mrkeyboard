@@ -29,6 +29,7 @@ Start mrkeyboard
 > ./mrkeyboard.sh
 
 After start mrkeyboard, you can press below command to start applications:
+
 | Keymap           | Function     |
 |------------------|--------------|
 | **Win** + **u**  | browser      |
@@ -37,6 +38,7 @@ After start mrkeyboard, you can press below command to start applications:
 
 Other programs, such editor, imageviewer, pdfviewer, videoplayer, musicplayer, you can press Enter in filemanager to start.
 Filemanager keystrokes are:
+
 | Keymap   | Function             |
 |----------|----------------------|
 | **j**    | select next file     |
@@ -45,6 +47,7 @@ Filemanager keystrokes are:
 | **'**    | previous directory   |
 
 Once you open two or above applications, try below keystrokes:
+
 | Keymap           | Function                  |
 |------------------|---------------------------|
 | **Alt** + **;**  | split window vertically   |
