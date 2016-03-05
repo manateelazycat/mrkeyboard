@@ -29,18 +29,24 @@ Start mrkeyboard
 > ./mrkeyboard.sh
 
 After start mrkeyboard, you can press below command to start applications:
+| Keymap           | Function     |
+|------------------|--------------|
 | **Win** + **u**  | browser      |
 | **Win** + **n**  | temrinal	  |
 | **Win** + **j**  | file manager |
 
 Other programs, such editor, imageviewer, pdfviewer, videoplayer, musicplayer, you can press Enter in filemanager to start.
 Filemanager keystrokes are:
+| Keymap   | Function             |
+|----------|----------------------|
 | **j**    | select next file     |
 | **k**    | select previous file |
 | **f**    | open file            |
 | **'**    | previous directory   |
 
 Once you open two or above applications, try below keystrokes:
+| Keymap           | Function                  |
+|------------------|---------------------------|
 | **Alt** + **;**  | split window vertically   |
 | **Alt** + **:**  | split window hortioncally |
 | **Alt** + **'**  | close current window      |
