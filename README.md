@@ -1,6 +1,6 @@
 # Mr. keyboard
 
-I, my fingers and my keyboard ...
+I, finger and my keyboard ...
 
 **Description**
 
