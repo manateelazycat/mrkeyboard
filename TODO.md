@@ -38,4 +38,5 @@
 * Make browser support flash.
 * Switch mode with osd style.
 * Make window resize as normal, not bigger and bigger.
+* Browser: figure out how to replace deprecated signals "load_progress_changed" and "title_changed".
 

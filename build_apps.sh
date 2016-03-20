@@ -25,6 +25,9 @@ build_action () {
 	*) echo "Unknown command: $CMD"; echo $USAGE; exit 1
 	    ;;
     esac
+    
+    # End of command.
+    echo
 }
 
 for pkg in ${*:-browser editor filemanager imageviewer musicplayer pdfviewer terminal videoplayer};
