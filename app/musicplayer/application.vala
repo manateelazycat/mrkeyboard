@@ -164,7 +164,7 @@ namespace Application {
         }
         
         public override int[] get_column_widths() {
-            return {20, -1, 150, 80};
+            return {20, -1, 300, 80};
         }
     }
 
