@@ -29,8 +29,7 @@ namespace Widgets {
         public WindowManager() {
             set_can_focus(true);
             draw.connect(on_draw);
-            var disp = Gdk.Display.get_default();
-            conn = X.GetConnection(Gdk.X11Display.get_xdisplay(disp));
+			conn = X.GetConnection(Gdk.X11.get_default_xdisplay());
 
             tab_id_counter = 0;
             window_list = new ArrayList<Widgets.Window>();
