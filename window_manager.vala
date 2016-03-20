@@ -174,19 +174,24 @@ namespace Widgets {
         }
         
         private void start_app_process(string app, string path, int window_width, int window_height, string other_arg = "") {
-            string app_command = "%s '%s' %i %i %i %s".printf(
-                get_app_execute_info(app)[0],
-                path,
-                window_width,
-                window_height,
-                tab_id_counter,
-                other_arg);
-            
-            try {
-                Process.spawn_command_line_async(app_command);
-            } catch (SpawnError e) {
-                print("Got error when spawn_command_line_async: %s\n", e.message);
-            }
+            var info = get_app_execute_info(app);
+			if (info != null) {
+				string app_command = "%s '%s' %i %i %i %s".printf(
+					info[0],
+                    path,
+                    window_width,
+                    window_height,
+                    tab_id_counter,
+                    other_arg);
+                
+                try {
+                    Process.spawn_command_line_async(app_command);
+                } catch (SpawnError e) {
+                    print("Got error when spawn_command_line_async: %s\n", e.message);
+                }
+			} else {
+				print("start_app_process: application info of %s is null", app);
+			}
         }
         
         public Window get_focus_window() {
@@ -532,26 +537,30 @@ namespace Widgets {
         
         public void new_tab(string app, string path, bool visible_tab=false) {
             var info = get_app_execute_info(app);
-            var mode_name = info[1];
-            
-            var window = get_focus_window();
-            if (window != null) {
-                switch_mode(window, mode_name);
+			if (info != null) {
+                var mode_name = info[1];
                 
-                var window_child_size = window.get_child_allocate();
-                
-                tab_id_counter++;
-                if (visible_tab) {
-                    tab_visible_set.add(tab_id_counter);
+                var window = get_focus_window();
+                if (window != null) {
+                    switch_mode(window, mode_name);
+                    
+                    var window_child_size = window.get_child_allocate();
+                    
+                    tab_id_counter++;
+                    if (visible_tab) {
+                        tab_visible_set.add(tab_id_counter);
+                    }
+                    
+                    window.tabbar.add_tab("", path, tab_id_counter, app);
+                    start_app_process(
+                        app,
+                        path,
+                        window_child_size[0],
+                        window_child_size[1]);
                 }
-                
-                window.tabbar.add_tab("", path, tab_id_counter, app);
-                start_app_process(
-                    app,
-                    path,
-                    window_child_size[0],
-                    window_child_size[1]);
-            }
+			} else {
+				print("new_tab: application info of %s is null", app);
+			}
         }
         
         public void switch_to_next_mode() {
@@ -789,15 +798,17 @@ namespace Widgets {
             }
         }
         
-        private string[] get_app_execute_info(string app) {
+        private string[]? get_app_execute_info(string app) {
             string[] info = {};
             
             var parser = new Json.Parser();
             try {
                 parser.load_from_file("./app/%s/app.json".printf(app));
             } catch (GLib.Error e) {
-                print("Got error when load %s/app.json: %s\n", app, e.message);
+                print("get_app_execute_info: got error when load %s/app.json: %s\n", app, e.message);
+				return null;
             }
+			
             var root_object = parser.get_root ().get_object();
             info += "./app/%s/%s".printf(app, root_object.get_string_member("execute"));
             info += root_object.get_string_member("mode-name");
