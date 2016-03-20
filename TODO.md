@@ -31,6 +31,7 @@
 * Image viewer: add rotate features.
 * Image viewer: add zoom-out/zoom-in features.
 * Image viewer: add nagivater.
+* Image viewer: pick-up rotate information from image, and render image with valid direction.
 * Music player: use faster way to get duration.
 * Browser: write js vimium plugin.
 * Make browser support flash.
