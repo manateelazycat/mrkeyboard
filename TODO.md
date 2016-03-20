@@ -1,5 +1,6 @@
 ## TODO
 
+* main: fix x error when switch mode.
 * musicplayer: build broadcast message to redraw all view, such as, redraw play item once any view update it.
 * editor: add text parser and syntax highlight.
 * editor: kill line.
